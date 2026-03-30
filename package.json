@@ -1,0 +1,25 @@
+{
+  "name": "event-ticket-monorepo",
+  "private": true,
+  "workspaces": [
+    "modules/backend",
+    "modules/ui"
+  ],
+  "scripts": {
+    "dev": "npm-run-all --parallel dev:*",
+    "dev:backend": "npm run dev --workspace=modules/backend",
+    "dev:ui": "npm run dev --workspace=modules/ui",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "devDependencies": {
+    "eslint": "^10.1.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.8.1"
+  },
+  "dependencies": {
+    "mongodb": "^7.1.1"
+  }
+}

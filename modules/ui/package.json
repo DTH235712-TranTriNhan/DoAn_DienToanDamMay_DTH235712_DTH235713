@@ -1,0 +1,10 @@
+{
+    "version": "1.0.0",
+    "name": "ui",
+    "dependencies": {
+        "axios": "^1.14.0",
+        "lodash": "^4.17.23",
+        "lucide-react": "^1.7.0",
+        "react-router-dom": "^7.13.2"
+    }
+}
