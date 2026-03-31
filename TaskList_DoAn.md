@@ -131,7 +131,6 @@
 | **Người phụ trách** | Nhân |
 | **Trạng thái** | ✅ Code đã xong nhưng đang bị comment trong `router.js` |
 | **File liên quan** | `backend/src/rest/routes/authRoutes.js`, `backend/src/rest/handlers/auth/googleCallbackHandler.js` |
-| **⚡ Hành động cần làm** | Mở `backend/src/rest/router.js`, **bỏ comment** dòng: `router.use("/auth", require("./routes/authRoutes"));` |
 | **Kết quả** | `GET /api/auth/google` → redirect đến Google. Google callback → tạo JWT → redirect về `FRONTEND_URL/auth/callback?token=xxx` |
 
 ---

@@ -18,7 +18,7 @@ router.get("/health", (req, res) => {
 
 // Domain routes
 router.use("/events", require("./routes/eventRoutes"));
-// router.use("/auth", require("./routes/authRoutes"));       // Bật khi làm GĐ 3
+router.use("/auth", require("./routes/authRoutes")); // Bật khi làm GĐ 3
 // router.use("/tickets", require("./routes/ticketRoutes"));   // Bật khi làm GĐ 4-5
 
 module.exports = router;
