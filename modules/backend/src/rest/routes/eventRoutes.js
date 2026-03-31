@@ -1,7 +1,9 @@
 const { Router } = require("express");
-const { getEventsHandler } = require("../../handlers/event/getEventsHandler");
+const asyncHandler = require("../middlewares/asyncHandler");
+const { getEventsHandler } = require("../handlers/event/getEventsHandler");
 
 const router = Router();
-router.get("/", getEventsHandler);
+
+router.get("/", asyncHandler(getEventsHandler));
 
 module.exports = router;

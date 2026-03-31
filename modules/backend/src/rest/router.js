@@ -1,8 +1,12 @@
-// src/rest/router.js  ─  Single source of truth cho tất cả routes
 const { Router } = require("express");
+const { generalLimiter } = require("./middlewares/rateLimiter");
+
 const router = Router();
 
-// Health check (không thuộc business domain nào)
+// Rate limit toàn bộ /api
+router.use(generalLimiter);
+
+// Health check — không thuộc business domain nào
 const redisClient = require("../libs/redis");
 router.get("/health", (req, res) => {
   res.json({
@@ -13,8 +17,8 @@ router.get("/health", (req, res) => {
 });
 
 // Domain routes
-// router.use("/events", require("./routes/eventRoutes"));
-// router.use("/auth", require("./routes/authRoutes")); // GĐ 3 – placeholder
-// router.use("/tickets", require("./routes/ticketRoutes")); // GĐ 4–5 – placeholder
+router.use("/events", require("./routes/eventRoutes"));
+// router.use("/auth", require("./routes/authRoutes"));       // Bật khi làm GĐ 3
+// router.use("/tickets", require("./routes/ticketRoutes"));   // Bật khi làm GĐ 4-5
 
 module.exports = router;

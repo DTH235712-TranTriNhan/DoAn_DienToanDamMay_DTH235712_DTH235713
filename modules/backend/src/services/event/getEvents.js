@@ -1,8 +1,7 @@
-const Event = require("../../libs/models/EventModel");
+const Event = require("../../models/EventModel");
 
 const getEvents = async (filters = {}) => {
-  // Trong tương lai: filters có thể là { city, date, available: true }
-  const events = await Event.find(filters);
+  const events = await Event.find(filters).sort({ date: 1 });
   return events;
 };
 
