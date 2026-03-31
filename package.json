@@ -9,10 +9,15 @@
     "dev": "npm-run-all --parallel dev:*",
     "dev:backend": "npm run dev --workspace=modules/backend",
     "dev:ui": "npm run dev --workspace=modules/ui",
+    "ui": "npm run dev --workspace=modules/ui",
+    "backend": "npm run dev --workspace=modules/backend",
+    "build:all": "npm run build --workspace=modules/ui",
+    "start": "npm run build:all && cross-env SERVE_UI=true npm run start --workspace=modules/backend",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
   "devDependencies": {
+    "cross-env": "^10.1.0",
     "eslint": "^10.1.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
