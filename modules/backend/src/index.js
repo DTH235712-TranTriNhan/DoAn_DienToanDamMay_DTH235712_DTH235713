@@ -44,8 +44,7 @@ if (process.env.NODE_ENV === "production" || process.env.SERVE_UI === "true") {
   const frontendPath = path.join(__dirname, "../../ui/dist");
   app.use(express.static(frontendPath));
 
-  app.get("*", (req, res, next) => {
-    if (req.path.startsWith("/api")) return next();
+  app.get(/^\/(?!api).*/, (req, res) => {
     res.sendFile(path.join(frontendPath, "index.html"));
   });
 }
