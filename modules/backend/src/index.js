@@ -62,8 +62,19 @@ const bootstrap = async () => {
   try {
     await connectToServers();
     const PORT = process.env.PORT || 5000;
+
     app.listen(PORT, () => {
-      console.log(`[Server] Running on port ${PORT}`);
+      console.log(`\n🚀 [Server] Hệ thống Flash Sale đã sẵn sàng!`);
+
+      // Kiểm tra nếu đang ở chế độ serve UI (khi chạy npm start)
+      if (process.env.NODE_ENV === "production" || process.env.SERVE_UI === "true") {
+        console.log(`🔗 Giao diện Web:  http://localhost:${PORT}`);
+      }
+
+      console.log(`🔗 API Endpoint:   http://localhost:${PORT}/api`);
+      console.log(`🔗 Health Check:   http://localhost:${PORT}/api/health\n`);
+
+      console.log(`💡 Mẹo: Nhấn Ctrl + Click vào đường dẫn trên để mở trang web.\n`);
     });
   } catch (err) {
     console.error("[Bootstrap] Không thể khởi động server:", err);

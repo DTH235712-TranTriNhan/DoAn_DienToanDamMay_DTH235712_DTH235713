@@ -1,4 +1,4 @@
-const { enqueueTicketJob } = require("../../services/ticket/enqueueTicketJob");
+const { enqueueTicketJob } = require("../../../services/ticket/enqueueTicketJob");
 
 const registerTicketHandler = async (req, res) => {
   const { eventId } = req.body;
