@@ -1,7 +1,7 @@
-const { Router } = require("express");
-const passport = require("passport");
-const asyncHandler = require("../middlewares/asyncHandler");
-const { googleCallbackHandler } = require("../handlers/auth/googleCallbackHandler");
+import { Router } from "express";
+import passport from "passport";
+import asyncHandler from "../middlewares/asyncHandler.js";
+import { googleCallbackHandler } from "../handlers/auth/googleCallbackHandler.js";
 
 const router = Router();
 
@@ -18,4 +18,5 @@ router.get(
   asyncHandler(googleCallbackHandler)
 );
 
-module.exports = router;
+// Đổi từ module.exports thành export default
+export default router;

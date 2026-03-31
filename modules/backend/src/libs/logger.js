@@ -1,11 +1,9 @@
 // Logger đơn giản với structured output (JSON khi production)
-// Nếu sau này cần nâng cấp, thay bằng pino hoặc winston
-
 const isProd = process.env.NODE_ENV === "production";
 
 const formatMessage = (level, context, message, data) => {
   if (isProd) {
-    // JSON format — dễ parse trên Render/Cloud logging
+    // JSON format — cực kỳ quan trọng để Cloud Logging (như Render/Datadog) có thể filter/search
     return JSON.stringify({
       level,
       context,
@@ -14,9 +12,9 @@ const formatMessage = (level, context, message, data) => {
       timestamp: new Date().toISOString()
     });
   }
-  // Dev: format dễ đọc
+  // Dev (Local): Hiển thị màu sắc và định dạng dễ nhìn để Team Lead debug
   const prefix = `[${context}]`;
-  return data ? `${prefix} ${message} ${JSON.stringify(data)}` : `${prefix} ${message}`;
+  return data ? `${prefix} ${message} ${JSON.stringify(data, null, 2)}` : `${prefix} ${message}`;
 };
 
 const logger = {
@@ -31,4 +29,4 @@ const logger = {
   }
 };
 
-module.exports = logger;
+export default logger;

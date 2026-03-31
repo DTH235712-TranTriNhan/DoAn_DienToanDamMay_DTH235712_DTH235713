@@ -1,10 +1,16 @@
-const path = require("path");
-require("dotenv").config({ path: path.join(__dirname, "../.env") });
+import path from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+import mongoose from "mongoose";
+import { Redis } from "ioredis";
+import Event from "./models/EventModel.js"; // Nhớ thêm đuôi .js
+import { REDIS_KEYS } from "./types/constants.js"; // Nhớ thêm đuôi .js
 
-const mongoose = require("mongoose");
-const { Redis } = require("ioredis");
-const Event = require("./models/EventModel");
-const { REDIS_KEYS } = require("./types/constants");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load cấu hình từ file .env ở thư mục gốc
+dotenv.config({ path: path.join(__dirname, "../.env") });
 
 const SEED_EVENTS = [
   {
@@ -27,37 +33,39 @@ const SEED_EVENTS = [
 
 const seed = async () => {
   try {
+    // 1. Kết nối DB
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log("[Seed] MongoDB Connected");
+    console.log("[Seed] 🍃 MongoDB Connected");
 
+    // 2. Kết nối Redis (Dùng URL từ .env, hỗ trợ cả Local và Upstash)
     const redis = new Redis(process.env.REDIS_URL, {
       maxRetriesPerRequest: null,
       enableReadyCheck: false
     });
-    await new Promise(resolve => redis.once("ready", resolve));
-    console.log("[Seed] Redis Connected");
+    console.log("[Seed] ⚡ Redis Connected");
 
-    // Xoá dữ liệu cũ
+    // 3. Xoá dữ liệu cũ để làm sạch môi trường test
     await Event.deleteMany({});
-    console.log("[Seed] Cleared old events");
+    console.log("[Seed] 🧹 Cleared old events in MongoDB");
 
-    // Tạo events mới
+    // 4. Tạo events mới
     const events = await Event.insertMany(SEED_EVENTS);
-    console.log(`[Seed] Inserted ${events.length} events`);
+    console.log(`[Seed] 📁 Inserted ${events.length} events into MongoDB`);
 
-    // Sync ticket count vào Redis (cho DECR atomic khi đặt vé)
+    // 5. QUAN TRỌNG: Đồng bộ số lượng vé vào Redis
+    // Đây là bước giúp hệ thống Flash Sale của bạn chạy cực nhanh mà không bị quá tải DB
     for (const event of events) {
       const key = REDIS_KEYS.EVENT_TICKETS(event._id.toString());
       await redis.set(key, event.availableTickets);
-      console.log(`[Seed] Redis SET ${key} = ${event.availableTickets}`);
+      console.log(`[Seed] 🔑 Redis SET ${key} = ${event.availableTickets}`);
     }
 
-    console.log("[Seed] Done!");
+    console.log("\n✅ [Seed] Done! Dữ liệu đã sẵn sàng để test.");
     await redis.quit();
     await mongoose.disconnect();
     process.exit(0);
   } catch (err) {
-    console.error("[Seed] Error:", err);
+    console.error("❌ [Seed] Error:", err);
     process.exit(1);
   }
 };

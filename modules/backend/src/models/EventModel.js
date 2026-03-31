@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const eventSchema = new mongoose.Schema(
   {
@@ -7,9 +7,12 @@ const eventSchema = new mongoose.Schema(
     date: { type: Date, required: true },
     location: { type: String, default: "Online" },
     totalTickets: { type: Number, required: true },
+    // Số vé còn lại - Rất quan trọng cho logic Flash Sale
     availableTickets: { type: Number, required: true }
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Event", eventSchema);
+// Dùng export default để các file Service có thể import dễ dàng
+const Event = mongoose.model("Event", eventSchema);
+export default Event;

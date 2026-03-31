@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const ticketSchema = new mongoose.Schema(
   {
@@ -12,6 +12,7 @@ const ticketSchema = new mongoose.Schema(
       ref: "User",
       required: true
     },
+    // Chuyển status về confirmed/cancelled cho chuyên nghiệp
     status: {
       type: String,
       enum: ["pending", "confirmed", "cancelled"],
@@ -21,7 +22,12 @@ const ticketSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Mỗi user chỉ đặt 1 vé cho 1 sự kiện
+/**
+ * RẤT QUAN TRỌNG: Compound Index
+ * Đảm bảo 1 user chỉ được đặt duy nhất 1 vé cho 1 sự kiện.
+ * Nếu cố tình chèn cái thứ 2, MongoDB sẽ báo lỗi "Duplicate Key Error".
+ */
 ticketSchema.index({ event: 1, user: 1 }, { unique: true });
 
-module.exports = mongoose.model("Ticket", ticketSchema);
+const Ticket = mongoose.model("Ticket", ticketSchema);
+export default Ticket;

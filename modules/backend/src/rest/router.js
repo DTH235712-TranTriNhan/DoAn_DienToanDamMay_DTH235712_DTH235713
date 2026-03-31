@@ -1,24 +1,44 @@
-const { Router } = require("express");
-const { generalLimiter } = require("./middlewares/rateLimiter");
+import { Router } from "express";
+import mongoose from "mongoose";
+import redisClient from "../libs/redis.js"; // Bắt buộc có đuôi .js [Conversation History]
+import { generalLimiter } from "./middlewares/rateLimiter.js";
+import eventRoutes from "./routes/eventRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import ticketRoutes from "./routes/ticketRoutes.js";
 
 const router = Router();
 
-// Rate limit toàn bộ /api
+// ── Middleware Hệ thống ──────────────────────────────────────────
+// Áp dụng Rate limit (100 req/15p) cho toàn bộ API để chống DDoS [3]
 router.use(generalLimiter);
 
-// Health check — không thuộc business domain nào
-const redisClient = require("../libs/redis");
+router.get("/", (req, res) => {
+  res.json({
+    status: "success",
+    message: "Chào mừng bạn đến với API Hệ thống đăng ký vé sự kiện (Đồ án ĐTĐM)",
+    version: "1.0.0",
+    docs: "/api/health"
+  });
+});
+
+// ── Health Check ─────────────────────────────────────────────────
+// Endpoint kiểm tra trạng thái kết nối hạ tầng Cloud [4]
 router.get("/health", (req, res) => {
   res.json({
     status: "ok",
-    database: require("mongoose").connection.readyState === 1 ? "connected" : "disconnected",
+    database: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
     redis: redisClient.status === "ready" ? "connected" : "connecting"
   });
 });
 
-// Domain routes
-router.use("/events", require("./routes/eventRoutes"));
-router.use("/auth", require("./routes/authRoutes")); // Bật khi làm GĐ 3
-router.use("/tickets", require("./routes/ticketRoutes")); // Bật khi làm GĐ 4-5
+// ── Domain Routes (Các cổng nghiệp vụ) ─────────────────────────────
+// Quản lý sự kiện (Task 1.4, 3.3)
+router.use("/events", eventRoutes);
 
-module.exports = router;
+// Xác thực Google OAuth 2.0 (Bật theo Task 2.2) [1]
+router.use("/auth", authRoutes);
+
+// Đặt vé Flash Sale & Polling (Bật theo Task 4.1) [2]
+router.use("/tickets", ticketRoutes);
+
+export default router;

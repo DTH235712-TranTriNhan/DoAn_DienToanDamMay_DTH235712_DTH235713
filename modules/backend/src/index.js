@@ -1,20 +1,27 @@
-const path = require("path");
+import path from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import morgan from "morgan";
+import passport from "passport";
 
-// Chỉ load .env file khi chạy local (trên Render/Docker, env vars đã có sẵn)
+// ── Cấu hình __dirname cho ES Modules ─────────────────────────────
+// ESM không có sẵn biến toàn cục __dirname như CommonJS
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Chỉ load .env file khi chạy local
 if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config({ path: path.join(__dirname, "../.env") });
+  dotenv.config({ path: path.join(__dirname, "../.env") });
 }
 
-const express = require("express");
-const cors = require("cors");
-const helmet = require("helmet");
-const morgan = require("morgan");
-const passport = require("passport");
-
-const { connectToServers } = require("./config/connectToServers");
-const mainRouter = require("./rest/router");
-const errorHandler = require("./rest/middlewares/errorHandler");
-const { NotFoundError } = require("./types/errors/AppError");
+// ── Import các module nội bộ (BẮT BUỘC phải có đuôi .js) ──────────
+import { connectToServers } from "./config/connectToServers.js";
+import mainRouter from "./rest/router.js";
+import errorHandler from "./rest/middlewares/errorHandler.js";
+import { NotFoundError } from "./types/errors/AppError.js";
 
 const app = express();
 
@@ -54,7 +61,7 @@ app.use((req, res, next) => {
   next(new NotFoundError(`Route ${req.method} ${req.originalUrl} không tồn tại`));
 });
 
-// ── Global Error Handler — PHẢI đặt sau tất cả routes ───────────
+// ── Global Error Handler ─────────────────────────────────────────
 app.use(errorHandler);
 
 // ── Bootstrap ────────────────────────────────────────────────────
@@ -64,16 +71,14 @@ const bootstrap = async () => {
     const PORT = process.env.PORT || 5000;
 
     app.listen(PORT, () => {
-      console.log(`\n🚀 [Server] Hệ thống Flash Sale đã sẵn sàng!`);
+      console.log(`\n🚀 [Server] Hệ thống đăng ký vé sự kiện đã sẵn sàng!`);
 
-      // Kiểm tra nếu đang ở chế độ serve UI (khi chạy npm start)
       if (process.env.NODE_ENV === "production" || process.env.SERVE_UI === "true") {
         console.log(`🔗 Giao diện Web:  http://localhost:${PORT}`);
       }
 
       console.log(`🔗 API Endpoint:   http://localhost:${PORT}/api`);
       console.log(`🔗 Health Check:   http://localhost:${PORT}/api/health\n`);
-
       console.log(`💡 Mẹo: Nhấn Ctrl + Click vào đường dẫn trên để mở trang web.\n`);
     });
   } catch (err) {

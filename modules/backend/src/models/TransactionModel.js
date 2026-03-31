@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const transactionSchema = new mongoose.Schema(
   {
@@ -9,10 +9,13 @@ const transactionSchema = new mongoose.Schema(
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "User", // Đảm bảo bạn đã có Model User
       required: true
     },
-    amount: { type: Number, required: true },
+    amount: {
+      type: Number,
+      required: true
+    },
     status: {
       type: String,
       enum: ["pending", "success", "failed"],
@@ -22,4 +25,6 @@ const transactionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Transaction", transactionSchema);
+// Xuất model theo chuẩn ES Modules
+const Transaction = mongoose.model("Transaction", transactionSchema);
+export default Transaction;
