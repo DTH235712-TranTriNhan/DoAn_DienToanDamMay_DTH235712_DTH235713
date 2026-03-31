@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 // import axios from 'axios'; // Tạm thời ẩn axios đi chờ Backend
 
 function App() {
@@ -52,20 +52,25 @@ function App() {
           </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {events.map((event) => (
-              <div key={event._id} className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            {events.map(event => (
+              <div
+                key={event._id}
+                className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              >
                 <div className="p-6 flex flex-col h-full">
                   <div className="mb-2">
                     <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider">
                       📅 {event.date}
                     </span>
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-3 leading-tight">{event.title}</h2>
-                  <p className="text-gray-600 mb-6 flex-grow">{event.description}</p>
-                  
+                  <h2 className="text-2xl font-bold text-gray-800 mb-3 leading-tight">
+                    {event.title}
+                  </h2>
+                  <p className="text-gray-600 mb-6 grow">{event.description}</p>
+
                   <div className="flex flex-col gap-3 mb-6">
                     <div className="flex items-center text-sm text-gray-700 bg-gray-50 p-2 rounded-lg">
-                      <span className="mr-2">📍</span> 
+                      <span className="mr-2">📍</span>
                       <span className="font-medium">{event.location}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm bg-green-50 p-2 rounded-lg border border-green-100">
