@@ -37,7 +37,7 @@ function App() {
     <div className="min-h-screen bg-gray-50 p-8 font-sans">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-extrabold text-center text-blue-700 mb-10">
-          🎉 Nền Tảng Săn Vé Sự Kiện
+          🎉 Nền Tảng Săn Vé Sự Kiện - Đã Lên Mây!
         </h1>
 
         {loading ? (
