@@ -1,8 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
+// Import component EventsPage thật từ thư mục pages
+import EventsPage from './pages/EventsPage';
 
-// --- MOCK COMPONENTS (Xóa/Thay thế khi bạn tạo các file thật trong Phase tiếp theo) ---
-const EventsPage = () => <div className="p-8 text-center text-xl">🏠 Trang chủ: Danh sách sự kiện (EventsPage)</div>;
+// --- MOCK COMPONENTS (Giữ lại cho các trang chưa làm ở Phase này) ---
 const LoginPage = () => <div className="p-8 text-center text-xl">🔑 Trang đăng nhập (LoginPage)</div>;
 const AuthCallback = () => <div className="p-8 text-center text-xl">⏳ Đang xử lý đăng nhập... (Callback)</div>;
 const MyTicketsPage = () => <div className="p-8 text-center text-xl">🎟️ Vé của tôi (MyTicketsPage)</div>;
@@ -24,6 +25,7 @@ function App() {
         {/* Khu vực chứa nội dung chính thay đổi theo Route */}
         <main className="max-w-7xl mx-auto">
           <Routes>
+            {/* Đã sử dụng EventsPage thật ở Route trang chủ */}
             <Route path="/" element={<EventsPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
@@ -36,4 +38,4 @@ function App() {
   );
 }
 
-export default App;    
+export default App;
