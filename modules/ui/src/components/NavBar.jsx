@@ -55,5 +55,5 @@ const NavBar = ({ user }) => {
     </nav>
   );
 };
-
+    
 export default NavBar;
