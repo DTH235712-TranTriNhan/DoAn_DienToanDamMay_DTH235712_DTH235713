@@ -43,6 +43,11 @@ app.use(express.json({ limit: "1mb" }));
 app.use(passport.initialize());
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
+// Bỏ qua request xin favicon của trình duyệt để đỡ rác log
+app.get("/favicon.ico", (req, res) => {
+  res.sendFile(path.join(__dirname, "favicon.ico"));
+});
+
 // ── Routes ───────────────────────────────────────────────────────
 app.use("/api", mainRouter);
 
