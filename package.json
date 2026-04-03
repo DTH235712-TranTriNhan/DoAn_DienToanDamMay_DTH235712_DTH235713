@@ -28,7 +28,6 @@
     "prettier": "^3.8.1"
   },
   "dependencies": {
-    "mongodb": "3.6",
-    "react-router-dom": "^7.14.0"
+    "mongodb": "3.6"
   }
 }
