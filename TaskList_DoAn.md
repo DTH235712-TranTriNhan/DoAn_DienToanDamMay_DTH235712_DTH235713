@@ -129,17 +129,18 @@
 | Mục | Chi tiết |
 |-----|---------|
 | **Người phụ trách** | Nhân |
-| **Trạng thái** | ✅ Code đã xong nhưng đang bị comment trong `router.js` |
+| **Trạng thái** | ✅ |
 | **File liên quan** | `backend/src/rest/routes/authRoutes.js`, `backend/src/rest/handlers/auth/googleCallbackHandler.js` |
 | **Kết quả** | `GET /api/auth/google` → redirect đến Google. Google callback → tạo JWT → redirect về `FRONTEND_URL/auth/callback?token=xxx` |
 
 ---
 
-### TASK 2.3 🔲 · Tạo API endpoint lấy thông tin User hiện tại
+### TASK 2.3 ✅ · Tạo API endpoint lấy thông tin User hiện tại
 
 | Mục | Chi tiết |
 |-----|---------|
 | **Người phụ trách** | Nhân |
+| **Trạng thái** | ✅ Đã xong |
 | **File/Thư mục** | Tạo mới 2 file + sửa 1 file |
 | **Định hướng triển khai** | Chi tiết từng file: |
 
@@ -200,11 +201,12 @@
 
 ---
 
-### TASK 3.1 🔲 · Thêm trường `role` vào UserModel
+### TASK 3.1 ✅ · Thêm trường `role` vào UserModel
 
 | Mục | Chi tiết |
 |-----|---------|
 | **Người phụ trách** | Nhân |
+| **Trạng thái** | ✅ Đã xong |
 | **File/Thư mục** | `backend/src/models/UserModel.js` |
 | **Định hướng triển khai** | Thêm field: `role: { type: String, enum: ["user", "admin"], default: "user" }`. Cách set admin: vào MongoDB Atlas web UI (Collections tab), tìm user document, sửa `role` thành `"admin"`. Hoặc thêm logic trong `seed.js` |
 | **Kết quả** | API `/api/auth/me` trả thêm field `role`. Frontend dựa vào đây để hiện/ẩn UI Admin |

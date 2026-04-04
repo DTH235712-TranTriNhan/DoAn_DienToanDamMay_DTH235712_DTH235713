@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { USER_ROLES, USER_ROLE_VALUES } from "../types/constants/userRoles.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -6,10 +7,14 @@ const userSchema = new mongoose.Schema(
     googleId: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     displayName: { type: String },
-    avatar: { type: String }
+    avatar: { type: String },
+    role: {
+      type: String,
+      enum: USER_ROLE_VALUES,
+      default: USER_ROLES.USER
+    }
   },
   { timestamps: true }
 );
 
-const User = mongoose.model("User", userSchema);
-export default User;
+export default mongoose.model("User", userSchema);
