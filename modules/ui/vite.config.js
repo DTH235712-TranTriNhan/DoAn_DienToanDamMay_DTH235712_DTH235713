@@ -8,7 +8,7 @@ export default defineConfig({
     proxy: {
       // Điều hướng tất cả các yêu cầu bắt đầu bằng /api sang Backend server
       "/api": {
-        target: "http://localhost:5000",
+        target: "http://localhost:5173/api/health",
         changeOrigin: true
       }
     }
