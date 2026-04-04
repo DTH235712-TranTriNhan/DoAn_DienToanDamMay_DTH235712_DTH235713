@@ -201,11 +201,12 @@
 
 ---
 
-### TASK 3.1 🔲 · Thêm trường `role` vào UserModel
+### TASK 3.1 ✅ · Thêm trường `role` vào UserModel
 
 | Mục | Chi tiết |
 |-----|---------|
 | **Người phụ trách** | Nhân |
+| **Trạng thái** | ✅ Đã xong |
 | **File/Thư mục** | `backend/src/models/UserModel.js` |
 | **Định hướng triển khai** | Thêm field: `role: { type: String, enum: ["user", "admin"], default: "user" }`. Cách set admin: vào MongoDB Atlas web UI (Collections tab), tìm user document, sửa `role` thành `"admin"`. Hoặc thêm logic trong `seed.js` |
 | **Kết quả** | API `/api/auth/me` trả thêm field `role`. Frontend dựa vào đây để hiện/ẩn UI Admin |

@@ -1,7 +1,8 @@
 import redisClient from "../../libs/redis.js";
 import Event from "../../models/EventModel.js";
 import Ticket from "../../models/TicketModel.js";
-import { REDIS_KEYS } from "../../types/constants.js";
+import { REDIS_KEYS } from "../../types/constants/redisKeys.js";
+import { TICKET_STATUS } from "../../types/constants/statuses.js";
 import { OutOfTicketsError } from "../../types/errors/AppError.js";
 
 /**
@@ -25,7 +26,7 @@ export const bookTicket = async (userId, eventId) => {
   const ticket = await Ticket.create({
     event: eventId,
     user: userId,
-    status: "confirmed"
+    status: TICKET_STATUS.CONFIRMED
   });
 
   // 🔄 Bước 3: Đồng bộ ngược lại MongoDB (Eventual Consistency)
