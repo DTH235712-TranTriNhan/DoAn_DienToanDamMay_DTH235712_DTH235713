@@ -5,6 +5,7 @@ import { Worker } from "bullmq";
 import { Redis } from "ioredis";
 import mongoose from "mongoose";
 import ticketWorkerProcessor from "./queues/ticketWorkerProcessor.js"; // Nhớ đuôi .js
+import { QUEUES } from "./types/constants/queues.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,7 +31,7 @@ const bootstrap = async () => {
     });
 
     // 3. Khởi tạo Worker để lắng nghe hàng đợi "ticketQueue"
-    const worker = new Worker("ticketQueue", ticketWorkerProcessor, {
+    const worker = new Worker(QUEUES.TICKET, ticketWorkerProcessor, {
       connection: redisConnection,
       concurrency: 5 // Xử lý song song 5 vé cùng lúc
     });

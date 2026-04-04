@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { TICKET_STATUS } from "../types/constants/statuses.js";
 
 const ticketSchema = new mongoose.Schema(
   {
@@ -15,8 +16,8 @@ const ticketSchema = new mongoose.Schema(
     // Chuyển status về confirmed/cancelled cho chuyên nghiệp
     status: {
       type: String,
-      enum: ["pending", "confirmed", "cancelled"],
-      default: "pending"
+      enum: Object.values(TICKET_STATUS),
+      default: TICKET_STATUS.PENDING
     }
   },
   { timestamps: true }

@@ -10,13 +10,7 @@ export const JOB_STATUS = {
   FAILED: "failed"
 };
 
-// Redis key prefixes — Dùng để lưu cache và khóa dữ liệu trên Redis
-export const REDIS_KEYS = {
-  // Key lưu số lượng vé còn lại trong Redis để check cho nhanh
-  EVENT_TICKETS: eventId => `event:${eventId}:tickets`,
-  // Key chống trùng lặp: Đảm bảo 1 người dùng chỉ được nhấn mua 1 lần cho 1 sự kiện
-  IDEMPOTENCY: (userId, eventId) => `idempotency:${userId}:${eventId}`
-};
+
 
 // Cấu hình Rate limit (Giới hạn băng thông)
 export const RATE_LIMIT = {
