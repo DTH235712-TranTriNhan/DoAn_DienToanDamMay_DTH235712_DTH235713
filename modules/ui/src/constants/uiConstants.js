@@ -6,29 +6,29 @@
 export const THEME_COLORS = {
   BACKGROUND: "#090014", // Deep space black/purple
   PRIMARY: "#FF00FF", // Neon Pink
+  PRIMARY_GLOW: "rgba(255, 0, 255, 0.5)",
   SECONDARY: "#00FFFF", // Neon Cyan
+  SECONDARY_GLOW: "rgba(0, 255, 255, 0.5)",
   ACCENT: "#FF9900", // Amber/Orange
   CARD_BG: "rgba(26, 0, 51, 0.7)", // Translucent dark purple
-  BORDER: "#2D1B4E", // Subtle purple border
+  BORDER: "rgba(45, 27, 78, 0.8)", // Subtle purple border
   TEXT: "#E0E0E0", // Light gray text
-  TEXT_MUTED: "#94a3b8" // Muted gray text
+  TEXT_MUTED: "#94a3b8", // Muted gray text
+  WHITE: "#FFFFFF",
+  BLACK: "#000000"
 };
 
 export const UI_SIZES = {
   CONTAINER_MAX_WIDTH: "1280px", // max-w-7xl
   NAV_HEIGHT: "64px", // h-16
-  HERO_HEIGHT: "450px"
+  HERO_HEIGHT: "500px",
+  CARD_RADIUS: "1rem" // rounded-2xl
 };
 
 export const SHADOWS = {
   NEON_PRIMARY: "0 0 20px rgba(255, 0, 255, 0.4)",
   NEON_SECONDARY: "0 0 20px rgba(0, 255, 255, 0.4)",
-  CARD: "0 8px 32px 0 rgba(31, 38, 135, 0.37)"
-};
-
-export const ANIMATIONS = {
-  NEON_PULSE: "pulse-neon 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-  BORDER_FLOW: "border-flow 3s linear infinite"
+  CARD: "0 8px 32px 0 rgba(0, 0, 0, 0.8)"
 };
 
 export const TYPOGRAPHY = {

@@ -1,3 +1,3 @@
 export const QUEUES = {
-  TICKET: 'ticketQueue'
+  TICKET: "ticketQueue"
 };

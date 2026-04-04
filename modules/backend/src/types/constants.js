@@ -10,8 +10,6 @@ export const JOB_STATUS = {
   FAILED: "failed"
 };
 
-
-
 // Cấu hình Rate limit (Giới hạn băng thông)
 export const RATE_LIMIT = {
   WINDOW_MS: 15 * 60 * 1000, // 15 phút
@@ -21,6 +19,6 @@ export const RATE_LIMIT = {
 
 // Redis Keys (Dùng để đồng bộ dữ liệu vào Redis)
 export const REDIS_KEYS = {
-  EVENT_TICKETS: (eventId) => `event:${eventId}:tickets`,
+  EVENT_TICKETS: eventId => `event:${eventId}:tickets`,
   USER_BOUGHT: (userId, eventId) => `user:${userId}:event:${eventId}:bought`
 };
