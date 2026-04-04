@@ -1,21 +1,15 @@
+import "./loadEnv.js";
 import path from "path";
 import { fileURLToPath } from "url";
-import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import passport from "passport";
+import "./config/googleOAuth.js";
 
-// ── Cấu hình __dirname cho ES Modules ─────────────────────────────
-// ESM không có sẵn biến toàn cục __dirname như CommonJS
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Chỉ load .env file khi chạy local
-if (process.env.NODE_ENV !== "production") {
-  dotenv.config({ path: path.join(__dirname, "../.env") });
-}
 
 // ── Import các module nội bộ (BẮT BUỘC phải có đuôi .js) ──────────
 import { connectToServers } from "./config/connectToServers.js";

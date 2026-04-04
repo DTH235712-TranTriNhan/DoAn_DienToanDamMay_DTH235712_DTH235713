@@ -19,7 +19,8 @@ const SEED_EVENTS = [
     date: new Date("2025-12-25"),
     location: "Sân vận động Quân khu 7, TP.HCM",
     totalTickets: 1000,
-    availableTickets: 1000
+    availableTickets: 1000,
+    imageUrl: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1280&auto=format&fit=crop"
   },
   {
     title: "Tech Conference 2026",
@@ -27,7 +28,8 @@ const SEED_EVENTS = [
     date: new Date("2026-05-10"),
     location: "Trung tâm Hội nghị Quốc gia",
     totalTickets: 500,
-    availableTickets: 500
+    availableTickets: 500,
+    imageUrl: "https://images.unsplash.com/photo-1540575861501-7ad0582371f3?q=80&w=1280&auto=format&fit=crop"
   }
 ];
 

@@ -33,11 +33,30 @@ const EventCard = ({ event }) => {
 
   return (
     <div
-      className="relative group rounded-xl overflow-hidden border-2 border-primary/20 bg-card backdrop-blur-md transition-all duration-500 hover:border-secondary shadow-lg flex flex-col"
-      style={{ boxShadow: `0 0 15px ${THEME_COLORS.PRIMARY}10` }}
+      className="relative group rounded-2xl overflow-hidden border border-white/10 bg-card/40 backdrop-blur-xl transition-all duration-500 hover:border-secondary/50 shadow-2xl flex flex-col h-full"
+      style={{ boxShadow: `0 0 30px ${THEME_COLORS.PRIMARY}05` }}
     >
+      {/* Event Image with Hover Zoom */}
+      <div className="relative h-48 overflow-hidden">
+        <img
+          src={event.imageUrl || "https://placehold.co/600x400/090014/FF00FF?text=Event+Image"}
+          alt={event.title}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1"
+        />
+        <div className="absolute inset-0 bg-linear-to-t from-card/90 via-transparent to-transparent opacity-60"></div>
+        
+        {/* Category/Status Badge */}
+        <div className="absolute top-4 right-4 z-20">
+          <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md border ${
+            available === 0 ? "bg-red-500/20 border-red-500/50 text-red-400" : "bg-secondary/20 border-secondary/50 text-secondary"
+          }`}>
+            {available === 0 ? "Sold Out" : "Live Now"}
+          </span>
+        </div>
+      </div>
+
       {/* Decorative background glow */}
-      <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/5 rounded-full blur-[60px] group-hover:bg-secondary/10 transition-colors"></div>
+      <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/5 rounded-full blur-[80px] group-hover:bg-secondary/10 transition-colors pointer-events-none"></div>
 
       <div className="p-6 grow flex flex-col relative z-10">
         <div className="flex justify-between items-start mb-4">

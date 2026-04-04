@@ -8,7 +8,11 @@ const eventSchema = new mongoose.Schema(
     location: { type: String, default: "Online" },
     totalTickets: { type: Number, required: true },
     // Số vé còn lại - Rất quan trọng cho logic Flash Sale
-    availableTickets: { type: Number, required: true }
+    availableTickets: { type: Number, required: true },
+    imageUrl: {
+      type: String,
+      default: "https://placehold.co/600x400/090014/FF00FF?text=Event+Image"
+    }
   },
   { timestamps: true }
 );

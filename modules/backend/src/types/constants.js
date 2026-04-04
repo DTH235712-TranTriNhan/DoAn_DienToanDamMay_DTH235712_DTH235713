@@ -18,3 +18,9 @@ export const RATE_LIMIT = {
   MAX_REQUESTS: 100, // Tổng request tối đa
   TICKET_MAX: 10 // Số lần thử đặt vé tối đa (chống Bot)
 };
+
+// Redis Keys (Dùng để đồng bộ dữ liệu vào Redis)
+export const REDIS_KEYS = {
+  EVENT_TICKETS: (eventId) => `event:${eventId}:tickets`,
+  USER_BOUGHT: (userId, eventId) => `user:${userId}:event:${eventId}:bought`
+};

@@ -16,12 +16,19 @@ export const THEME_COLORS = {
 
 export const UI_SIZES = {
   CONTAINER_MAX_WIDTH: "1280px", // max-w-7xl
-  NAV_HEIGHT: "64px" // h-16
+  NAV_HEIGHT: "64px", // h-16
+  HERO_HEIGHT: "450px"
 };
 
-export const GRADIENTS = {
-  PRIMARY_SECONDARY: "linear-gradient(to right, #FF00FF, #00FFFF)",
-  SECONDARY_PRIMARY: "linear-gradient(to right, #00FFFF, #FF00FF)"
+export const SHADOWS = {
+  NEON_PRIMARY: "0 0 20px rgba(255, 0, 255, 0.4)",
+  NEON_SECONDARY: "0 0 20px rgba(0, 255, 255, 0.4)",
+  CARD: "0 8px 32px 0 rgba(31, 38, 135, 0.37)"
+};
+
+export const ANIMATIONS = {
+  NEON_PULSE: "pulse-neon 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+  BORDER_FLOW: "border-flow 3s linear infinite"
 };
 
 export const TYPOGRAPHY = {

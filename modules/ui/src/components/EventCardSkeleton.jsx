@@ -3,11 +3,15 @@ import { THEME_COLORS } from "../constants/uiConstants";
 const EventCardSkeleton = () => {
   return (
     <div
-      className="rounded-xl overflow-hidden border-2 border-primary/20 bg-card backdrop-blur-md animate-pulse p-5 h-full flex flex-col"
-      style={{ boxShadow: `0 0 15px ${THEME_COLORS.PRIMARY}10` }}
+      className="rounded-2xl overflow-hidden border border-white/5 bg-card/20 backdrop-blur-md animate-pulse flex flex-col h-full"
+      style={{ boxShadow: `0 0 15px ${THEME_COLORS.PRIMARY}05` }}
     >
-      {/* Title Skeleton */}
-      <div className="h-6 bg-primary/20 rounded w-3/4 mb-4"></div>
+      {/* Image Skeleton */}
+      <div className="h-48 bg-white/5 w-full"></div>
+
+      <div className="p-5 flex flex-col grow">
+        {/* Title Skeleton */}
+        <div className="h-6 bg-primary/20 rounded w-3/4 mb-4"></div>
 
       {/* Description Skeleton */}
       <div className="space-y-2 mb-6">
@@ -40,7 +44,8 @@ const EventCardSkeleton = () => {
       {/* Button Skeleton */}
       <div className="mt-6 h-10 bg-primary/20 rounded-lg w-full"></div>
     </div>
-  );
+  </div>
+);
 };
 
 export default EventCardSkeleton;
