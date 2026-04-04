@@ -12,7 +12,9 @@ const useEvents = () => {
         setLoading(true);
         // Gọi GET /api/events
         const response = await api.get('/events');
-        setEvents(response.data);
+        // Vì Backend trả về { success: true, data: [...] }
+        const eventData = response.data.data || response.data || [];
+        setEvents(Array.isArray(eventData) ? eventData : []);
         setError(null);
       } catch (err) {
         // Bắt lỗi từ server hoặc lỗi mạng

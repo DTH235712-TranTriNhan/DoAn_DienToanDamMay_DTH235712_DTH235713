@@ -44,6 +44,7 @@ app.use(passport.initialize());
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
 // ── Routes ───────────────────────────────────────────────────────
+app.get("/favicon.ico", (req, res) => res.status(204).end());
 app.use("/api", mainRouter);
 
 // ── SPA Static Serve (production) ────────────────────────────────
@@ -78,8 +79,13 @@ const bootstrap = async () => {
       }
 
       console.log(`🔗 API Endpoint:   http://localhost:${PORT}/api`);
-      console.log(`🔗 Health Check:   http://localhost:${PORT}/api/health\n`);
-      console.log(`💡 Mẹo: Nhấn Ctrl + Click vào đường dẫn trên để mở trang web.\n`);
+      console.log(`🔗 Health Check:   http://localhost:${PORT}/api/health`);
+
+      if (process.env.NODE_ENV !== "production" && process.env.SERVE_UI !== "true") {
+        console.log(`🔗 Giao diện Dev:  http://localhost:5173 (Vite)`);
+      }
+
+      console.log(`\n💡 Mẹo: Nhấn Ctrl + Click vào đường dẫn trên để mở trang web.\n`);
     });
   } catch (err) {
     console.error("[Bootstrap] Không thể khởi động server:", err);

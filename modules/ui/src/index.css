@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap");
 
 /* Khai báo của Tailwind v4 (Thay thế cho 3 dòng @tailwind cũ) */
 @import "tailwindcss";
@@ -6,18 +6,20 @@
 /* Thiết lập Design System trực tiếp bằng @theme của v4 */
 @theme {
   --color-background: #090014;
-  --color-foreground: #E0E0E0;
+  --color-foreground: #e0e0e0;
   --color-card: rgba(26, 16, 60, 0.8);
-  --color-primary: #FF00FF;
-  --color-secondary: #00FFFF;
-  --color-accent: #FF9900;
-  --color-border: #2D1B4E;
+  --color-primary: #ff00ff;
+  --color-secondary: #00ffff;
+  --color-accent: #ff9900;
+  --color-border: #2d1b4e;
 
   --font-heading: "Orbitron", sans-serif;
   --font-mono: "Share Tech Mono", monospace;
 
-  --background-image-sunset-gradient: linear-gradient(to right, #FF9900, #FF00FF, #00FFFF);
-  --background-image-sun-glow: linear-gradient(to bottom, #FF9900, #FF00FF);
+  --background-image-sunset-gradient: linear-gradient(to right, #ff9900, #ff00ff, #00ffff);
+  --background-image-sun-glow: linear-gradient(to bottom, #ff9900, #ff00ff);
+  --background-image-scanline: linear-gradient(rgba(18, 16, 20, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+  --background-image-conic-gradient: conic-gradient(var(--tw-gradient-from), var(--tw-gradient-to));
 }
 
 /* Các global style của hệ thống */
@@ -25,22 +27,12 @@
   body {
     @apply bg-background text-foreground font-mono antialiased overflow-x-hidden;
     /* Hiệu ứng mờ nền nhiễu sóng nhẹ (RGB Chromatic Aberration) */
-    background-image: linear-gradient(90deg, rgba(255,0,0,0.03), rgba(0,255,0,0.01), rgba(0,0,255,0.03));
-  }
-
-  /* Global CRT Scanlines Overlay */
-  body::after {
-    content: " ";
-    display: block;
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    background: linear-gradient(rgba(18,16,20,0) 50%, rgba(0,0,0,0.25) 50%);
-    background-size: 100% 4px;
-    z-index: 9999;
-    pointer-events: none;
+    background-image: linear-gradient(
+      90deg,
+      rgba(255, 0, 0, 0.03),
+      rgba(0, 255, 0, 0.01),
+      rgba(0, 0, 255, 0.03)
+    );
   }
 
   /* Selection màu neon */
