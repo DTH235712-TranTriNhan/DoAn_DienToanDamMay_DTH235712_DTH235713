@@ -1,14 +1,11 @@
-import axios from "axios";
+import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api"
-});
-
-// Attach JWT nếu có
-api.interceptors.request.use(config => {
-  const token = localStorage.getItem("jwt_token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
+  // Sử dụng proxy của Vite, không cần hardcode http://localhost:5000 nữa
+  baseURL: '/api', 
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 export default api;

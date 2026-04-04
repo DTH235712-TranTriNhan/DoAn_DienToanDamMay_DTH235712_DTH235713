@@ -1,1 +1,72 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@400;600;700&family=Share+Tech+Mono&display=swap");
+
+/* Khai báo của Tailwind v4 (Thay thế cho 3 dòng @tailwind cũ) */
 @import "tailwindcss";
+
+/* Thiết lập Design System trực tiếp bằng @theme của v4 */
+@theme {
+  --color-background: #090014;
+  --color-foreground: #e0e0e0;
+  --color-card: rgba(26, 16, 60, 0.8);
+  --color-primary: #ff00ff;
+  --color-secondary: #00ffff;
+  --color-accent: #ff9900;
+  --color-border: #2d1b4e;
+
+  --font-heading: "Outfit", sans-serif;
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "Share Tech Mono", monospace;
+
+  --background-image-sunset-gradient: linear-gradient(to right, #ff9900, #ff00ff, #00ffff);
+  --background-image-sun-glow: linear-gradient(to bottom, #ff9900, #ff00ff);
+  --background-image-scanline: linear-gradient(rgba(18, 16, 20, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+  --background-image-conic-gradient: conic-gradient(var(--tw-gradient-from), var(--tw-gradient-to));
+}
+
+/* Các global style của hệ thống */
+@layer base {
+  body {
+    @apply bg-background text-foreground font-sans antialiased overflow-x-hidden;
+    /* Hiệu ứng mờ nền nhiễu sóng nhẹ (RGB Chromatic Aberration) */
+    background-image: linear-gradient(
+      90deg,
+      rgba(255, 0, 0, 0.03),
+      rgba(0, 255, 0, 0.01),
+      rgba(0, 0, 255, 0.03)
+    );
+  }
+
+  /* Selection màu neon */
+  ::selection {
+    @apply bg-secondary text-black;
+  }
+}
+
+/* ── Custom Utilities & Animations ────────────────────── */
+@utility animate-pulse-neon {
+  animation: pulse-neon 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@utility bg-scanline {
+  background-image: linear-gradient(rgba(18, 16, 20, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+  background-size: 100% 4px;
+}
+
+@keyframes pulse-neon {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), 0 0 40px rgba(0, 255, 255, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(0, 255, 255, 0.6), 0 0 80px rgba(0, 255, 255, 0.2);
+  }
+}
+
+@keyframes border-flow {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Glassmorphism utility */
+@utility glass {
+  @apply bg-card/60 backdrop-blur-xl border border-white/10;
+}
