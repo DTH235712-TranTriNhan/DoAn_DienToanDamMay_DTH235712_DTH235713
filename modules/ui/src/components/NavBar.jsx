@@ -7,7 +7,7 @@ const NavBar = ({ user }) => {
         <div className="flex justify-between items-center h-16">
           
           {/* Logo - Vaporwave Style */}
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <Link to="/" className="font-heading text-2xl font-black tracking-widest uppercase text-white drop-shadow-[0_0_10px_rgba(0,255,255,0.8)]">
               EVENT<span className="text-secondary">HUB</span>_
             </Link>
@@ -16,7 +16,7 @@ const NavBar = ({ user }) => {
           <div className="flex items-center space-x-6">
             {user ? (
               <>
-                <Link to="/my-tickets" className="text-secondary hover:text-white hover:drop-shadow-[0_0_8px_#00FFFF] transition-all font-mono uppercase tracking-widest text-sm">
+                <Link to="/my-tickets" className="text-secondary hover:text-white hover:drop-shadow-[0_0_8px_#00FFFF] transition-all font-sans uppercase tracking-widest text-xs font-bold">
                   &gt; MY_TICKETS
                 </Link>
                 
@@ -25,13 +25,13 @@ const NavBar = ({ user }) => {
                     <img
                       src={user.avatar || `https://ui-avatars.com/api/?name=${user.name}&background=FF00FF&color=00FFFF`}
                       alt="Avatar"
-                      className="w-8 h-8 filter contrast-125 grayscale-[20%]"
+                      className="w-8 h-8 filter contrast-125 grayscale-20"
                     />
                   </div>
-                  <span className="text-sm font-mono text-primary uppercase animate-pulse">{user.name}</span>
+                  <span className="text-xs font-sans font-bold text-primary uppercase animate-pulse">{user.name}</span>
                 </div>
 
-                <button className="text-foreground hover:text-primary transition-colors uppercase tracking-widest text-xs font-mono">
+                <button className="text-foreground hover:text-primary transition-colors uppercase tracking-widest text-xs font-sans font-bold">
                   [ LOGOUT ]
                 </button>
               </>
@@ -41,7 +41,7 @@ const NavBar = ({ user }) => {
                 to="/login"
                 className="group relative -skew-x-12 transform border-2 border-secondary bg-transparent px-6 py-2 transition-all duration-200 hover:skew-x-0 hover:bg-secondary hover:shadow-[0_0_20px_#00FFFF]"
               >
-                <span className="inline-block skew-x-12 transform font-mono text-sm font-bold uppercase tracking-widest text-secondary group-hover:text-black transition-all">
+                <span className="inline-block skew-x-12 transform font-sans text-xs font-bold uppercase tracking-widest text-secondary group-hover:text-black transition-all">
                   INITIALIZE_LOGIN
                 </span>
               </Link>

@@ -23,3 +23,9 @@ export const GRADIENTS = {
   PRIMARY_SECONDARY: "linear-gradient(to right, #FF00FF, #00FFFF)",
   SECONDARY_PRIMARY: "linear-gradient(to right, #00FFFF, #FF00FF)"
 };
+
+export const TYPOGRAPHY = {
+  HEADING: "'Outfit', sans-serif",
+  BODY: "'Inter', sans-serif",
+  TECH: "'Share Tech Mono', monospace"
+};

@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@400;600;700&family=Share+Tech+Mono&display=swap");
 
 /* Khai báo của Tailwind v4 (Thay thế cho 3 dòng @tailwind cũ) */
 @import "tailwindcss";
@@ -13,7 +13,8 @@
   --color-accent: #ff9900;
   --color-border: #2d1b4e;
 
-  --font-heading: "Orbitron", sans-serif;
+  --font-heading: "Outfit", sans-serif;
+  --font-sans: "Inter", sans-serif;
   --font-mono: "Share Tech Mono", monospace;
 
   --background-image-sunset-gradient: linear-gradient(to right, #ff9900, #ff00ff, #00ffff);
@@ -25,7 +26,7 @@
 /* Các global style của hệ thống */
 @layer base {
   body {
-    @apply bg-background text-foreground font-mono antialiased overflow-x-hidden;
+    @apply bg-background text-foreground font-sans antialiased overflow-x-hidden;
     /* Hiệu ứng mờ nền nhiễu sóng nhẹ (RGB Chromatic Aberration) */
     background-image: linear-gradient(
       90deg,

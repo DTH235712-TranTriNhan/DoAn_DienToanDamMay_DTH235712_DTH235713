@@ -89,7 +89,7 @@ const EventsPage = () => {
             <div className="w-2 h-full bg-primary animate-[pulse_1s_infinite_400ms]"></div>
           </div>
         </h1>
-        <p className="text-secondary/60 mt-4 font-mono uppercase text-xs tracking-widest flex items-center gap-2">
+        <p className="text-secondary/60 mt-4 font-sans font-bold uppercase text-[10px] tracking-widest flex items-center gap-2">
           <span className="inline-block w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
           ACCESSING_EVENTS_FEED_SUCCESSFUL
         </p>

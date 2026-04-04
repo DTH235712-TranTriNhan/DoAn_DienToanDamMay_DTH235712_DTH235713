@@ -19,11 +19,11 @@ const MyTicketsPage = () => {
         </div>
 
         <div className="p-8 text-center">
-          <p className="font-mono text-foreground/70 text-lg mb-4 animate-pulse">
+          <p className="font-sans font-bold text-foreground/70 text-lg mb-4 animate-pulse uppercase tracking-widest">
             &gt; QUERYING_DECRYPTED_STORAGE...
           </p>
           <div className="w-full h-px bg-linear-to-r from-transparent via-secondary/50 to-transparent my-6"></div>
-          <p className="text-secondary/80 text-sm font-mono tracking-tighter">
+          <p className="text-secondary/80 text-[10px] font-sans font-bold tracking-[0.2em] uppercase">
             [ STATUS: NO_ASSETS_FOUND_IN_VAULT ]
           </p>
         </div>

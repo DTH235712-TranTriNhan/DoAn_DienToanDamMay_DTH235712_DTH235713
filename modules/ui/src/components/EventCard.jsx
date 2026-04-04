@@ -49,18 +49,18 @@ const EventCard = ({ event }) => {
           </span>
         </div>
 
-        <p className="text-foreground/70 text-sm mb-6 line-clamp-3 font-mono leading-relaxed border-l-2 border-secondary/20 pl-3">
+        <p className="text-foreground/70 text-sm mb-6 line-clamp-3 font-sans leading-relaxed border-l-2 border-secondary/20 pl-3">
           {event.description}
         </p>
 
-        <div className="space-y-3 text-xs text-secondary/80 font-mono mb-8">
+        <div className="space-y-3 text-xs text-secondary/80 font-sans mb-8">
           <div className="flex items-center gap-3">
             <span className="w-4 flex justify-center opacity-70">📅</span>
-            <span className="tracking-widest uppercase">{formattedDate}</span>
+            <span className="tracking-widest uppercase font-bold">{formattedDate}</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="w-4 flex justify-center opacity-70">📍</span>
-            <span className="tracking-widest uppercase truncate">{event.location}</span>
+            <span className="tracking-widest uppercase truncate font-bold">{event.location}</span>
           </div>
         </div>
 
