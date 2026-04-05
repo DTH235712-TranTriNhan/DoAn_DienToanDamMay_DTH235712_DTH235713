@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 
-const useEvents = () => {
+export const useEvents = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,9 +15,9 @@ const useEvents = () => {
         setEvents(response.data);
         setError(null);
       } catch (err) {
-        // Bắt lỗi từ server hoặc lỗi mạng
+        // Xử lý lỗi an toàn
         setError(
-          err.response?.data?.message || 'Có lỗi xảy ra khi tải danh sách sự kiện. Vui lòng thử lại sau.'
+          err.response?.data?.message || 'Lỗi kết nối. Không thể tải danh sách sự kiện!'
         );
       } finally {
         setLoading(false);
@@ -29,5 +29,3 @@ const useEvents = () => {
 
   return { events, loading, error };
 };
-
-export default useEvents;

@@ -1,57 +1,57 @@
+import React from 'react';
+import { useEvents } from '../hooks/useEvents';
 import EventCard from '../components/EventCard';
-import useEvents from '../hooks/useEvents';
 
 const EventsPage = () => {
+  // Bóc tách data từ custom hook
   const { events, loading, error } = useEvents();
 
   // Trạng thái 1: Loading
   if (loading) {
     return (
-      <div className="flex flex-col justify-center items-center h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mb-4"></div>
-        <p className="text-gray-500 font-medium">Đang tải danh sách sự kiện...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-secondary shadow-[0_0_20px_rgba(0,255,255,0.5)]"></div>
       </div>
     );
   }
 
-  // Trạng thái 2: Lỗi API
+  // Trạng thái 2: Error
   if (error) {
     return (
-      <div className="max-w-2xl mx-auto mt-10 p-6 bg-red-50 border border-red-100 rounded-xl text-center">
-        <span className="text-3xl block mb-2">⚠️</span>
-        <h2 className="text-lg font-bold text-red-700 mb-1">Rất tiếc, đã có lỗi xảy ra!</h2>
-        <p className="text-red-500">{error}</p>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="bg-card border border-red-500 p-6 rounded-lg text-center shadow-[0_0_20px_rgba(255,0,0,0.4)]">
+          <h2 className="text-2xl font-bold font-heading text-red-500 mb-2">Lỗi Truy Xuất Dữ Liệu</h2>
+          <p className="text-foreground font-mono">{error}</p>
+        </div>
       </div>
     );
   }
 
-  // Trạng thái 3: Empty (Không có dữ liệu)
+  // Trạng thái 3: Empty (Thành công nhưng mảng rỗng)
   if (!events || events.length === 0) {
     return (
-      <div className="text-center mt-20">
-        <span className="text-5xl block mb-4">📭</span>
-        <h2 className="text-2xl font-bold text-gray-700 mb-2">Chưa có sự kiện nào</h2>
-        <p className="text-gray-500">Hiện tại không có sự kiện nào sắp diễn ra. Vui lòng quay lại sau!</p>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="bg-card border border-border p-8 rounded-xl text-center shadow-[0_0_20px_rgba(255,153,0,0.2)]">
+          <p className="text-xl text-accent font-heading">Hệ thống chưa có sự kiện nào.</p>
+          <p className="text-foreground/70 mt-2 font-mono">Vui lòng quay lại sau nhé!</p>
+        </div>
       </div>
     );
   }
 
-  // Trạng thái 4: Render Grid thành công
+  // Render danh sách (Responsive Grid)
   return (
-    <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-          Sự kiện nổi bật
-        </h1>
-        <p className="text-gray-500 mt-2">
-          Khám phá và đặt vé cho các sự kiện hấp dẫn nhất sắp diễn ra.
-        </p>
-      </div>
+    <div className="container mx-auto px-4 py-12">
+      {/* Tiêu đề trang */}
+      <h1 className="text-4xl md:text-5xl font-heading font-black text-transparent bg-clip-text bg-gradient-to-r from-accent via-primary to-secondary mb-12 text-center uppercase tracking-widest drop-shadow-[0_0_15px_rgba(255,0,255,0.4)]">
+        Sự Kiện Nổi Bật
+      </h1>
 
-      {/* Grid: 1 cột (mobile), 2 cột (tablet), 3 cột (desktop) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Grid Layout 1-2-3 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {events.map((event) => (
-          <EventCard key={event._id || event.id} event={event} />
+          // Dùng _id (nếu từ MongoDB) hoặc id
+          <EventCard key={event._id || event.id} event={event} /> 
         ))}
       </div>
     </div>

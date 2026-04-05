@@ -1,69 +1,61 @@
-import { useMemo } from 'react';
+import React from 'react';
 
 const EventCard = ({ event }) => {
-  // Format ngày theo chuẩn DD/MM/YYYY
-  const formattedDate = useMemo(() => {
-    if (!event?.date) return 'Chưa cập nhật ngày';
-    return new Date(event.date).toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  }, [event.date]);
+  const { title, description, date, location, availableTickets, totalTickets } = event;
 
-  // Tính toán % cho thanh Progress (Số vé đã bán / Tổng số vé)
-  const available = event.availableTickets || 0;
-  const total = event.totalTickets || 1; // Đảm bảo không chia cho 0
-  const soldTickets = total - available;
-  const progressPercentage = Math.round((soldTickets / total) * 100);
+  // Format ngày thành DD/MM/YYYY
+  const formattedDate = new Date(date).toLocaleDateString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+
+  // Tính phần trăm vé đã bán/còn lại cho thanh Progress
+  const ticketPercent = totalTickets > 0 
+    ? (availableTickets / totalTickets) * 100 
+    : 0;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 border border-gray-100 flex flex-col overflow-hidden">
-      <div className="p-5 flex-grow">
-        <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-2">
-          {event.title}
+    <div className="bg-card border border-border rounded-xl p-6 shadow-[0_0_15px_rgba(255,0,255,0.15)] hover:shadow-[0_0_30px_rgba(0,255,255,0.4)] transition-all duration-300 flex flex-col h-full group">
+      {/* Thông tin sự kiện */}
+      <div className="mb-4">
+        <h3 className="text-2xl font-heading font-bold text-primary group-hover:text-secondary transition-colors truncate mb-3">
+          {title}
         </h3>
-        <p className="text-gray-500 text-sm mb-4 line-clamp-3">
-          {event.description}
+        <p className="text-sm text-foreground/80 line-clamp-3 mb-4 flex-grow font-mono">
+          {description}
         </p>
-        
-        <div className="space-y-2 text-sm text-gray-600 mb-5">
-          <div className="flex items-center">
-            <span className="mr-2">📅</span>
-            <span>{formattedDate}</span>
-          </div>
-          <div className="flex items-center">
-            <span className="mr-2">📍</span>
-            <span>{event.location}</span>
-          </div>
-        </div>
-
-        {/* Thanh Progress */}
-        <div className="mt-auto">
-          <div className="flex justify-between text-xs font-medium text-gray-500 mb-1.5">
-            <span>Đã bán: {progressPercentage}%</span>
-            <span>Còn {available} vé</span>
-          </div>
-          <div className="w-full bg-gray-100 rounded-full h-2">
-            <div 
-              className={`h-2 rounded-full ${available === 0 ? 'bg-red-500' : 'bg-blue-500'}`}
-              style={{ width: `${progressPercentage}%` }}
-            ></div>
-          </div>
+        <div className="space-y-2 text-sm text-foreground font-mono">
+          <p className="flex items-center gap-2">
+            <span className="text-accent text-lg">📅</span> {formattedDate}
+          </p>
+          <p className="flex items-center gap-2">
+            <span className="text-accent text-lg">📍</span> {location}
+          </p>
         </div>
       </div>
-      
-      {/* Nút Hành động */}
-      <div className="p-4 bg-gray-50 border-t border-gray-100">
+
+      {/* Box Đặt vé & Progress */}
+      <div className="mt-auto pt-4 border-t border-border">
+        <div className="flex justify-between text-xs font-mono mb-2">
+          <span>Vé: {availableTickets} / {totalTickets}</span>
+          <span className="text-secondary">{Math.round(ticketPercent)}%</span>
+        </div>
+        
+        {/* Thanh Progress */}
+        <div className="w-full bg-background rounded-full h-2 mb-5 border border-border overflow-hidden">
+          <div
+            className="bg-gradient-to-r from-accent via-primary to-secondary h-full rounded-full transition-all duration-700"
+            style={{ width: `${ticketPercent}%` }}
+          ></div>
+        </div>
+
+        {/* Nút Call-to-action */}
         <button 
-          className={`w-full py-2.5 rounded-lg font-semibold transition-colors ${
-            available === 0 
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-              : 'bg-blue-600 text-white hover:bg-blue-700'
-          }`}
-          disabled={available === 0}
+          className="w-full py-2 bg-transparent border-2 border-secondary text-secondary font-bold font-heading rounded hover:bg-secondary hover:text-background transition-colors uppercase tracking-[0.2em] text-sm"
+          disabled={availableTickets === 0}
         >
-          {available === 0 ? 'Đã Hết Vé' : 'Đặt Vé Ngay'}
+          {availableTickets === 0 ? 'Đã Hết Vé' : 'Đặt Vé Ngay'}
         </button>
       </div>
     </div>
