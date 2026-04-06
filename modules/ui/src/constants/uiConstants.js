@@ -15,7 +15,10 @@ export const THEME_COLORS = {
   TEXT: "#E0E0E0", // Light gray text
   TEXT_MUTED: "#94a3b8", // Muted gray text
   WHITE: "#FFFFFF",
-  BLACK: "#000000"
+  BLACK: "#000000",
+  NAVY_DARK: "rgba(9, 0, 20, 0.85)", // Dark navy for dropdowns
+  GLASS_BG: "rgba(9, 0, 20, 0.8)",    // Glassmorphism background for navbar
+  MOBILE_NAV_BG: "rgba(9, 0, 20, 0.96)" // Opaque navy for mobile menu
 };
 
 export const UI_SIZES = {

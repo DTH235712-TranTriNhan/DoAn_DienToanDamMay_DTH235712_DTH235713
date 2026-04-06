@@ -123,9 +123,7 @@ const LoginButton = ({ label }) => (
 
 /** Avatar tròn có viền PRIMARY glow */
 const UserAvatar = ({ user, onClick }) => {
-  const avatarSrc =
-    user?.avatar ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || user?.name || 'U')}&background=FF00FF&color=00FFFF&size=64`;
+  const avatarSrc = user?.avatar;
 
   return (
     <button
@@ -144,10 +142,14 @@ const UserAvatar = ({ user, onClick }) => {
         }}
       >
         <img
-          src={avatarSrc}
-          alt={`Avatar của ${user?.displayName || user?.name}`}
+          src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || 'U')}&background=FF00FF&color=00FFFF&size=128`}
+          alt={`Avatar của ${user?.displayName}`}
           className="w-full h-full object-cover"
           referrerPolicy="no-referrer"
+          onError={(e) => {
+            // Trường hợp URL từ Google bị lỗi (hết hạn), fallback về UI-Avatar
+            e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || 'U')}&background=FF00FF&color=00FFFF&size=128`;
+          }}
         />
       </span>
 
@@ -210,7 +212,7 @@ const UserDropdown = ({ user, onLogout, t }) => {
       aria-label="Menu người dùng"
       className="absolute right-0 top-[calc(100%+12px)] min-w-[220px] rounded-lg overflow-hidden z-50"
       style={{
-        background: 'rgba(9, 0, 20, 0.85)',
+        background: THEME_COLORS.NAVY_DARK,
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         border: `1px solid ${THEME_COLORS.PRIMARY_GLOW}`,
@@ -390,7 +392,7 @@ const NavBar = () => {
         aria-label="Thanh điều hướng chính"
         className="sticky top-0 z-50 backdrop-blur-md"
         style={{
-          background: 'rgba(9, 0, 20, 0.8)',
+          background: THEME_COLORS.GLASS_BG,
           borderBottom: `1px solid ${THEME_COLORS.PRIMARY_GLOW}`,
           boxShadow: SHADOWS.NEON_PRIMARY,
         }}
@@ -479,7 +481,7 @@ const NavBar = () => {
               exit="exit"
               className="fixed top-0 right-0 h-full w-72 z-50 flex flex-col pt-20 pb-8 px-6 md:hidden"
               style={{
-                background: 'rgba(9, 0, 20, 0.96)',
+                background: THEME_COLORS.MOBILE_NAV_BG,
                 backdropFilter: 'blur(24px)',
                 WebkitBackdropFilter: 'blur(24px)',
                 borderLeft: `1px solid ${THEME_COLORS.PRIMARY_GLOW}`,
@@ -504,12 +506,7 @@ const NavBar = () => {
                   style={{ borderColor: THEME_COLORS.PRIMARY_GLOW }}
                 >
                   <img
-                    src={
-                      user?.avatar ||
-                      `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                        user?.displayName || user?.name || 'U'
-                      )}&background=FF00FF&color=00FFFF&size=64`
-                    }
+                    src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || 'U')}&background=FF00FF&color=00FFFF&size=128`}
                     alt="Avatar"
                     className="w-11 h-11 rounded-full object-cover"
                     style={{
@@ -517,6 +514,9 @@ const NavBar = () => {
                       boxShadow: SHADOWS.NEON_PRIMARY,
                     }}
                     referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || 'U')}&background=FF00FF&color=00FFFF&size=128`;
+                    }}
                   />
                   <div>
                     <p

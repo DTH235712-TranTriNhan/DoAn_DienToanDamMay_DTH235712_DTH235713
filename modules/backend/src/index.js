@@ -22,7 +22,15 @@ const app = express();
 // ── Middleware Stack ─────────────────────────────────────────────
 app.use(
   helmet({
-    contentSecurityPolicy: process.env.SERVE_UI === "true" ? undefined : false
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        // Cho phép ảnh từ chính server, dữ liệu base64 và domain ảnh của Google
+        "img-src": ["'self'", "data:", "https://lh3.googleusercontent.com"]
+      }
+    },
+    // Tránh lỗi CORS khi tải ảnh từ domain khác (Google Avatar)
+    crossOriginResourcePolicy: { policy: "cross-origin" }
   })
 );
 

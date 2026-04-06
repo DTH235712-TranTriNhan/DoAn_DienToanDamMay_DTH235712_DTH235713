@@ -23,7 +23,7 @@ const LoginPage = () => {
       <div className="max-w-md w-full bg-slate-900/50 backdrop-blur-xl p-8 rounded-3xl border border-white/10 shadow-2xl">
         <div className="text-center mb-10">
           {/* Logo Sự Kiện */}
-          <div className="mx-auto h-20 w-20 bg-gradient-to-br from-purple-600 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/20 mb-6">
+          <div className="mx-auto h-20 w-20 bg-linear-to-br from-purple-600 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/20 mb-6">
             <svg
               className="h-12 w-12 text-white"
               fill="none"
