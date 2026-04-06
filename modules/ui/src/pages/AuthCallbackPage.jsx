@@ -1,8 +1,10 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const AuthCallbackPage = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   useEffect(() => {
     // Logic extraction token from URL
@@ -11,13 +13,13 @@ const AuthCallbackPage = () => {
 
     if (token) {
       console.log("Token extracted:", token);
-      // Giả lập lưu token và login (Sẽ hoàn thiện ở Phase 2)
-      localStorage.setItem("jwt_token", token);
-      setTimeout(() => navigate("/"), 2000);
+      login(token);
+      // login sẽ tự động fetch user và cập nhật state
+      setTimeout(() => navigate("/"), 1500); 
     } else {
       navigate("/login");
     }
-  }, [navigate]);
+  }, [navigate, login]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] relative">
