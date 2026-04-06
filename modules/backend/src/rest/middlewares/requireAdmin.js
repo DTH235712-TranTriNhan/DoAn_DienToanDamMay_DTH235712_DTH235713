@@ -5,14 +5,16 @@ import UserModel from "../../models/UserModel.js";
  * Middleware requireAdmin - Task 3.2
  * Kiểm tra xem người dùng hiện tại có phải là Admin hay không.
  * Yêu cầu: Middleware này được chạy SAU validateJwt (req.user đã tồn tại).
- * 
+ *
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
  * @param {import('express').NextFunction} next - Express next function
  */
 export const requireAdmin = async (req, res, next) => {
-  // 1. Context logging để dễ dàng theo dõi trên Render Dashboard
-  console.log(`[Auth] Checking admin permission for userId: ${req.user?.userId || 'unknown'}`);
+  // 1. Context logging để dễ dàng theo dõi trên Render Dashboard (chỉ dev)
+  if (process.env.NODE_ENV !== "production") {
+    console.log(`[Auth] Checking admin permission for userId: ${req.user?.userId || "unknown"}`);
+  }
 
   try {
     // 2. Trích xuất userId từ req.user (được gán bởi validateJwt)

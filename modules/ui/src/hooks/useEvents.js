@@ -23,7 +23,6 @@ const useEvents = () => {
       const eventData = response.data.data || response.data || [];
       setEvents(Array.isArray(eventData) ? eventData : []);
     } catch (err) {
-      console.error('[useEvents] API Error:', err);
       setError(
         err.response?.data?.message ||
           'CRITICAL_SYSTEM_ERROR: Unable to synchronize with the sequence grid.'

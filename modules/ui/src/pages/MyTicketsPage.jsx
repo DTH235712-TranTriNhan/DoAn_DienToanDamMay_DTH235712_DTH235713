@@ -34,7 +34,7 @@ const MyTicketsPage = () => {
     if (user) {
       fetchTickets();
     }
-  }, [user, t]);
+  }, [user]);
 
   return (
     <div className="py-20 flex flex-col items-center px-4 max-w-4xl mx-auto w-full">

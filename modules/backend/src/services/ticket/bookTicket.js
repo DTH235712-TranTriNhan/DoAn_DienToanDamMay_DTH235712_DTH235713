@@ -31,7 +31,16 @@ export const bookTicket = async (userId, eventId) => {
 
   // 🔄 Bước 3: Đồng bộ ngược lại MongoDB (Eventual Consistency)
   // Cập nhật số lượng vé thực tế trong DB để hiển thị trên giao diện quản lý.
-  await Event.findByIdAndUpdate(eventId, { $inc: { availableTickets: -1 } });
+  try {
+    await Event.findByIdAndUpdate(eventId, { $inc: { availableTickets: -1 } });
+  } catch (updateError) {
+    // Log để admin biết cần manual sync — ticket đã tạo thành công
+    console.error(
+      `[WARN] Event ${eventId} availableTickets sync failed after ticket ${ticket._id}. Manual fix needed.`,
+      updateError.message
+    );
+    // Không throw — đây chỉ là eventual consistency issue
+  }
 
   return ticket;
 };

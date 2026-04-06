@@ -11,23 +11,19 @@ import { useLanguage } from "../context/LanguageContext.jsx";
 const EventBanner = ({ events = [], loading = false }) => {
   const { t, lang } = useLanguage();
 
-  const hotEvents = useMemo(() => 
-    Array.isArray(events) ? events.filter(event => event?.isHot) : [], 
+  const hotEvents = useMemo(
+    () => (Array.isArray(events) ? events.filter(event => event?.isHot) : []),
     [events]
   );
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  useEffect(() => {
-    // Reset index if it becomes invalid (e.g., event list shrunk)
-    if (currentIndex >= hotEvents.length && hotEvents.length > 0) {
-      setCurrentIndex(0);
-    }
-  }, [hotEvents.length, currentIndex]);
+  // Derive safe index without useEffect + setState
+  const safeIndex = hotEvents.length > 0 ? currentIndex % hotEvents.length : 0;
 
   useEffect(() => {
     if (hotEvents.length <= 1) return;
     const timer = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % hotEvents.length);
+      setCurrentIndex(prev => prev + 1);
     }, 5000);
     return () => clearInterval(timer);
   }, [hotEvents.length]);
@@ -35,9 +31,9 @@ const EventBanner = ({ events = [], loading = false }) => {
   if (loading) return <BannerSkeleton />;
 
   if (hotEvents.length === 0) return null;
-  
+
   // Safety fallback for out-of-bounds or invalid currentEvent access
-  const currentEvent = hotEvents[currentIndex] || hotEvents[0];
+  const currentEvent = hotEvents[safeIndex] || hotEvents[0];
   if (!currentEvent) return null;
 
   return (
@@ -55,7 +51,7 @@ const EventBanner = ({ events = [], loading = false }) => {
       {/* Progress Bar (Timer) - Neon Glow */}
       <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white/10 z-30">
         <motion.div
-          key={`progress-${currentIndex}`}
+          key={`progress-${safeIndex}`}
           initial={{ width: "0%" }}
           animate={{ width: "100%" }}
           transition={{ duration: 5, ease: "linear" }}
@@ -67,13 +63,13 @@ const EventBanner = ({ events = [], loading = false }) => {
         />
       </div>
 
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         <motion.div
-          key={currentEvent._id || currentEvent.id}
-          initial={{ opacity: 0, scale: 1.08, filter: "blur(10px)" }}
-          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          exit={{ opacity: 0, scale: 0.92, filter: "blur(10px)" }}
-          transition={{ duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96] }}
+          key={currentEvent._id} // Chỉ dùng _id, không cần fallback .id
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
           className="absolute inset-0"
         >
           {/* Background Image với hiệu ứng Ken Burns */}
@@ -98,7 +94,7 @@ const EventBanner = ({ events = [], loading = false }) => {
               className="max-w-xl"
             >
               {/* Badge Hot - i18n optimized */}
-              <div className="flex items-center gap-2 mb-5">
+              <div className="flex items-center gap-2 mb-3">
                 <span
                   className="px-3 py-1 bg-primary text-black font-black text-[10px] uppercase tracking-[0.3em] rounded-sm shadow-neon-primary animate-pulse"
                   style={{ fontFamily: TYPOGRAPHY.TECH, boxShadow: SHADOWS.NEON_PRIMARY }}
@@ -108,9 +104,9 @@ const EventBanner = ({ events = [], loading = false }) => {
                 <div className="h-px w-24 bg-linear-to-r from-primary/50 to-transparent" />
               </div>
 
-              {/* Title - Orbitron Heading */}
+              {/* Title - Orbitron Heading — Clamped to 2 lines */}
               <h2
-                className="text-3xl md:text-5xl lg:text-7xl font-black text-white mb-6 leading-[1.1] uppercase tracking-tighter"
+                className="text-2xl md:text-4xl lg:text-5xl font-black text-white mb-4 leading-[1.1] uppercase tracking-tighter line-clamp-2"
                 style={{
                   fontFamily: TYPOGRAPHY.HEADING,
                   textShadow: `0 0 40px ${THEME_COLORS.PRIMARY_GLOW}, 2px 2px 0px ${THEME_COLORS.SECONDARY}`
@@ -121,7 +117,7 @@ const EventBanner = ({ events = [], loading = false }) => {
 
               {/* Description - i18n & Body Font */}
               <p
-                className="text-white/80 text-xs md:text-sm lg:text-base mb-10 line-clamp-2 md:line-clamp-3 border-l-4 border-primary pl-6 backdrop-blur-md bg-white/5 py-3 pr-6 rounded-r-xl"
+                className="text-white/80 text-xs md:text-sm lg:text-base mb-6 line-clamp-2 border-l-4 border-primary pl-6 backdrop-blur-md bg-white/5 py-3 pr-6 rounded-r-xl"
                 style={{ fontFamily: TYPOGRAPHY.BODY }}
               >
                 {currentEvent.description}
@@ -133,7 +129,13 @@ const EventBanner = ({ events = [], loading = false }) => {
                   whileHover={{ scale: 1.05, boxShadow: SHADOWS.NEON_SECONDARY }}
                   whileTap={{ scale: 0.95 }}
                   aria-label={`${t("card_book_now")}: ${currentEvent.title}`}
-                  onClick={() => document.getElementById('event-grid-header')?.scrollIntoView({ behavior: 'smooth' })}
+                  onClick={() => {
+                    const target = document.getElementById("event-grid-header");
+                    if (target) {
+                      const y = target.getBoundingClientRect().top + window.scrollY - 80;
+                      window.scrollTo({ top: y, behavior: "smooth" });
+                    }
+                  }}
                   className="px-10 py-4 bg-secondary text-black font-black uppercase text-xs tracking-[0.3em] shadow-neon-secondary transition-all"
                   style={{ fontFamily: TYPOGRAPHY.TECH, boxShadow: SHADOWS.NEON_SECONDARY }}
                 >
@@ -167,7 +169,9 @@ const EventBanner = ({ events = [], loading = false }) => {
                             lang === "vi" ? "vi-VN" : "en-US",
                             { day: "2-digit", month: "2-digit", year: "numeric" }
                           );
-                        } catch { return "TBA"; }
+                        } catch {
+                          return "TBA";
+                        }
                       })()}
                     </span>
                   </div>
@@ -189,11 +193,11 @@ const EventBanner = ({ events = [], loading = false }) => {
             >
               <div
                 className={`h-2 transition-all duration-500 rounded-full ${
-                  index === currentIndex
+                  index === safeIndex
                     ? "w-12 bg-primary shadow-neon-primary"
                     : "w-4 bg-white/30 group-hover:bg-white/60"
                 }`}
-                style={index === currentIndex ? { boxShadow: SHADOWS.NEON_PRIMARY } : {}}
+                style={index === safeIndex ? { boxShadow: SHADOWS.NEON_PRIMARY } : {}}
               />
             </button>
           ))}

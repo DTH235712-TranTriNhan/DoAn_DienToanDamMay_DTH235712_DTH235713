@@ -18,12 +18,9 @@ const EventCard = ({ event }) => {
   const { t, lang } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [localAvailable, setLocalAvailable] = useState(event.availableTickets || 0);
-
-  // Sync local tickets if prop changes
-  useEffect(() => {
-    setLocalAvailable(event.availableTickets || 0);
-  }, [event.availableTickets]);
+  const [localDecrement, setLocalDecrement] = useState(0);
+  const baseAvailable = event.availableTickets || 0;
+  const localAvailable = Math.max(0, baseAvailable - localDecrement);
 
   const formattedDate = useMemo(() => {
     if (!event?.date) return t("card_tba");
@@ -42,7 +39,6 @@ const EventCard = ({ event }) => {
   // Polling logic for ticket job status
   useEffect(() => {
     let pollInterval;
-    let pollTimeout;
 
     if (bookingStatus === "queued" && jobId) {
       const startTime = Date.now();
@@ -52,11 +48,13 @@ const EventCard = ({ event }) => {
         try {
           // Check for elapsed time
           if (Date.now() - startTime > MAX_POLL_TIME) {
-             console.warn(`[Polling] Job ${jobId} timed out.`);
-             setBookingStatus("failed");
-             setErrorLocal(t("card_error_sync") || "Timeout: System is under heavy load. Please check My Tickets.");
-             clearInterval(pollInterval);
-             return;
+            setBookingStatus("failed");
+            setErrorLocal(
+              t("card_error_sync") ||
+                "Timeout: System is under heavy load. Please check My Tickets."
+            );
+            clearInterval(pollInterval);
+            return;
           }
 
           const res = await api.get(`/tickets/status/${jobId}?t=${Date.now()}`);
@@ -68,7 +66,7 @@ const EventCard = ({ event }) => {
 
           if (state === "completed") {
             setBookingStatus("completed");
-            setLocalAvailable(prev => Math.max(0, prev - 1));
+            setLocalDecrement(prev => prev + 1);
             clearInterval(pollInterval);
           } else if (state === "failed") {
             setBookingStatus("failed");
@@ -76,11 +74,10 @@ const EventCard = ({ event }) => {
             clearInterval(pollInterval);
           }
         } catch (err) {
-          console.error("Polling error:", err);
           // Only stop on non-transient errors if necessary, or just keep trying if it's 429
           if (err.response?.status === 404) {
-             setBookingStatus("idle");
-             clearInterval(pollInterval);
+            setBookingStatus("idle");
+            clearInterval(pollInterval);
           }
         }
       }, 2000);
@@ -91,8 +88,14 @@ const EventCard = ({ event }) => {
   }, [bookingStatus, jobId, t]);
 
   const handleBooking = async () => {
+    if (bookingStatus === "failed") {
+      setBookingStatus("idle");
+      setErrorLocal("");
+      return;
+    }
+
     if (available === 0 || bookingStatus !== "idle") return;
-    
+
     // Check authentication
     if (!user) {
       setErrorLocal(t("card_login_required"));
@@ -209,7 +212,7 @@ const EventCard = ({ event }) => {
             whileHover={available > 0 && bookingStatus === "idle" ? { scale: 1.02 } : {}}
             whileTap={{ scale: 0.98 }}
             onClick={handleBooking}
-            disabled={available === 0 || bookingStatus === "completed"}
+            disabled={available === 0 || bookingStatus === "completed" || bookingStatus === "queued" || bookingStatus === "submitting"}
             className={`w-full py-3.5 font-black uppercase tracking-[0.2em] text-[10px] transition-all border-2 flex items-center justify-center gap-2 ${
               available === 0
                 ? "border-white/10 text-white/20 cursor-not-allowed"
@@ -229,11 +232,14 @@ const EventCard = ({ event }) => {
             {bookingStatus === "completed" && t("card_success")}
             {bookingStatus === "failed" && t("card_retry")}
           </motion.button>
-          
+
           {bookingStatus === "failed" && (
             <button
-               onClick={() => { setBookingStatus("idle"); setErrorLocal(""); }}
-               className="w-full mt-2 py-2 text-[10px] font-mono text-secondary hover:text-white transition-colors"
+              onClick={() => {
+                setBookingStatus("idle");
+                setErrorLocal("");
+              }}
+              className="w-full mt-2 py-2 text-[10px] font-mono text-secondary hover:text-white transition-colors"
             >
               [ {t("card_retry")} ]
             </button>
