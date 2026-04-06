@@ -1,4 +1,4 @@
-import { updateEvent } from "../../../services/event/updateEvent.js";
+import updateEvent from "../../../services/event/updateEvent.js";
 
 /**
  * Handler: Cập nhật sự kiện - Task 3.3
@@ -6,12 +6,28 @@ import { updateEvent } from "../../../services/event/updateEvent.js";
  * @param {import('express').Request} req - Express request
  * @param {import('express').Response} res - Express response
  */
-export const updateEventHandler = async (req, res) => {
+const updateEventHandler = async (req, res) => {
   const { id } = req.params;
-  const updateData = req.body;
+  const {
+    title,
+    description,
+    date,
+    location,
+    totalTickets,
+    imageUrl,
+    isFeatured
+  } = req.body;
 
   // Gọi Service để xử lý cập nhật MongoDB và sync Redis (nếu có)
-  const updatedEvent = await updateEvent(id, updateData);
+  const updatedEvent = await updateEvent(id, {
+    title,
+    description,
+    date,
+    location,
+    totalTickets,
+    imageUrl,
+    isFeatured
+  });
 
   res.status(200).json({
     success: true,

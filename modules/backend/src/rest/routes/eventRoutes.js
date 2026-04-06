@@ -2,9 +2,9 @@ import { Router } from "express";
 import asyncHandler from "../middlewares/asyncHandler.js";
 import validateJwt from "../middlewares/validateJwt.js";
 import requireAdmin from "../middlewares/requireAdmin.js";
-import { getEventsHandler } from "../handlers/event/getEventsHandler.js";
-import { createEventHandler } from "../handlers/event/createEventHandler.js";
-import { updateEventHandler } from "../handlers/event/updateEventHandler.js";
+import getEventsHandler from "../handlers/event/getEventsHandler.js";
+import createEventHandler from "../handlers/event/createEventHandler.js";
+import updateEventHandler from "../handlers/event/updateEventHandler.js";
 
 const router = Router();
 

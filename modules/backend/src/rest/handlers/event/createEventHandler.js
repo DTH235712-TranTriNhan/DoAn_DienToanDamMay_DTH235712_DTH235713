@@ -1,4 +1,4 @@
-import { createEvent } from "../../../services/event/createEvent.js";
+import createEvent from "../../../services/event/createEvent.js";
 
 /**
  * Handler: Tạo sự kiện mới - Task 3.3
@@ -6,11 +6,27 @@ import { createEvent } from "../../../services/event/createEvent.js";
  * @param {import('express').Request} req - Express request
  * @param {import('express').Response} res - Express response
  */
-export const createEventHandler = async (req, res) => {
-  const eventData = req.body;
+const createEventHandler = async (req, res) => {
+  const {
+    title,
+    description,
+    date,
+    location,
+    totalTickets,
+    imageUrl,
+    isFeatured
+  } = req.body;
 
   // Gọi Service để lưu DB và sync Redis
-  const newEvent = await createEvent(eventData);
+  const newEvent = await createEvent({
+    title,
+    description,
+    date,
+    location,
+    totalTickets,
+    imageUrl,
+    isFeatured
+  });
 
   // Trả về mã 201 Created theo chuẩn REST API
   res.status(201).json({

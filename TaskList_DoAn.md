@@ -230,11 +230,12 @@
 
 ---
 
-### TASK 3.3 🔲 · Backend CRUD API cho Events
+### TASK 3.3 ✅ · Backend CRUD API cho Events
 
 | Mục | Chi tiết |
 |-----|---------|
 | **Người phụ trách** | Nhân |
+| **Trạng thái** | ✅ Đã xong |
 | **Tạo mới** | 4 file (chi tiết bên dưới) |
 
 | File cần tạo | Chức năng | Kết quả trả về |
