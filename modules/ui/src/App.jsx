@@ -42,7 +42,8 @@ const Layout = () => {
       ></div>
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        <NavBar user={user} />
+        {/* NavBar tự lấy user từ useAuth() — không cần prop */}
+        <NavBar />
         <main className="max-w-7xl mx-auto w-full grow px-4 transition-all duration-500">
           <Routes>
             <Route path="/" element={<EventsPage />} />
