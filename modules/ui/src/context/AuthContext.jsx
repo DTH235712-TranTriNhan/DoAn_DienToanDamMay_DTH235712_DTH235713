@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api.js";
 
@@ -10,26 +10,29 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem("jwt_token");
     setToken(null);
     setUser(null);
+    // Quay về trang chủ thay vì /login để tránh reload loop nếu đang ở trang chủ
     navigate("/");
-  };
+  }, [navigate]);
 
-  const fetchUser = async () => {
+  const fetchUser = useCallback(async () => {
     try {
+      setLoading(true);
       const response = await api.get("/auth/me");
-      setUser(response.data);
+      // Backend: { success: true, data: { ...user } }
+      setUser(response.data.data || response.data);
     } catch (error) {
-      console.error("Fetch user error:", error);
+      console.error("[AuthContext] Fetch user error:", error);
       if (error.response?.status === 401) {
         logout();
       }
     } finally {
       setLoading(false);
     }
-  };
+  }, [logout]);
 
   useEffect(() => {
     if (token) {
@@ -37,13 +40,13 @@ export const AuthProvider = ({ children }) => {
     } else {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, fetchUser]);
 
-  const login = async (newToken) => {
+  const login = useCallback(async (newToken) => {
     localStorage.setItem("jwt_token", newToken);
     setToken(newToken);
     // Token update triggers useEffect which calls fetchUser
-  };
+  }, []);
 
   const value = {
     user,
