@@ -1,19 +1,23 @@
-import { useContext } from "react";
-import HeroSection from "../components/HeroSection.jsx";
+/**
+ * EventsPage.jsx — Module: UI | Flash Sale Project
+ * Home page displaying the event list (Banner + Grid).
+ */
+
+import EventBanner from "../components/EventBanner.jsx";
 import EventCard from "../components/EventCard.jsx";
 import EventCardSkeleton from "../components/EventCardSkeleton.jsx";
 import useEvents from "../hooks/useEvents.js";
-import { TYPOGRAPHY } from "../constants/uiConstants.js";
-import LanguageContext from "../context/LanguageContext.jsx";
+import { TYPOGRAPHY, THEME_COLORS } from "../constants/uiConstants.js";
+import { useLanguage } from "../context/LanguageContext.jsx";
 
 const EventsPage = () => {
-  const { t } = useContext(LanguageContext);
+  const { t } = useLanguage();
   const { events, loading, error } = useEvents();
 
   if (loading) {
     return (
       <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        <HeroSection loading={true} />
+        <EventBanner loading={true} />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[...Array(6)].map((_, i) => (
             <EventCardSkeleton key={i} />
@@ -25,21 +29,20 @@ const EventsPage = () => {
 
   if (error) {
     return (
-      <div className="max-w-2xl mx-auto mt-20 p-10 border border-primary/50 bg-black/80 backdrop-blur-xl text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-primary/5 blur-3xl pointer-events-none" />
+      <div className="max-w-xl mx-auto mt-20 p-10 border border-primary/50 bg-black/80 backdrop-blur-xl text-center relative rounded-lg">
         <div className="relative z-10">
-          <span className="text-6xl block mb-6 animate-pulse">📡</span>
-          <h2 className="text-2xl font-black text-primary mb-4 tracking-tighter uppercase" style={{ fontFamily: TYPOGRAPHY.HEADING }}>
-            &gt; {t("error.sync")}
+          <span className="text-5xl block mb-6 animate-pulse">📡</span>
+          <h2 className="text-xl font-black text-primary mb-4 uppercase" style={{ fontFamily: TYPOGRAPHY.HEADING }}>
+            {t("events_error_sync")}
           </h2>
-          <p className="text-foreground/60 font-mono text-xs border border-primary/20 p-4 bg-primary/5 mb-8">
+          <p className="text-foreground/60 font-mono text-[10px] border border-primary/20 p-4 bg-primary/5 mb-8">
             {error}
           </p>
           <button
             onClick={() => window.location.reload()}
-            className="px-8 py-3 border border-secondary text-secondary font-mono text-xs uppercase tracking-widest hover:bg-secondary/10 transition-all hover:shadow-[0_0_15px_rgba(0,255,255,0.3)]"
+            className="px-8 py-2 border border-secondary text-secondary font-mono text-xs uppercase tracking-widest hover:bg-secondary/10 transition-all"
           >
-            [ {t("page.reboot")} ]
+            [ {t("events_reboot")} ]
           </button>
         </div>
       </div>
@@ -48,25 +51,33 @@ const EventsPage = () => {
 
   return (
     <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-      {/* Dynamic Hero Slider */}
-      <HeroSection events={events} />
+      {/* Dynamic Banner for Hot Events */}
+      <EventBanner events={events} />
 
       <div className="mb-12 border-l-4 border-secondary pl-6 relative">
-        <div className="absolute -left-[6px] top-0 bottom-0 w-[8px] bg-secondary shadow-[0_0_15px_rgba(0,255,255,0.5)]" />
-        <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight uppercase items-center flex gap-4" style={{ fontFamily: TYPOGRAPHY.HEADING }}>
-          {t("page.sequenceGrid")}
+        <div className="absolute -left-[4px] top-0 bottom-0 w-[4px] bg-secondary shadow-[0_0_15px_rgba(0,255,255,0.5)]" />
+        <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight uppercase" style={{ fontFamily: TYPOGRAPHY.HEADING }}>
+          {t("events_all_title")}
         </h1>
         <p className="text-secondary/60 mt-4 font-mono font-bold uppercase text-[10px] tracking-[0.3em] flex items-center gap-2">
           <span className="inline-block w-2 h-2 rounded-full bg-secondary animate-pulse" />
-          {t("page.stable")} // {t("page.version")}
+          {t("events_stable")} // {t("events_version")}
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {events.map((event) => (
-          <EventCard key={event._id || event.id} event={event} />
-        ))}
-      </div>
+      {events.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {events.map((event) => (
+            <EventCard key={event._id || event.id} event={event} />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-20 border border-dashed border-white/10 rounded-3xl bg-white/5">
+          <p className="text-white/30 font-mono text-sm tracking-widest uppercase">
+            {t("events_no_all")}
+          </p>
+        </div>
+      )}
     </div>
   );
 };

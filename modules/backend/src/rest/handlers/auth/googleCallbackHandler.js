@@ -11,15 +11,21 @@ export const googleCallbackHandler = async (req, res) => {
     { expiresIn: "7d" }
   );
 
-  // 1. Xác định môi trường (Development hay Production)
+  // 1. Xác định URL nguồn (Dynamic Redirect)
+  // Ưu tiên dùng 'state' từ OAuth (chứa origin của Frontend)
+  const oauthState = req.query.state;
   const isProd = process.env.NODE_ENV === "production";
 
-  // 2. Điều hướng động: Dev dùng cổng 5173, Prod dùng FRONTEND_URL (mặc định 5000)
-  const frontendUrl = isProd
+  let frontendUrl = oauthState || (isProd
     ? process.env.FRONTEND_URL || "http://localhost:5000"
-    : "http://localhost:5173";
+    : "http://localhost:5173");
 
-  console.log(`[GoogleAuth] Đang điều hướng về: ${frontendUrl} (Môi trường: ${process.env.NODE_ENV})`);
+  // Đảm bảo URL kết thúc không có dấu /
+  if (frontendUrl.endsWith("/")) {
+    frontendUrl = frontendUrl.slice(0, -1);
+  }
+
+  console.log(`[GoogleAuth] Đang điều hướng về: ${frontendUrl}/auth/callback (Môi trường: ${process.env.NODE_ENV})`);
 
   // Redirect về Frontend kèm theo token trong URL một cách an toàn
   res.redirect(`${frontendUrl}/auth/callback?token=${token}`);

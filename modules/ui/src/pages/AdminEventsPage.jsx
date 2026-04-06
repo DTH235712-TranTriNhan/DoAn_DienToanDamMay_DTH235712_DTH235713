@@ -1,24 +1,26 @@
 /**
  * AdminEventsPage.jsx — Module: UI | Flash Sale Project
- * Trang Quản trị Sự kiện — Chỉ dành cho Admin (role === 'admin').
+ * Admin Dashboard — Restricted to administrators (role === 'admin').
  *
- * Chức năng:
- * - Bảo vệ route: Điều hướng về / nếu không phải admin
- * - Hiển thị danh sách sự kiện dạng Table chuyên nghiệp
- * - Tích hợp EventForm.jsx cho cả Tạo mới và Sửa (dạng Modal)
- * - Sau submit: gọi refetch() để cập nhật bảng, tiết kiệm Quota Redis
+ * Features:
+ * - Route protection: Redirect to home if not admin
+ * - Tabular view: Professional event list with tech styling
+ * - Contextual Actions: Create, Edit, Delete events
+ * - i18n support: Fully localized strings
  */
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useLanguage } from '../context/LanguageContext.jsx';
 import useEvents from '../hooks/useEvents.js';
 import EventForm from '../components/EventForm.jsx';
+import ConfirmDialog from '../components/ConfirmDialog.jsx';
 import api from '../services/api.js';
 import { THEME_COLORS, SHADOWS, TYPOGRAPHY } from '../constants/uiConstants.js';
 
-// ─── Animation Variants ────────────────────────────────────────────────────────
+// ─── Animation Variants ───────────────────────────────────────────────────────
 const backdropVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1 },
@@ -31,11 +33,11 @@ const modalVariants = {
   exit: { opacity: 0, y: 20, scale: 0.97, transition: { duration: 0.18 } },
 };
 
-// ─── Helper: Format ngày hiển thị trong bảng ──────────────────────────────────
-const formatDate = (isoString) => {
+// ─── Helper: Format date for table display ───────────────────────────────────
+const formatDate = (isoString, lang) => {
   if (!isoString) return '—';
   try {
-    return new Date(isoString).toLocaleString('vi-VN', {
+    return new Date(isoString).toLocaleString(lang === 'vi' ? 'vi-VN' : 'en-US', {
       day: '2-digit', month: '2-digit', year: 'numeric',
       hour: '2-digit', minute: '2-digit',
     });
@@ -44,7 +46,7 @@ const formatDate = (isoString) => {
   }
 };
 
-// ─── Sub-component: StatusBadge ───────────────────────────────────────────────
+// ─── Sub-component: StatusBadge ──────────────────────────────────────────────
 const StatusBadge = ({ event }) => {
   const sold = event.soldTickets ?? 0;
   const total = event.totalTickets ?? 1;
@@ -73,96 +75,124 @@ const StatusBadge = ({ event }) => {
   );
 };
 
-// ─── Sub-component: Modal bọc EventForm ───────────────────────────────────────
-const EventModal = ({ isOpen, onClose, editEvent, onSubmit, isSubmitting, submitError }) => (
-  <AnimatePresence>
-    {isOpen && (
-      <>
-        {/* Backdrop */}
-        <motion.div
-          key="admin-modal-backdrop"
-          variants={backdropVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          className="fixed inset-0 z-40 bg-black/70"
-          onClick={onClose}
-        />
-        {/* Modal Panel */}
-        <motion.div
-          key="admin-modal"
-          variants={modalVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
-        >
-          <div
-            className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-xl pointer-events-auto"
-            style={{
-              backgroundColor: 'rgba(9, 0, 20, 0.97)',
-              border: `1px solid ${THEME_COLORS.PRIMARY_GLOW}`,
-              boxShadow: `${SHADOWS.NEON_PRIMARY}, ${SHADOWS.CARD}`,
-            }}
-          >
-            {/* Modal Header */}
-            <div
-              className="flex items-center justify-between px-6 py-4 border-b"
-              style={{ borderColor: THEME_COLORS.PRIMARY_GLOW }}
+// ─── Sub-component: Modal Wrapper for EventForm ─────────────────────────────
+const EventModal = ({ isOpen, onClose, editEvent, onSubmit, isSubmitting, submitError, isDirty, setIsDirty }) => {
+  const { t } = useLanguage();
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const handleRequestClose = () => {
+    if (isDirty) {
+      setShowConfirm(true);
+    } else {
+      onClose();
+    }
+  };
+
+  return (
+    <>
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <motion.div
+              key="admin-modal-backdrop"
+              variants={backdropVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="fixed inset-0 z-40 bg-black/70"
+              onClick={handleRequestClose}
+            />
+            <motion.div
+              key="admin-modal"
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
             >
-              <h2
-                style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.PRIMARY, fontSize: '0.8rem' }}
-                className="uppercase tracking-widest"
+              <div
+                className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-xl pointer-events-auto"
+                style={{
+                  backgroundColor: 'rgba(9, 0, 20, 0.97)',
+                  border: `1px solid ${THEME_COLORS.PRIMARY_GLOW}`,
+                  boxShadow: `${SHADOWS.NEON_PRIMARY}, ${SHADOWS.CARD}`,
+                }}
               >
-                {editEvent ? '// SỬA SỰ KIỆN' : '// TẠO SỰ KIỆN MỚI'}
-              </h2>
-              <button
-                id="admin-modal-close"
-                onClick={onClose}
-                style={{ color: THEME_COLORS.TEXT_MUTED, fontFamily: TYPOGRAPHY.TECH }}
-                className="text-lg hover:text-white transition-colors"
-                aria-label="Đóng modal"
-              >
-                ✕
-              </button>
-            </div>
+                <div
+                  className="flex items-center justify-between px-6 py-4 border-b"
+                  style={{ borderColor: THEME_COLORS.PRIMARY_GLOW }}
+                >
+                  <div className="flex flex-col">
+                    <h2
+                      style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.PRIMARY, fontSize: '0.8rem' }}
+                      className="uppercase tracking-widest"
+                    >
+                      {editEvent ? t('form_edit_title') : t('form_create_title')}
+                    </h2>
+                    {isDirty && (
+                      <span className="text-[10px] text-primary/60 font-mono animate-pulse">
+                        {t('form_dirty_warn')}
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={handleRequestClose}
+                    style={{ color: THEME_COLORS.TEXT_MUTED, fontFamily: TYPOGRAPHY.TECH }}
+                    className="text-lg hover:text-white transition-colors"
+                  >
+                    ✕
+                  </button>
+                </div>
 
-            {/* Form body */}
-            <div className="px-6 py-5">
-              <EventForm
-                initialData={editEvent}
-                onSubmit={onSubmit}
-                isSubmitting={isSubmitting}
-                submitError={submitError}
-              />
-            </div>
-          </div>
-        </motion.div>
-      </>
-    )}
-  </AnimatePresence>
-);
+                <div className="px-6 py-5">
+                  <EventForm
+                    initialData={editEvent}
+                    onSubmit={onSubmit}
+                    isSubmitting={isSubmitting}
+                    submitError={submitError}
+                    onDirtyChange={setIsDirty}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
-// ─── Main Page ─────────────────────────────────────────────────────────────────
+      {/* Cyberpunk Confirm Dialog for Dirty Check */}
+      <ConfirmDialog
+        isOpen={showConfirm}
+        onConfirm={() => {
+          setShowConfirm(false);
+          setIsDirty(false); // Reset dirty to prevent close loop
+          onClose();
+        }}
+        onCancel={() => setShowConfirm(false)}
+      />
+    </>
+  );
+};
+
+// ─── Main Page ──────────────────────────────────────────────────────────────
 const AdminEventsPage = () => {
   const { user, loading: authLoading } = useAuth();
+  const { t, lang } = useLanguage();
   const navigate = useNavigate();
   const { events, loading: eventsLoading, error: eventsError, refetch } = useEvents();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editEvent, setEditEvent] = useState(null); // null = create mode
+  const [editEvent, setEditEvent] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [isDirty, setIsDirty] = useState(false);
 
-  // ── Bảo vệ Route: Redirect nếu không phải admin ──────────────────────────
   useEffect(() => {
     if (!authLoading && user?.role !== 'admin') {
       navigate('/', { replace: true });
     }
   }, [user, authLoading, navigate]);
 
-  // ── Handlers Modal ─────────────────────────────────────────────────────────
   const openCreateModal = () => {
     setEditEvent(null);
     setSubmitError('');
@@ -176,87 +206,63 @@ const AdminEventsPage = () => {
   };
 
   const closeModal = () => {
-    if (isSubmitting) return; // Không cho đóng khi đang submit
+    if (isSubmitting) return;
     setIsModalOpen(false);
     setEditEvent(null);
     setSubmitError('');
   };
 
-  // ── Submit Handler ─────────────────────────────────────────────────────────
   const handleSubmit = async (formData) => {
     setIsSubmitting(true);
     setSubmitError('');
     try {
       if (editEvent) {
-        // Cập nhật: PUT /api/events/:id
         await api.put(`/events/${editEvent._id}`, formData);
-        setSuccessMessage(`✅ Đã cập nhật sự kiện "${formData.title}" thành công!`);
+        setSuccessMessage(t('admin_success_update'));
       } else {
-        // Tạo mới: POST /api/events
         await api.post('/events', formData);
-        setSuccessMessage(`✅ Đã tạo sự kiện "${formData.title}" thành công!`);
+        setSuccessMessage(t('admin_success_create'));
       }
-
+      setIsDirty(false);
       closeModal();
-
-      // Gọi refetch để cập nhật bảng mà KHÔNG tải lại trang → tiết kiệm Redis Quota
       await refetch();
-
-      // Tự xóa thông báo sau 4 giây
       setTimeout(() => setSuccessMessage(''), 4000);
     } catch (err) {
       console.error('[AdminEventsPage] Submit Error:', err);
-      setSubmitError(err.response?.data?.message || 'Đã xảy ra lỗi. Vui lòng thử lại.');
+      setSubmitError(err.response?.data?.message || 'Submit error. Try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // ── Render: Loading Auth ───────────────────────────────────────────────────
-  if (authLoading) {
-    return (
-      <div className="flex justify-center items-center py-24">
-        <p style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.PRIMARY }}
-          className="animate-pulse uppercase tracking-widest text-sm">
-          VERIFYING_CREDENTIALS...
-        </p>
-      </div>
-    );
-  }
+  if (authLoading) return (
+    <div className="flex justify-center items-center py-24">
+      <p style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.PRIMARY }} className="animate-pulse uppercase tracking-widest text-sm">
+        VERIFY_CREDENTIALS...
+      </p>
+    </div>
+  );
 
-  // Guard: Không render nếu không phải admin (tránh flash nội dung)
   if (user?.role !== 'admin') return null;
 
   return (
     <div className="py-8 px-4 max-w-7xl mx-auto">
-
-      {/* ── Page Header ─────────────────────────────────────────────────── */}
+      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <p
-            style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.PRIMARY, fontSize: '0.65rem' }}
-            className="uppercase tracking-widest mb-1"
-          >
-            // ADMIN_CONTROL_PANEL
+          <p style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.PRIMARY, fontSize: '0.65rem' }} className="uppercase tracking-widest mb-1">
+            // {t('admin_subtitle')}
           </p>
-          <h1
-            style={{ fontFamily: TYPOGRAPHY.HEADING, color: THEME_COLORS.WHITE }}
-            className="text-3xl font-black uppercase tracking-wide"
-          >
-            Quản lý Sự kiện
-            <span style={{ color: THEME_COLORS.PRIMARY, textShadow: `0 0 12px ${THEME_COLORS.PRIMARY}` }}>
-              _
-            </span>
+          <h1 style={{ fontFamily: TYPOGRAPHY.HEADING, color: THEME_COLORS.WHITE }} className="text-3xl font-black uppercase tracking-wide">
+            {t('admin_title')}
+            <span style={{ color: THEME_COLORS.PRIMARY, textShadow: `0 0 12px ${THEME_COLORS.PRIMARY}` }}>_</span>
           </h1>
-          <p style={{ fontFamily: TYPOGRAPHY.BODY, color: THEME_COLORS.TEXT_MUTED }}
-            className="text-sm mt-1">
-            {events.length} sự kiện trong hệ thống
+          <p style={{ fontFamily: TYPOGRAPHY.BODY, color: THEME_COLORS.TEXT_MUTED }} className="text-sm mt-1">
+            {events.length} EVENTS_IN_SYSTEM
           </p>
         </div>
 
-        {/* Nút Tạo mới */}
         <motion.button
-          id="admin-create-event-btn"
           onClick={openCreateModal}
           whileHover={{ scale: 1.04 }}
           whileTap={{ scale: 0.96 }}
@@ -267,20 +273,17 @@ const AdminEventsPage = () => {
             boxShadow: SHADOWS.NEON_PRIMARY,
             border: `1px solid ${THEME_COLORS.PRIMARY}`,
           }}
-          className="px-5 py-2.5 rounded text-sm font-bold uppercase tracking-widest whitespace-nowrap"
+          className="px-5 py-2.5 rounded text-sm font-bold uppercase tracking-widest"
         >
-          + Tạo Sự Kiện Mới
+          {t('admin_create_btn')}
         </motion.button>
       </div>
 
-      {/* ── Success Toast ────────────────────────────────────────────────── */}
+      {/* Success Toast */}
       <AnimatePresence>
         {successMessage && (
           <motion.div
-            key="success-toast"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             style={{
               fontFamily: TYPOGRAPHY.BODY,
               color: THEME_COLORS.SECONDARY,
@@ -294,167 +297,65 @@ const AdminEventsPage = () => {
         )}
       </AnimatePresence>
 
-      {/* ── Loading / Error States ───────────────────────────────────────── */}
+      {/* Loading / Error States */}
       {eventsLoading && (
         <div className="flex justify-center py-16">
-          <p style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.PRIMARY }}
-            className="animate-pulse text-sm uppercase tracking-widest">
-            LOADING_EVENT_DATA...
+          <p style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.PRIMARY }} className="animate-pulse text-sm uppercase tracking-widest">
+            {t('events_loading')}
           </p>
         </div>
       )}
 
-      {eventsError && !eventsLoading && (
-        <div
-          style={{
-            fontFamily: TYPOGRAPHY.TECH,
-            color: '#FF4444',
-            border: '1px solid rgba(255,68,68,0.4)',
-            backgroundColor: 'rgba(255,68,68,0.06)',
-          }}
-          className="px-6 py-4 rounded text-sm uppercase tracking-wide"
-        >
-          ⛔ {eventsError}
-        </div>
-      )}
-
-      {/* ── Events Table ─────────────────────────────────────────────────── */}
+      {/* Table */}
       {!eventsLoading && !eventsError && (
-        <div
-          className="overflow-x-auto rounded-xl"
-          style={{
-            border: `1px solid ${THEME_COLORS.PRIMARY_GLOW}`,
-            boxShadow: SHADOWS.CARD,
-          }}
-        >
+        <div className="overflow-x-auto rounded-xl" style={{ border: `1px solid ${THEME_COLORS.PRIMARY_GLOW}`, boxShadow: SHADOWS.CARD }}>
           <table className="w-full min-w-[700px] border-collapse text-sm">
-            {/* Table Head */}
             <thead>
-              <tr
-                style={{
-                  backgroundColor: 'rgba(255,0,255,0.08)',
-                  borderBottom: `1px solid ${THEME_COLORS.PRIMARY_GLOW}`,
-                }}
-              >
-                {['Tên Sự Kiện', 'Địa Điểm', 'Ngày Giờ', 'Vé (Đã bán/Tổng)', 'Trạng Thái', 'Thao Tác'].map((h) => (
-                  <th
-                    key={h}
-                    style={{
-                      fontFamily: TYPOGRAPHY.TECH,
-                      color: THEME_COLORS.PRIMARY,
-                      fontSize: '0.65rem',
-                      textAlign: 'left',
-                    }}
-                    className="px-4 py-3 uppercase tracking-widest whitespace-nowrap font-normal"
-                  >
+              <tr style={{ backgroundColor: 'rgba(255,0,255,0.08)', borderBottom: `1px solid ${THEME_COLORS.PRIMARY_GLOW}` }}>
+                {[t('admin_table_img'), t('admin_table_name'), t('admin_table_loc'), t('admin_table_date'), t('admin_table_tickets'), t('admin_table_status'), t('admin_table_actions')].map((h) => (
+                  <th key={h} style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.PRIMARY, fontSize: '0.65rem', textAlign: 'left' }} className="px-4 py-3 uppercase tracking-widest font-normal">
                     {h}
                   </th>
                 ))}
               </tr>
             </thead>
-
-            {/* Table Body */}
             <tbody>
               {events.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={6}
-                    className="text-center py-12"
-                    style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.TEXT_MUTED, fontSize: '0.75rem' }}
-                  >
-                    // NO_EVENTS_FOUND — Hãy tạo sự kiện đầu tiên!
+                  <td colSpan={7} className="text-center py-12" style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.TEXT_MUTED, fontSize: '0.75rem' }}>
+                    {t('admin_no_events')}
                   </td>
                 </tr>
               ) : (
                 events.map((event, idx) => (
                   <motion.tr
-                    key={event._id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.04 }}
-                    style={{
-                      borderBottom: `1px solid ${THEME_COLORS.BORDER}`,
-                      backgroundColor: idx % 2 === 0 ? 'transparent' : 'rgba(255,0,255,0.02)',
-                      transition: 'background-color 0.15s',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,0,255,0.06)')}
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.backgroundColor =
-                        idx % 2 === 0 ? 'transparent' : 'rgba(255,0,255,0.02)')
-                    }
+                    key={event._id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.04 }}
+                    style={{ borderBottom: `1px solid ${THEME_COLORS.BORDER}`, backgroundColor: idx % 2 === 0 ? 'transparent' : 'rgba(255,0,255,0.02)' }}
                   >
-                    {/* Tên sự kiện */}
-                    <td
-                      className="px-4 py-3 font-semibold max-w-[200px] truncate"
-                      style={{ fontFamily: TYPOGRAPHY.BODY, color: THEME_COLORS.WHITE }}
-                      title={event.title}
-                    >
-                      {event.title}
+                    <td className="px-4 py-3">
+                      <div className="w-10 h-10 rounded overflow-hidden border border-white/10 bg-white/5" style={{ boxShadow: `0 0 5px ${THEME_COLORS.PRIMARY_GLOW}` }}>
+                        <img src={event.imageUrl || 'https://placehold.co/100x100/090014/FF00FF?text=No+Img'} alt="Thumb" className="w-full h-full object-cover" />
+                      </div>
                     </td>
-
-                    {/* Địa điểm */}
-                    <td
-                      className="px-4 py-3 max-w-[150px] truncate"
-                      style={{ fontFamily: TYPOGRAPHY.BODY, color: THEME_COLORS.TEXT_MUTED }}
-                      title={event.location}
-                    >
-                      {event.location || '—'}
+                    <td className="px-4 py-3 font-semibold max-w-[200px]" style={{ fontFamily: TYPOGRAPHY.BODY, color: THEME_COLORS.WHITE }}>
+                      <div className="flex items-center gap-2">
+                        <span className="truncate">{event.title}</span>
+                        {event.isHot && <span style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.PRIMARY, border: `1px solid ${THEME_COLORS.PRIMARY}`, fontSize: '0.55rem', backgroundColor: `${THEME_COLORS.PRIMARY}10` }} className="px-1.5 py-0.5 rounded animate-pulse">🔥 {t('card_hot_badge')}</span>}
+                      </div>
                     </td>
-
-                    {/* Ngày giờ */}
-                    <td
-                      className="px-4 py-3 whitespace-nowrap"
-                      style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.SECONDARY, fontSize: '0.78rem' }}
-                    >
-                      {formatDate(event.date)}
-                    </td>
-
-                    {/* Vé */}
-                    <td className="px-4 py-3 whitespace-nowrap">
+                    <td className="px-4 py-3 max-w-[150px] truncate" style={{ fontFamily: TYPOGRAPHY.BODY, color: THEME_COLORS.TEXT_MUTED }}>{event.location || '—'}</td>
+                    <td className="px-4 py-3 whitespace-nowrap" style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.SECONDARY, fontSize: '0.78rem' }}>{formatDate(event.date, lang)}</td>
+                    <td className="px-4 py-3 min-w-[120px]">
                       <div className="flex flex-col gap-1">
-                        <span style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.TEXT, fontSize: '0.78rem' }}>
-                          {event.soldTickets ?? 0} / {event.totalTickets}
-                        </span>
-                        {/* Progress bar */}
-                        <div
-                          className="h-1 rounded-full overflow-hidden"
-                          style={{ width: '80px', backgroundColor: 'rgba(255,255,255,0.1)' }}
-                        >
-                          <div
-                            className="h-full rounded-full transition-all duration-500"
-                            style={{
-                              width: `${Math.min(100, Math.round(((event.soldTickets ?? 0) / (event.totalTickets || 1)) * 100))}%`,
-                              backgroundColor:
-                                ((event.soldTickets ?? 0) / (event.totalTickets || 1)) >= 0.8
-                                  ? THEME_COLORS.ACCENT
-                                  : THEME_COLORS.SECONDARY,
-                            }}
-                          />
+                        <span style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.TEXT, fontSize: '0.78rem' }}>{event.soldTickets ?? 0} / {event.totalTickets}</span>
+                        <div className="h-1 rounded-full overflow-hidden" style={{ width: '80px', backgroundColor: 'rgba(255,255,255,0.1)' }}>
+                          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(100, Math.round(((event.soldTickets ?? 0) / (event.totalTickets || 1)) * 100))}%`, backgroundColor: ((event.soldTickets ?? 0) / (event.totalTickets || 1)) >= 0.8 ? THEME_COLORS.ACCENT : THEME_COLORS.SECONDARY }} />
                         </div>
                       </div>
                     </td>
-
-                    {/* Trạng thái */}
+                    <td className="px-4 py-3"><StatusBadge event={event} /></td>
                     <td className="px-4 py-3">
-                      <StatusBadge event={event} />
-                    </td>
-
-                    {/* Thao tác */}
-                    <td className="px-4 py-3">
-                      <button
-                        id={`admin-edit-event-${event._id}`}
-                        onClick={() => openEditModal(event)}
-                        style={{
-                          fontFamily: TYPOGRAPHY.TECH,
-                          color: THEME_COLORS.SECONDARY,
-                          border: `1px solid ${THEME_COLORS.SECONDARY}`,
-                          fontSize: '0.65rem',
-                          transition: 'all 0.15s',
-                        }}
-                        className="px-3 py-1 rounded uppercase tracking-widest hover:bg-cyan-400/10 whitespace-nowrap"
-                      >
-                        ✏️ Sửa
-                      </button>
+                      <button onClick={() => openEditModal(event)} style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.SECONDARY, border: `1px solid ${THEME_COLORS.SECONDARY}`, fontSize: '0.65rem' }} className="px-3 py-1 rounded uppercase tracking-widest hover:bg-cyan-400/10 transition-all">{t('admin_edit_btn')}</button>
                     </td>
                   </motion.tr>
                 ))
@@ -464,14 +365,9 @@ const AdminEventsPage = () => {
         </div>
       )}
 
-      {/* ── Modal Form ───────────────────────────────────────────────────── */}
+      {/* Modal Form */}
       <EventModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        editEvent={editEvent}
-        onSubmit={handleSubmit}
-        isSubmitting={isSubmitting}
-        submitError={submitError}
+        isOpen={isModalOpen} onClose={closeModal} editEvent={editEvent} onSubmit={handleSubmit} isSubmitting={isSubmitting} submitError={submitError} isDirty={isDirty} setIsDirty={setIsDirty}
       />
     </div>
   );

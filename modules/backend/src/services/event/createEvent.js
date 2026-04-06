@@ -11,10 +11,18 @@ import { REDIS_KEYS } from "../../types/constants/redisKeys.js";
  * @returns {Promise<Object>} - Đối tượng sự kiện đã được lưu
  */
 const createEvent = async (eventData) => {
-  // 1. Khởi tạo số lượng vé khả dụng (availableTickets) bằng tổng số vé (totalTickets)
+  // 1. Khởi tạo và trích xuất trường tường minh (Input Sanitization)
+  const { title, description, date, location, totalTickets, imageUrl, isHot } = eventData;
+
   const dataToSave = {
-    ...eventData,
-    availableTickets: eventData.totalTickets
+    title,
+    description,
+    date,
+    location,
+    totalTickets,
+    imageUrl,
+    isHot,
+    availableTickets: totalTickets // availableTickets luôn bằng totalTickets khi tạo mới
   };
 
   // 2. Lưu vào MongoDB

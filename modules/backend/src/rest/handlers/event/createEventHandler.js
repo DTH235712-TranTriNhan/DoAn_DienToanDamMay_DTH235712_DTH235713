@@ -14,7 +14,7 @@ const createEventHandler = async (req, res) => {
     location,
     totalTickets,
     imageUrl,
-    isFeatured
+    isHot
   } = req.body;
 
   // Gọi Service để lưu DB và sync Redis
@@ -25,7 +25,7 @@ const createEventHandler = async (req, res) => {
     location,
     totalTickets,
     imageUrl,
-    isFeatured
+    isHot
   });
 
   // Trả về mã 201 Created theo chuẩn REST API

@@ -23,7 +23,7 @@ const SEED_EVENTS = [
     availableTickets: 1000,
     imageUrl:
       "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1280&auto=format&fit=crop",
-    isFeatured: true
+    isHot: true
   },
   {
     title: "Tech Conference 2026: AI & Monorepo",
@@ -35,7 +35,7 @@ const SEED_EVENTS = [
     availableTickets: 500,
     imageUrl:
       "https://images.unsplash.com/photo-1540575861501-7ad0582371f3?q=80&w=1280&auto=format&fit=crop",
-    isFeatured: true
+    isHot: true
   },
   {
     title: "Vaporwave Night: Neon Dreams",
@@ -47,7 +47,7 @@ const SEED_EVENTS = [
     availableTickets: 300,
     imageUrl:
       "https://images.unsplash.com/photo-1514525253361-bee8a81f40fc?q=80&w=1280&auto=format&fit=crop",
-    isFeatured: false
+    isHot: false
   },
   {
     title: "E-Sport Championship Final 2025",
@@ -59,7 +59,7 @@ const SEED_EVENTS = [
     availableTickets: 2000,
     imageUrl:
       "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1280&auto=format&fit=crop",
-    isFeatured: false
+    isHot: false
   },
   {
     title: "Street Art & Food Festival",
@@ -71,7 +71,7 @@ const SEED_EVENTS = [
     availableTickets: 1500,
     imageUrl:
       "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=1280&auto=format&fit=crop",
-    isFeatured: false
+    isHot: false
   }
 ];
 

@@ -1,20 +1,23 @@
-import { useMemo, useState, useContext } from "react";
+/**
+ * EventCard.jsx — Module: UI | Flash Sale Project
+ * Displays individual event cards with progress bars and dynamic booking buttons.
+ */
+
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { THEME_COLORS, TYPOGRAPHY } from "../constants/uiConstants.js";
-import LanguageContext from "../context/LanguageContext.jsx";
+import { THEME_COLORS, TYPOGRAPHY, SHADOWS } from "../constants/uiConstants.js";
+import { useLanguage } from "../context/LanguageContext.jsx";
 
 const EventCard = ({ event }) => {
   const [bookingStatus, setBookingStatus] = useState("idle");
-  const { t } = useContext(LanguageContext);
+  const { t, lang } = useLanguage();
 
   const formattedDate = useMemo(() => {
-    if (!event?.date) return t("eventCard.tba");
-    return new Date(event.date).toLocaleDateString("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric"
+    if (!event?.date) return t("card_tba");
+    return new Date(event.date).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US', {
+      day: "2-digit", month: "2-digit", year: "numeric"
     });
-  }, [event.date]);
+  }, [event.date, lang]);
 
   const available = event.availableTickets || 0;
   const total = event.totalTickets || 1;
@@ -44,11 +47,18 @@ const EventCard = ({ event }) => {
         <div className="absolute inset-0 bg-linear-to-t from-background/90 via-transparent to-transparent opacity-60" />
         
         <div className="absolute top-4 right-4 z-20">
-          <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md border ${
-            available === 0 ? "bg-red-500/20 border-red-500/50 text-red-400" : "bg-secondary/20 border-secondary/50 text-secondary"
-          }`}>
-            {available === 0 ? t("eventCard.soldOut") : t("eventCard.liveNow")}
-          </span>
+          <div className="flex flex-col gap-2">
+            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md border ${
+              available === 0 ? "bg-red-500/20 border-red-500/50 text-red-400" : "bg-secondary/20 border-secondary/50 text-secondary"
+            }`}>
+              {available === 0 ? t("card_sold_out") : 'LIVE'}
+            </span>
+            {event.isHot && (
+              <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-primary/20 border border-primary/50 text-primary animate-pulse text-center">
+                🔥 {t('card_hot_badge')}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -60,40 +70,40 @@ const EventCard = ({ event }) => {
           >
             {event.title}
           </h3>
-          <span className="shrink-0 text-[10px] font-mono p-1 border border-secondary/40 text-secondary bg-secondary/5 truncate max-w-[80px] whitespace-nowrap">
-            {t("eventCard.id")}: {event._id?.slice(-6).toUpperCase() || "UNK"}
+          <span className="shrink-0 text-[10px] font-mono p-1 border border-secondary/40 text-secondary bg-secondary/5">
+            {t("card_id")}: {event._id?.slice(-4).toUpperCase()}
           </span>
         </div>
 
         <p 
-          className="text-foreground/70 text-sm mb-6 line-clamp-3 leading-relaxed border-l-2 border-secondary/20 pl-3"
+          className="text-foreground/70 text-sm mb-6 line-clamp-2 leading-relaxed border-l-2 border-secondary/20 pl-3"
           style={{ fontFamily: TYPOGRAPHY.BODY }}
         >
           {event.description}
         </p>
 
-        <div className="space-y-3 text-xs text-secondary/80 mb-8" style={{ fontFamily: TYPOGRAPHY.TECH }}>
-          <div className="flex items-center gap-3 font-bold">
+        <div className="space-y-2 text-xs text-secondary/80 mb-6" style={{ fontFamily: TYPOGRAPHY.TECH }}>
+          <div className="flex items-center gap-2">
             <span className="opacity-70">📅</span> {formattedDate}
           </div>
-          <div className="flex items-center gap-3 font-bold truncate">
+          <div className="flex items-center gap-2 truncate">
             <span className="opacity-70">📍</span> {event.location}
           </div>
         </div>
 
         {/* Progress Bar */}
         <div className="mb-6">
-          <div className="flex justify-between items-center text-[10px] font-mono mb-2 uppercase tracking-tighter">
-            <span className="text-foreground/40">{t("eventCard.ticketsSold")} {progressPercentage}%</span>
+          <div className="flex justify-between items-center text-[10px] font-mono mb-2 uppercase">
+            <span className="text-foreground/40">{t("card_tickets_sold")} {progressPercentage}%</span>
             <span className={available < 50 ? "text-primary animate-pulse" : "text-secondary"}>
-              {t("eventCard.left")} {available}
+              {t("card_left")} {available}
             </span>
           </div>
           <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
             <motion.div 
               initial={{ width: 0 }}
               animate={{ width: `${progressPercentage}%` }}
-              transition={{ duration: 1, ease: "easeOut" }}
+              transition={{ duration: 1 }}
               className="h-full bg-linear-to-r from-secondary to-primary shadow-[0_0_10px_rgba(0,255,255,0.5)]"
             />
           </div>
@@ -102,28 +112,25 @@ const EventCard = ({ event }) => {
         {/* Action Button */}
         <div className="mt-auto">
           <motion.button
-            whileHover={available > 0 && bookingStatus === "idle" ? { 
-              scale: 1.02, 
-              boxShadow: `0 0 20px ${THEME_COLORS.PRIMARY_GLOW}` 
-            } : {}}
+            whileHover={available > 0 && bookingStatus === "idle" ? { scale: 1.02 } : {}}
             whileTap={{ scale: 0.98 }}
             onClick={handleBooking}
             disabled={available === 0 || bookingStatus === "completed"}
-            className={`w-full py-4 font-bold uppercase tracking-[0.2em] text-xs transition-all border-2 flex items-center justify-center gap-2 ${
+            className={`w-full py-3.5 font-black uppercase tracking-[0.2em] text-[10px] transition-all border-2 flex items-center justify-center gap-2 ${
               available === 0 
                 ? "border-white/10 text-white/20 cursor-not-allowed" 
                 : bookingStatus === "completed"
                   ? "border-green-500 text-green-400 bg-green-500/10"
-                  : "border-primary text-primary hover:bg-primary/10"
+                  : "border-primary text-primary hover:bg-primary/10 shadow-[0_0_10px_rgba(255,0,255,0.2)]"
             }`}
             style={{ fontFamily: TYPOGRAPHY.HEADING }}
           >
             {bookingStatus === "idle" && (
-              <>{available === 0 ? t("eventCard.statusDepleted") : `🎟️ ${t("eventCard.bookNow")}`}</>
+              <>{available === 0 ? t("card_sold_out") : `🎟️ ${t("card_book_now")}`}</>
             )}
-            {bookingStatus === "submitting" && <span>{t("eventCard.requesting")}</span>}
-            {bookingStatus === "queued" && <span className="animate-pulse">{t("eventCard.inQueue")}</span>}
-            {bookingStatus === "completed" && t("eventCard.success")}
+            {bookingStatus === "submitting" && <span>{t("card_requesting")}</span>}
+            {bookingStatus === "queued" && <span className="animate-pulse">{t("card_in_queue")}</span>}
+            {bookingStatus === "completed" && t("card_success")}
           </motion.button>
         </div>
       </div>

@@ -15,7 +15,7 @@ const updateEventHandler = async (req, res) => {
     location,
     totalTickets,
     imageUrl,
-    isFeatured
+    isHot
   } = req.body;
 
   // Gọi Service để xử lý cập nhật MongoDB và sync Redis (nếu có)
@@ -26,7 +26,7 @@ const updateEventHandler = async (req, res) => {
     location,
     totalTickets,
     imageUrl,
-    isFeatured
+    isHot
   });
 
   res.status(200).json({

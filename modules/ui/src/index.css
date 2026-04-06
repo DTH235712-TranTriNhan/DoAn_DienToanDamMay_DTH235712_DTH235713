@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@400;600;700&family=Share+Tech+Mono&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@400;600;700&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap");
 
 /* Khai báo của Tailwind v4 (Thay thế cho 3 dòng @tailwind cũ) */
 @import "tailwindcss";
@@ -13,7 +13,7 @@
   --color-accent: #ff9900;
   --color-border: #2d1b4e;
 
-  --font-heading: "Outfit", sans-serif;
+  --font-heading: "Orbitron", sans-serif;
   --font-sans: "Inter", sans-serif;
   --font-mono: "Share Tech Mono", monospace;
 

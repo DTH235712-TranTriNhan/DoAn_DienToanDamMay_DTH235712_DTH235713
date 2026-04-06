@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../services/api.js"; // Đảm bảo đúng chuẩn ESM có đuôi .js
+import api from "../services/api.js";
 
 const AuthContext = createContext();
 
@@ -10,49 +10,49 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Hàm đăng xuất: Xóa sạch dấu vết xác thực
+  // Logout function: Clears all authentication footprints
   const logout = useCallback(() => {
-    console.log("[Auth] Đang thực hiện đăng xuất...");
+    console.log("[Auth] Performing logout...");
     localStorage.removeItem("jwt_token");
     setToken(null);
     setUser(null);
-    // Điều hướng về trang chủ để tránh lỗi vòng lặp tại các route bảo vệ
+    // Navigate to home to prevent redirect loops in protected routes
     navigate("/", { replace: true });
   }, [navigate]);
 
-  // Hàm lấy thông tin User: Xử lý Race Condition và Envelope dữ liệu
+  // Profile fetch function: Handles Race Condition and Envelope data extraction
   const fetchUser = useCallback(async () => {
-    // 1. Luôn set loading là true khi bắt đầu để các component chờ dữ liệu
+    // 1. Set loading true initially so components wait for data
     setLoading(true);
     try {
       const response = await api.get("/auth/me");
 
-      // 2. Trích xuất đúng cấu trúc Envelope { success: true, data: user }
-      // Việc lấy đúng response.data.data giúp dứt điểm lỗi không hiển thị Avatar
+      // 2. Extract from Envelope structure { success: true, data: user }
+      // Direct extraction ensures Avatar display works correctly
       if (response.data && response.data.data) {
-        console.log("[Auth] Đã lấy profile thành công:", response.data.data.displayName);
-        setUser(response.data.data); // LUÔN trích xuất từ .data.data của Envelope
+        console.log("[Auth] Profile fetched successfully:", response.data.data.displayName);
+        setUser(response.data.data); // ALWAYS extract from .data.data
       } else {
-        throw new Error("Dữ liệu người dùng trả về không khớp cấu trúc Envelope");
+        throw new Error("User data returned does not match Envelope structure");
       }
     } catch (error) {
       console.error(
-        "[Auth] Lỗi lấy thông tin người dùng:",
+        "[Auth] Error fetching user info:",
         error.response?.data?.message || error.message
       );
-      // Nếu token hết hạn (401), dọn dẹp state ngay lập tức
+      // If token is expired (401), clear state immediately
       if (error.response?.status === 401) {
         logout();
       } else {
         setUser(null);
       }
     } finally {
-      // 3. Đảm bảo loading luôn tắt để ứng dụng hiển thị giao diện
+      // 3. Ensure loading is disabled to unblock UI
       setLoading(false);
     }
   }, [logout]);
 
-  // Tự động kiểm tra session khi người dùng F5 trang
+  // Auto-check session on page refresh (F5)
   useEffect(() => {
     if (token) {
       fetchUser();
@@ -61,23 +61,23 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token, fetchUser]);
 
-  // Hàm đăng nhập: Đồng bộ hóa localStorage và profile
+  // Login function: Synchronizes localStorage and profile state
   const login = useCallback(
     async newToken => {
-      console.log("[Auth] Tiếp nhận Token mới, đang đồng bộ hóa...");
-      // 4. Cập nhật localStorage ngay lập tức để các request sau đính kèm JWT
+      console.log("[Auth] Received new token, synchronizing state...");
+      // 4. Update localStorage immediately so subsequent requests attach JWT
       localStorage.setItem("jwt_token", newToken);
       setToken(newToken);
 
-      // 5. Quan trọng: Phải chờ lấy xong profile mới kết thúc hàm login
-      // Giúp AuthCallbackPage dứt điểm lỗi redirect về /login một cách sai lầm
+      // 5. CRITICAL: Wait for profile fetch before resolving login
+      // Prevents premature redirect to /login in AuthCallbackPage
       await fetchUser();
     },
     [fetchUser]
   );
 
-  // 6. Tối ưu hiệu năng: Dùng useMemo để tránh việc Provider re-render vô tận
-  // (Fix lỗi log API /me trả mã 304 liên tục mà bạn đã gặp)
+  // 6. Performance Optimization: Memoize context to prevent infinite re-renders
+  // (Fixes the issue where /me returns 304 repeatedly)
   const value = useMemo(
     () => ({
       user,
@@ -86,7 +86,7 @@ export const AuthProvider = ({ children }) => {
       login,
       logout,
       isAuthenticated: !!user,
-      isAdmin: user?.role === "admin" // Tiện ích cho Task 3.2 và 3.4
+      isAdmin: user?.role === "admin" // Utility for administrative tasks
     }),
     [user, token, loading, login, logout]
   );

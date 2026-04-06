@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import LanguageContext from "./context/LanguageContext.jsx";
 import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
 import NavBar from "./components/NavBar.jsx";
 import EventsPage from "./pages/EventsPage.jsx";
@@ -62,13 +61,11 @@ const Layout = () => {
 
 function App() {
   return (
-    <LanguageContext.ProviderComponent>
-      <BrowserRouter>
-        <AuthProvider>
-          <Layout />
-        </AuthProvider>
-      </BrowserRouter>
-    </LanguageContext.ProviderComponent>
+    <BrowserRouter>
+      <AuthProvider>
+        <Layout />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

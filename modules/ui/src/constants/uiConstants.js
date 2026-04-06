@@ -35,7 +35,7 @@ export const SHADOWS = {
 };
 
 export const TYPOGRAPHY = {
-  HEADING: "'Outfit', sans-serif",
+  HEADING: "'Orbitron', sans-serif",
   BODY: "'Inter', sans-serif",
   TECH: "'Share Tech Mono', monospace"
 };

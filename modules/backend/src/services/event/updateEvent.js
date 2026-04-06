@@ -11,8 +11,12 @@ import { REDIS_KEYS } from "../../types/constants/redisKeys.js";
  * @param {Object} updateData - Dữ liệu cập nhật mới
  * @returns {Promise<Object>} - Đối tượng sự kiện đã cập nhật
  */
-const updateEvent = async (eventId, updateData) => {
-  // 1. Tìm sự kiện hiện tại trong MongoDB
+const updateEvent = async (eventId, eventData) => {
+  // 1. Khởi tạo và trích xuất trường tường minh (Input Sanitization)
+  const { title, description, date, location, totalTickets, imageUrl, isHot } = eventData;
+  const updateData = { title, description, date, location, totalTickets, imageUrl, isHot };
+
+  // 2. Tìm sự kiện hiện tại trong MongoDB
   const event = await Event.findById(eventId);
   if (!event) {
     throw new AppError("Sự kiện không tồn tại", 404);
