@@ -8,7 +8,7 @@ export default defineConfig({
     proxy: {
       // Điều hướng tất cả các yêu cầu bắt đầu bằng /api sang Backend server
       "/api": {
-        target: "http://localhost:5000",
+        target: "http://127.0.0.1:5000",
         changeOrigin: true
       }
     }
