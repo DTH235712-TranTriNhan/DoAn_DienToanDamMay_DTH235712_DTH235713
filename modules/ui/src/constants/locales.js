@@ -6,6 +6,7 @@ const LOCALES = {
       login: "ĐĂNG NHẬP",
       logout: "ĐĂNG XUẤT",
       logo: "VÉ",
+      admin: "QUẢN TRỊ",
       initialize: "KHỞI CHẠY ĐĂNG NHẬP"
     },
     hero: {
@@ -56,6 +57,7 @@ const LOCALES = {
       login: "LOGIN",
       logout: "LOGOUT",
       logo: "TICKET",
+      admin: "ADMIN_PANEL",
       initialize: "INITIALIZE LOGIN"
     },
     hero: {
