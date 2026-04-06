@@ -183,11 +183,12 @@
 
 ---
 
-### TASK 2.6 🔲 · Cập nhật NavBar hiển thị trạng thái auth thật
+### TASK 2.6 ✅ · Cập nhật NavBar hiển thị trạng thái auth thật
 
 | Mục | Chi tiết |
 |-----|---------|
 | **Người phụ trách** | Nhật |
+| **Trạng thái** | ✅ Đã xong |
 | **File/Thư mục** | `ui/src/components/NavBar.jsx` |
 | **Định hướng triển khai** | Sửa NavBar để đọc từ AuthContext thay vì props tĩnh. `const { user, logout } = useContext(AuthContext)`. **Nếu `user` tồn tại:** hiển thị `<img src={user.avatar} />` (ảnh tròn), `user.displayName`, nút "Vé của tôi" → link đến `/my-tickets`, nút "Đăng xuất" → gọi `logout()` rồi `navigate("/login")`. **Nếu chưa đăng nhập:** nút "Đăng nhập" → link đến `/login` |
 | **Kết quả** | NavBar phản ánh đúng trạng thái auth — đăng nhập/đăng xuất cập nhật realtime |
