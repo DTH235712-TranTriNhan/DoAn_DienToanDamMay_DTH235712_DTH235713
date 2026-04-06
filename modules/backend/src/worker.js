@@ -24,10 +24,11 @@ const bootstrap = async () => {
     console.log("👷 [Worker] MongoDB Connected");
 
     // 2. Tạo kết nối Redis riêng cho BullMQ
+    const isLocal = (process.env.REDIS_URL || "").includes("127.0.0.1");
     const redisConnection = new Redis(process.env.REDIS_URL || "redis://127.0.0.1:6379", {
       maxRetriesPerRequest: null,
-      enableReadyCheck: false
-      // Nếu dùng Upstash Cloud thì thêm logic TLS như mình hướng dẫn ở file redis.js
+      enableReadyCheck: false,
+      tls: !isLocal && (process.env.REDIS_URL || "").startsWith("rediss://") ? {} : undefined
     });
 
     // 3. Khởi tạo Worker để lắng nghe hàng đợi "ticketQueue"

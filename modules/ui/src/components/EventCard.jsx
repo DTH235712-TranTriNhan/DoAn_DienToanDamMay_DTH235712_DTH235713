@@ -14,10 +14,12 @@ const EventCard = ({ event }) => {
 
   const formattedDate = useMemo(() => {
     if (!event?.date) return t("card_tba");
-    return new Date(event.date).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US', {
-      day: "2-digit", month: "2-digit", year: "numeric"
+    return new Date(event.date).toLocaleDateString(lang === "vi" ? "vi-VN" : "en-US", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
     });
-  }, [event.date, lang]);
+  }, [event.date, lang, t]);
 
   const available = event.availableTickets || 0;
   const total = event.totalTickets || 1;
@@ -45,17 +47,21 @@ const EventCard = ({ event }) => {
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-linear-to-t from-background/90 via-transparent to-transparent opacity-60" />
-        
+
         <div className="absolute top-4 right-4 z-20">
           <div className="flex flex-col gap-2">
-            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md border ${
-              available === 0 ? "bg-red-500/20 border-red-500/50 text-red-400" : "bg-secondary/20 border-secondary/50 text-secondary"
-            }`}>
-              {available === 0 ? t("card_sold_out") : 'LIVE'}
+            <span
+              className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md border ${
+                available === 0
+                  ? "bg-red-500/20 border-red-500/50 text-red-400"
+                  : "bg-secondary/20 border-secondary/50 text-secondary"
+              }`}
+            >
+              {available === 0 ? t("card_sold_out") : "LIVE"}
             </span>
             {event.isHot && (
               <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-primary/20 border border-primary/50 text-primary animate-pulse text-center">
-                🔥 {t('card_hot_badge')}
+                🔥 {t("card_hot_badge")}
               </span>
             )}
           </div>
@@ -64,7 +70,7 @@ const EventCard = ({ event }) => {
 
       <div className="p-6 grow flex flex-col relative z-10">
         <div className="flex justify-between items-start mb-4 gap-2">
-          <h3 
+          <h3
             className="text-xl font-black text-white leading-tight uppercase tracking-tight truncate"
             style={{ fontFamily: TYPOGRAPHY.HEADING }}
           >
@@ -75,14 +81,17 @@ const EventCard = ({ event }) => {
           </span>
         </div>
 
-        <p 
+        <p
           className="text-foreground/70 text-sm mb-6 line-clamp-2 leading-relaxed border-l-2 border-secondary/20 pl-3"
           style={{ fontFamily: TYPOGRAPHY.BODY }}
         >
           {event.description}
         </p>
 
-        <div className="space-y-2 text-xs text-secondary/80 mb-6" style={{ fontFamily: TYPOGRAPHY.TECH }}>
+        <div
+          className="space-y-2 text-xs text-secondary/80 mb-6"
+          style={{ fontFamily: TYPOGRAPHY.TECH }}
+        >
           <div className="flex items-center gap-2">
             <span className="opacity-70">📅</span> {formattedDate}
           </div>
@@ -94,13 +103,15 @@ const EventCard = ({ event }) => {
         {/* Progress Bar */}
         <div className="mb-6">
           <div className="flex justify-between items-center text-[10px] font-mono mb-2 uppercase">
-            <span className="text-foreground/40">{t("card_tickets_sold")} {progressPercentage}%</span>
+            <span className="text-foreground/40">
+              {t("card_tickets_sold")} {progressPercentage}%
+            </span>
             <span className={available < 50 ? "text-primary animate-pulse" : "text-secondary"}>
               {t("card_left")} {available}
             </span>
           </div>
           <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
-            <motion.div 
+            <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progressPercentage}%` }}
               transition={{ duration: 1 }}
@@ -117,8 +128,8 @@ const EventCard = ({ event }) => {
             onClick={handleBooking}
             disabled={available === 0 || bookingStatus === "completed"}
             className={`w-full py-3.5 font-black uppercase tracking-[0.2em] text-[10px] transition-all border-2 flex items-center justify-center gap-2 ${
-              available === 0 
-                ? "border-white/10 text-white/20 cursor-not-allowed" 
+              available === 0
+                ? "border-white/10 text-white/20 cursor-not-allowed"
                 : bookingStatus === "completed"
                   ? "border-green-500 text-green-400 bg-green-500/10"
                   : "border-primary text-primary hover:bg-primary/10 shadow-[0_0_10px_rgba(255,0,255,0.2)]"
@@ -129,7 +140,9 @@ const EventCard = ({ event }) => {
               <>{available === 0 ? t("card_sold_out") : `🎟️ ${t("card_book_now")}`}</>
             )}
             {bookingStatus === "submitting" && <span>{t("card_requesting")}</span>}
-            {bookingStatus === "queued" && <span className="animate-pulse">{t("card_in_queue")}</span>}
+            {bookingStatus === "queued" && (
+              <span className="animate-pulse">{t("card_in_queue")}</span>
+            )}
             {bookingStatus === "completed" && t("card_success")}
           </motion.button>
         </div>

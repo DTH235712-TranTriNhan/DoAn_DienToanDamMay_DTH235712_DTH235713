@@ -3,7 +3,7 @@
  * Phân loại lỗi: Operational (Nghiệp vụ) vs System (Hệ thống), [1].
  * Tuân thủ Modular Design: Một file chỉ chứa một hàm thực thi duy nhất, [2].
  */
-const errorHandler = (err, req, res) => {
+const errorHandler = (err, req, res, next) => {
   let statusCode = err.statusCode || 500;
   let message = err.message;
   let isOperational = err.isOperational || false;

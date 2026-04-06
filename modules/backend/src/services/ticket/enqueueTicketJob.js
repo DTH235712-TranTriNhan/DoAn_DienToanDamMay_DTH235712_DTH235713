@@ -1,6 +1,5 @@
 import { Queue } from "bullmq";
 import redisClient from "../../libs/redis.js";
-// CHÚ Ý: Bắt buộc phải có đuôi .js cho file nội bộ
 import { checkIdempotency } from "./checkIdempotency.js";
 
 /**

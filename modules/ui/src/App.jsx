@@ -62,9 +62,11 @@ const Layout = () => {
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Layout />
-      </AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <Layout />
+        </AuthProvider>
+      </LanguageProvider>
     </BrowserRouter>
   );
 }
