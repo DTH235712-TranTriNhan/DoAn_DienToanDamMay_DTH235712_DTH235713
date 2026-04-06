@@ -13,10 +13,16 @@ router.get("/google", passport.authenticate("google", { scope: ["profile", "emai
 // Bước 2: Google redirect về, Passport xử lý, rồi gọi handler
 router.get(
   "/google/callback",
-  passport.authenticate("google", {
-    session: false,
-    failureRedirect: "/login"
-  }),
+  (req, res, next) => {
+    passport.authenticate("google", { session: false }, (err, user) => {
+      if (err || !user) {
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        return res.redirect(`${frontendUrl}/login?error=google_auth_failed`);
+      }
+      req.user = user;
+      next();
+    })(req, res, next);
+  },
   asyncHandler(googleCallbackHandler)
 );
 

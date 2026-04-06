@@ -8,18 +8,24 @@ const AuthCallbackPage = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Đọc tham số token từ URL
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
+    const handleLogin = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
 
-    if (token) {
-      // Gọi hàm login(token) từ AuthContext để lưu JWT và cập nhật trạng thái
-      login(token);
-      // Sau khi login hoàn tất, điều hướng về trang chủ
-      navigate("/");
-    } else {
-      setError("Không tìm thấy mã xác thực (token) trong URL. Vui lòng đăng nhập lại.");
-    }
+      if (token) {
+        try {
+          await login(token);
+          // Cho phép AuthContext xử lý một nhịp trước khi navigate
+          navigate("/", { replace: true });
+        } catch (err) {
+          setError("Lỗi xử lý xác thực: " + err.message);
+        }
+      } else {
+        setError("Không tìm thấy mã xác thực (token) trong URL. Vui lòng đăng nhập lại.");
+      }
+    };
+
+    handleLogin();
   }, [navigate, login]);
 
   // Giao diện khi có lỗi (không có token)
@@ -36,7 +42,7 @@ const AuthCallbackPage = () => {
           <p className="text-slate-400 font-medium mb-10 leading-relaxed">{error}</p>
           <button
             onClick={() => navigate("/login")}
-            className="w-full py-4 px-8 bg-gradient-to-r from-red-600 to-red-500 text-white font-black rounded-2xl hover:from-red-500 hover:to-red-400 transition-all duration-300 shadow-lg shadow-red-500/20 uppercase tracking-widest text-sm"
+            className="w-full py-4 px-8 bg-linear-to-r from-red-600 to-red-500 text-white font-black rounded-2xl hover:from-red-500 hover:to-red-400 transition-all duration-300 shadow-lg shadow-red-500/20 uppercase tracking-widest text-sm"
           >
             Quay lại trang đăng nhập
           </button>

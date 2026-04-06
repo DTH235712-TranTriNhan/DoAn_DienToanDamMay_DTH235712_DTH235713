@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LanguageContext from "./context/LanguageContext.jsx";
 import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
-import NavBar from "./components/NavBar";
-import EventsPage from "./pages/EventsPage";
-import LoginPage from "./pages/LoginPage";
-import AuthCallbackPage from "./pages/AuthCallbackPage";
-import MyTicketsPage from "./pages/MyTicketsPage";
+import NavBar from "./components/NavBar.jsx";
+import EventsPage from "./pages/EventsPage.jsx";
+import LoginPage from "./pages/LoginPage.jsx";
+import AuthCallbackPage from "./pages/AuthCallbackPage.jsx";
+import MyTicketsPage from "./pages/MyTicketsPage.jsx";
 
 // Component con để sử dụng hook useAuth bên trong AuthProvider
 const Layout = () => {
