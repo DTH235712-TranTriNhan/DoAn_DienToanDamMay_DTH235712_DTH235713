@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { THEME_COLORS } from "../constants/uiConstants";
+import LanguageContext from "../context/LanguageContext.jsx";
 
 const LoginPage = () => {
+  const { t } = useContext(LanguageContext);
   const [text, setText] = useState("");
-  const fullText =
-    "> INITIALIZING_AUTH_PROTOCOL... \n> ACCESSING_MAINFRAME... \n> STATUS: ENCRYPTED \n> PLEASE_IDENTIFY_YOURSELF_";
+  const fullText = t("login.terminal");
 
   useEffect(() => {
     let i = 0;
@@ -32,7 +33,7 @@ const LoginPage = () => {
               <div className="w-3 h-3 rounded-full bg-accent/60"></div>
             </div>
             <span className="font-mono text-[10px] text-primary/80 tracking-widest uppercase">
-              SECURE_LOGIN_v2.0.4
+              {t("login.secureLogin")}
             </span>
           </div>
 
@@ -78,14 +79,14 @@ const LoginPage = () => {
                 />
               </svg>
               <span className="font-heading font-black text-primary tracking-[0.2em] uppercase text-base drop-shadow-[0_0_5px_#FF00FF]">
-                INITIALIZE_SOCIAL_AUTH
+                {t("login.button")}
               </span>
             </div>
           </button>
 
           <div className="mt-6 flex justify-between w-full text-[10px] uppercase tracking-widest text-primary/40 font-mono">
-            <span>&gt; ENCRYPTION: AES-256</span>
-            <span>&gt; PROTOCOL: OAUTH_2.0</span>
+            <span>&gt; {t("login.encryption")}</span>
+            <span>&gt; {t("login.protocol")}</span>
           </div>
         </div>
       </div>

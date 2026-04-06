@@ -1,10 +1,13 @@
+import { useContext } from "react";
 import HeroSection from "../components/HeroSection.jsx";
 import EventCard from "../components/EventCard.jsx";
 import EventCardSkeleton from "../components/EventCardSkeleton.jsx";
 import useEvents from "../hooks/useEvents.js";
 import { TYPOGRAPHY } from "../constants/uiConstants.js";
+import LanguageContext from "../context/LanguageContext.jsx";
 
 const EventsPage = () => {
+  const { t } = useContext(LanguageContext);
   const { events, loading, error } = useEvents();
 
   if (loading) {
@@ -27,7 +30,7 @@ const EventsPage = () => {
         <div className="relative z-10">
           <span className="text-6xl block mb-6 animate-pulse">📡</span>
           <h2 className="text-2xl font-black text-primary mb-4 tracking-tighter uppercase" style={{ fontFamily: TYPOGRAPHY.HEADING }}>
-            &gt; SYSTEM_SYNC_ERROR
+            &gt; {t("error.sync")}
           </h2>
           <p className="text-foreground/60 font-mono text-xs border border-primary/20 p-4 bg-primary/5 mb-8">
             {error}
@@ -36,7 +39,7 @@ const EventsPage = () => {
             onClick={() => window.location.reload()}
             className="px-8 py-3 border border-secondary text-secondary font-mono text-xs uppercase tracking-widest hover:bg-secondary/10 transition-all hover:shadow-[0_0_15px_rgba(0,255,255,0.3)]"
           >
-            [ REBOOT_PROTOCOL ]
+            [ {t("page.reboot")} ]
           </button>
         </div>
       </div>
@@ -51,11 +54,11 @@ const EventsPage = () => {
       <div className="mb-12 border-l-4 border-secondary pl-6 relative">
         <div className="absolute -left-[6px] top-0 bottom-0 w-[8px] bg-secondary shadow-[0_0_15px_rgba(0,255,255,0.5)]" />
         <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight uppercase items-center flex gap-4" style={{ fontFamily: TYPOGRAPHY.HEADING }}>
-          LIVE_SEQUENCE_GRID
+          {t("page.sequenceGrid")}
         </h1>
         <p className="text-secondary/60 mt-4 font-mono font-bold uppercase text-[10px] tracking-[0.3em] flex items-center gap-2">
           <span className="inline-block w-2 h-2 rounded-full bg-secondary animate-pulse" />
-          CONNECTION_STABLE // VERSION_2.0_REFRESH
+          {t("page.stable")} // {t("page.version")}
         </p>
       </div>
 

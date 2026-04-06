@@ -90,11 +90,12 @@
 
 ---
 
-### TASK 1.7 🔲 · Tạo trang EventsPage + component EventCard
+### TASK 1.7 ✅ · Tạo trang EventsPage + component EventCard
 
 | Mục | Chi tiết |
 |-----|---------|
 | **Người phụ trách** | Nhật |
+| **Trạng thái** | ✅ Đã xong |
 | **File/Thư mục** | `ui/src/pages/EventsPage.jsx` (0 bytes), `ui/src/components/EventCard.jsx` (0 bytes), `ui/src/hooks/useEvents.js` (0 bytes) |
 | **Định hướng triển khai** | 1. **`useEvents.js`** — Custom hook gọi `GET /api/events`. Dùng `useState` + `useEffect`. Return `{ events, loading, error }`. Import `api` từ `../services/api.js` (đã có axios instance). **Quan trọng:** sửa `baseURL` trong `api.js` thành `"/api"` (vì đã có Vite proxy ở Task 1.5, không cần hardcode `localhost:5000` nữa). 2. **`EventCard.jsx`** — Props: `event` object. Hiển thị: title, description, date (format DD/MM/YYYY), location, thanh progress (availableTickets/totalTickets), nút "Đặt Vé Ngay". Lấy toàn bộ Tailwind UI từ `App.jsx` cũ (phần `.map(event => ...)`) rồi tách thành component riêng. 3. **`EventsPage.jsx`** — Gọi `useEvents()`, render grid `<EventCard />`. Xử lý 3 trạng thái: loading (skeleton/spinner), error (thông báo lỗi), empty (chưa có sự kiện) |
 | **Kết quả** | Trang chủ hiển thị danh sách sự kiện thật từ MongoDB (qua API), bố cục responsive grid 1-2-3 cột |

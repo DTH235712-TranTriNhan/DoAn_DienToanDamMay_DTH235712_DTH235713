@@ -1,6 +1,10 @@
 import { Link } from 'react-router-dom';
+import { useContext } from 'react';
+import LanguageContext from '../context/LanguageContext.jsx';
 
 const NavBar = ({ user }) => {
+  const { t, lang, changeLanguage } = useContext(LanguageContext);
+
   return (
     <nav className="bg-card backdrop-blur-md border-b-2 border-primary shadow-[0_0_15px_rgba(255,0,255,0.4)] sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -17,7 +21,7 @@ const NavBar = ({ user }) => {
             {user ? (
               <>
                 <Link to="/my-tickets" className="text-secondary hover:text-white hover:drop-shadow-[0_0_8px_#00FFFF] transition-all font-sans uppercase tracking-widest text-xs font-bold">
-                  &gt; MY_TICKETS
+                  &gt; {t("nav.myTickets")}
                 </Link>
                 
                 <div className="flex items-center space-x-3 border-l-2 border-border pl-6">
@@ -32,7 +36,7 @@ const NavBar = ({ user }) => {
                 </div>
 
                 <button className="text-foreground hover:text-primary transition-colors uppercase tracking-widest text-xs font-sans font-bold">
-                  [ LOGOUT ]
+                  [ {t("nav.logout")} ]
                 </button>
               </>
             ) : (
@@ -42,10 +46,27 @@ const NavBar = ({ user }) => {
                 className="group relative -skew-x-12 transform border-2 border-secondary bg-transparent px-6 py-2 transition-all duration-200 hover:skew-x-0 hover:bg-secondary hover:shadow-[0_0_20px_#00FFFF]"
               >
                 <span className="inline-block skew-x-12 transform font-sans text-xs font-bold uppercase tracking-widest text-secondary group-hover:text-black transition-all">
-                  INITIALIZE_LOGIN
+                  {t("nav.initialize")}
                 </span>
               </Link>
             )}
+
+            {/* Language Toggle */}
+            <div className="flex items-center space-x-2 border-l-2 border-primary/30 pl-6 ml-6 font-mono text-xs">
+              <button
+                onClick={() => changeLanguage("vi")}
+                className={`transition-all px-2 py-1 ${lang === "vi" ? "bg-primary text-black font-bold shadow-[0_0_10px_#00FFFF]" : "text-white/50 hover:text-white"}`}
+              >
+                VN
+              </button>
+              <span className="text-white/30">|</span>
+              <button
+                onClick={() => changeLanguage("en")}
+                className={`transition-all px-2 py-1 ${lang === "en" ? "bg-secondary text-white font-bold shadow-[0_0_10px_#FF00FF]" : "text-white/50 hover:text-white"}`}
+              >
+                EN
+              </button>
+            </div>
           </div>
           
         </div>

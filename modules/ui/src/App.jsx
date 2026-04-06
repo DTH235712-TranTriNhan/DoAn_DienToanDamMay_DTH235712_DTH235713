@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import LanguageContext from "./context/LanguageContext.jsx";
 import NavBar from "./components/NavBar";
 import EventsPage from "./pages/EventsPage";
 import LoginPage from "./pages/LoginPage";
@@ -9,9 +10,10 @@ function App() {
   const mockUser = null;
 
   return (
-    <BrowserRouter>
-      {/* Bọc toàn bộ App bằng không gian Vaporwave */}
-      <div className="min-h-screen relative bg-background text-foreground overflow-hidden">
+    <LanguageContext.ProviderComponent>
+      <BrowserRouter>
+        {/* Bọc toàn bộ App bằng không gian Vaporwave */}
+        <div className="min-h-screen relative bg-background text-foreground overflow-hidden">
         {/* Floating Sun (Mặt trời mờ ảo phía sau) */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[600px] w-[600px] blur-[100px] bg-sun-glow opacity-30 z-0 pointer-events-none"></div>
 
@@ -42,7 +44,8 @@ function App() {
           </main>
         </div>
       </div>
-    </BrowserRouter>
+      </BrowserRouter>
+    </LanguageContext.ProviderComponent>
   );
 }
 
