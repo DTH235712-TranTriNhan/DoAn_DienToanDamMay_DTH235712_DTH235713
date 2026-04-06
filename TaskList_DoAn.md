@@ -68,22 +68,24 @@
 
 ---
 
-### TASK 1.5 🔲 · Cài thêm dependencies Frontend & cấu hình Vite proxy
+### TASK 1.5 ✅ · Cài thêm dependencies Frontend & cấu hình Vite proxy
 
 | Mục | Chi tiết |
 |-----|---------|
 | **Người phụ trách** | Nhật |
+| **Trạng thái** | ✅ Đã xong |
 | **File/Thư mục** | `modules/ui/package.json`, `modules/ui/vite.config.js` |
 | **Định hướng triển khai** | 1. Từ thư mục root, chạy: `npm install axios react-router-dom --workspace=modules/ui`. 2. Mở `vite.config.js`, thêm `server.proxy` để `/api` trỏ về `http://localhost:5000` (tránh lỗi CORS khi dev). Cấu hình mẫu: `server: { proxy: { '/api': 'http://localhost:5000' } }`. 3. Kiểm tra: `npm run dev:ui` → truy cập `http://localhost:5173/api/health` phải trả JSON từ Backend |
 | **Kết quả** | Frontend gọi API qua relative path `/api/...` mà không cần hardcode `localhost:5000` |
 
 ---
 
-### TASK 1.6 🔲 · Tạo Layout chung: NavBar + React Router
+### TASK 1.6 ✅ · Tạo Layout chung: NavBar + React Router
 
 | Mục | Chi tiết |
 |-----|---------|
 | **Người phụ trách** | Nhật |
+| **Trạng thái** | ✅ Đã xong |
 | **File/Thư mục** | `ui/src/components/NavBar.jsx` (hiện 0 bytes), `ui/src/App.jsx` (cần refactor) |
 | **Định hướng triển khai** | 1. **`NavBar.jsx`** — Component thanh điều hướng cố định trên cùng. Props: `user` (object hoặc null). Nếu `user` → hiển thị avatar + tên + nút "Vé của tôi" + "Đăng xuất". Nếu `null` → nút "Đăng nhập với Google". Dùng Tailwind: `bg-white shadow-md sticky top-0 z-50`. 2. **`App.jsx`** — Xóa toàn bộ code mock data hiện tại. Wrap bằng `<BrowserRouter>`, render `<NavBar />` ở trên, bên dưới là `<Routes>`: Route `/` → `<EventsPage />`, Route `/login` → `<LoginPage />`, Route `/auth/callback` → component xử lý token (sẽ làm ở Phase 2), Route `/my-tickets` → `<MyTicketsPage />`. 3. Tạm thời NavBar chưa cần logic auth thật, chỉ cần render UI tĩnh |
 | **Kết quả** | Truy cập `localhost:5173` thấy NavBar + trang EventsPage (tạm trống). Chuyển route `/login` thấy LoginPage |
@@ -157,22 +159,24 @@
 
 ---
 
-### TASK 2.4 🔲 · Tạo AuthContext (quản lý trạng thái auth toàn app)
+### TASK 2.4 ✅ · Tạo AuthContext (quản lý trạng thái auth toàn app)
 
 | Mục | Chi tiết |
 |-----|---------|
 | **Người phụ trách** | Nhật |
+| **Trạng thái** | ✅ Đã xong |
 | **File/Thư mục** | `ui/src/context/AuthContext.jsx` (hiện 0 bytes) |
 | **Định hướng triển khai** | 1. Tạo `AuthContext` bằng `createContext()`. 2. Tạo `AuthProvider` component quản lý state `{ user, token, loading }`. 3. Khi mount (`useEffect` lần đầu): kiểm tra `localStorage.getItem("jwt_token")`. Nếu có token → gọi `GET /api/auth/me` để lấy thông tin user. Nếu API trả lỗi 401 → xóa token khỏi localStorage, set user = null. 4. Export 3 hàm qua context value: **`login(token)`** — lưu token vào localStorage, gọi `/api/auth/me`, set user. **`logout()`** — xóa token khỏi localStorage, set user = null. **`isAuthenticated`** — computed boolean (`user !== null`). 5. Wrap `<AuthProvider>` quanh toàn bộ app trong `App.jsx` (bên trong `<BrowserRouter>`) |
 | **Kết quả** | Bất kỳ component nào cũng có thể `const { user, login, logout } = useContext(AuthContext)` để biết user đã đăng nhập chưa |
 
 ---
 
-### TASK 2.5 🔲 · Tạo LoginPage + xử lý OAuth callback
+### TASK 2.5 ✅ · Tạo LoginPage + xử lý OAuth callback
 
 | Mục | Chi tiết |
 |-----|---------|
 | **Người phụ trách** | Nhật |
+| **Trạng thái** | ✅ Đã xong |
 | **File/Thư mục** | `ui/src/pages/LoginPage.jsx` (0 bytes), tạo mới `ui/src/pages/AuthCallbackPage.jsx` |
 | **Định hướng triển khai** | **File 1 — `LoginPage.jsx`:** Giao diện đơn giản — logo dự án, mô tả "Nền tảng săn vé sự kiện", nút "Đăng nhập với Google" (có icon Google). Click nút → `window.location.href = "/api/auth/google"` (full-page redirect sang Google). Nếu user đã đăng nhập (check AuthContext) → `navigate("/")` tự động. **File 2 — `AuthCallbackPage.jsx`:** Route `/auth/callback`. Khi mount: đọc `token` từ URL search params bằng `new URLSearchParams(window.location.search).get("token")`. Gọi `login(token)` từ AuthContext. Sau khi login thành công → `navigate("/")`. Hiển thị spinner "Đang xử lý đăng nhập..." trong lúc chờ. Nếu không có token trong URL → hiển thị lỗi + link về trang Login. Thêm route trong `App.jsx`: `<Route path="/auth/callback" element={<AuthCallbackPage />} />` |
 | **Kết quả** | Luồng hoàn chỉnh: User click đăng nhập → Google → callback → lưu JWT → về trang chủ với NavBar hiển thị avatar + tên |
