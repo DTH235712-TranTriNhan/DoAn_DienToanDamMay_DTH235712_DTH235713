@@ -297,18 +297,68 @@ const AdminEventsPage = () => {
         )}
       </AnimatePresence>
 
-      {/* Loading / Error States */}
-      {eventsLoading && (
-        <div className="flex justify-center py-16">
-          <p style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.PRIMARY }} className="animate-pulse text-sm uppercase tracking-widest">
-            {t('events_loading')}
-          </p>
+      {/* Mobile Card List (Visible < 768px) */}
+      {!eventsLoading && !eventsError && (
+        <div className="grid grid-cols-1 gap-4 md:hidden">
+          {events.length === 0 ? (
+            <div className="text-center py-12 border border-dashed border-white/10 rounded-xl">
+              <p style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.TEXT_MUTED }} className="text-xs uppercase tracking-widest">
+                {t('admin_no_events')}
+              </p>
+            </div>
+          ) : (
+            events.map((event) => (
+              <div 
+                key={event._id}
+                className="p-5 rounded-xl border border-white/5 bg-white/5 space-y-4"
+                style={{ boxShadow: SHADOWS.CARD }}
+              >
+                <div className="flex gap-4">
+                  <img src={event.imageUrl || 'https://placehold.co/100x100/090014/FF00FF?text=No+Img'} alt="Thumb" className="w-16 h-16 rounded object-cover border border-white/10" />
+                  <div className="flex-1 overflow-hidden">
+                    <h3 className="font-bold text-white truncate uppercase text-sm" style={{ fontFamily: TYPOGRAPHY.HEADING }}>{event.title}</h3>
+                    <p className="text-[10px] text-white/40 truncate uppercase font-mono mt-1">{event.location || 'NO_LOCATION'}</p>
+                    <div className="mt-2"><StatusBadge event={event} /></div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
+                  <div>
+                    <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest mb-1">Date_Time</p>
+                    <p className="text-[10px] text-white/80 font-mono">{formatDate(event.date, lang)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest mb-1">Tickets_Sold</p>
+                    <p className="text-[10px] text-white/80 font-mono">{event.soldTickets ?? 0} / {event.totalTickets}</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button 
+                    onClick={() => openEditModal(event)} 
+                    className="flex-1 py-2 rounded border border-secondary/50 text-secondary text-[10px] font-black uppercase tracking-widest hover:bg-secondary/10"
+                    style={{ fontFamily: TYPOGRAPHY.TECH }}
+                  >
+                    {t('admin_edit_btn')}
+                  </button>
+                  <button 
+                    disabled
+                    title="Backend DELETE endpoint: COMING SOON"
+                    className="flex-1 py-2 rounded border border-red-500/10 text-red-500/20 text-[8px] font-black uppercase tracking-widest cursor-not-allowed"
+                    style={{ fontFamily: TYPOGRAPHY.TECH }}
+                  >
+                    // DELETE_COMING_SOON
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       )}
 
-      {/* Table */}
+      {/* Desktop Table (Visible >= 768px) */}
       {!eventsLoading && !eventsError && (
-        <div className="overflow-x-auto rounded-xl" style={{ border: `1px solid ${THEME_COLORS.PRIMARY_GLOW}`, boxShadow: SHADOWS.CARD }}>
+        <div className="hidden md:block overflow-x-auto rounded-xl" style={{ border: `1px solid ${THEME_COLORS.PRIMARY_GLOW}`, boxShadow: SHADOWS.CARD }}>
           <table className="w-full min-w-[700px] border-collapse text-sm">
             <thead>
               <tr style={{ backgroundColor: 'rgba(255,0,255,0.08)', borderBottom: `1px solid ${THEME_COLORS.PRIMARY_GLOW}` }}>
@@ -355,7 +405,18 @@ const AdminEventsPage = () => {
                     </td>
                     <td className="px-4 py-3"><StatusBadge event={event} /></td>
                     <td className="px-4 py-3">
-                      <button onClick={() => openEditModal(event)} style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.SECONDARY, border: `1px solid ${THEME_COLORS.SECONDARY}`, fontSize: '0.65rem' }} className="px-3 py-1 rounded uppercase tracking-widest hover:bg-cyan-400/10 transition-all">{t('admin_edit_btn')}</button>
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => openEditModal(event)} style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.SECONDARY, border: `1px solid ${THEME_COLORS.SECONDARY}`, fontSize: '0.65rem' }} className="px-3 py-1 rounded uppercase tracking-widest hover:bg-cyan-400/10 transition-all">{t('admin_edit_btn')}</button>
+                        <button 
+                          disabled 
+                          title="Backend DELETE endpoint: COMING SOON"
+                          style={{ fontFamily: TYPOGRAPHY.TECH, color: 'rgba(255, 68, 68, 0.2)', border: '1px solid rgba(255, 68, 68, 0.1)', fontSize: '0.6rem' }} 
+                          className="px-3 py-1 rounded uppercase tracking-widest cursor-not-allowed"
+                        >
+                          // DELETE_SOON
+                        </button>
+                        {/* TODO: Implement DELETE /api/events/:id when backend is ready */}
+                      </div>
                     </td>
                   </motion.tr>
                 ))

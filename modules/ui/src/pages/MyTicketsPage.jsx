@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { THEME_COLORS, TYPOGRAPHY } from "../constants/uiConstants.js";
 import { useLanguage } from "../context/LanguageContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import { Link } from "react-router-dom";
+import EventCardSkeleton from "../components/EventCardSkeleton.jsx";
 import api from "../services/api.js";
 
 const MyTicketsPage = () => {
@@ -32,7 +34,7 @@ const MyTicketsPage = () => {
     if (user) {
       fetchTickets();
     }
-  }, [user, t]);
+  }, [user]);
 
   return (
     <div className="py-20 flex flex-col items-center px-4 max-w-4xl mx-auto w-full">
@@ -57,10 +59,10 @@ const MyTicketsPage = () => {
 
         <div className="p-6 md:p-10">
           {loading ? (
-            <div className="py-20 text-center">
-              <p className="font-bold text-foreground/70 text-sm animate-pulse uppercase tracking-[0.4em]" style={{ fontFamily: TYPOGRAPHY.TECH }}>
-                &gt; {t("tickets_querying")}
-              </p>
+            <div className="space-y-6">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-32 bg-white/5 animate-pulse rounded border border-white/5" />
+              ))}
             </div>
           ) : error ? (
             <div className="py-10 text-center border border-red-500/20 bg-red-500/5 rounded">
@@ -80,6 +82,24 @@ const MyTicketsPage = () => {
                         <h3 className="text-lg font-black text-white uppercase tracking-tight" style={{ fontFamily: TYPOGRAPHY.HEADING }}>
                           {ticket.event?.title || "EVENT_UNKNOWN"}
                         </h3>
+                        {/* Status Badge */}
+                        <div className="ml-auto md:ml-0">
+                          {ticket.status === 'confirmed' && (
+                            <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 border border-secondary text-secondary bg-secondary/5 rounded shadow-neon-secondary">
+                              {t("tickets_status_confirmed")}
+                            </span>
+                          )}
+                          {ticket.status === 'pending' && (
+                            <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 border border-amber-400 text-amber-400 bg-amber-400/5 rounded">
+                              {t("tickets_status_pending")}
+                            </span>
+                          )}
+                          {ticket.status === 'cancelled' && (
+                            <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 border border-red-500 text-red-500 bg-red-500/5 rounded">
+                              {t("tickets_status_cancelled")}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <div className="flex flex-wrap gap-4 text-[10px] text-white/50 font-mono uppercase tracking-widest">
                         <span className="flex items-center gap-1.5">
@@ -103,11 +123,18 @@ const MyTicketsPage = () => {
               ))}
             </div>
           ) : (
-            <div className="py-20 text-center">
+            <div className="py-20 text-center flex flex-col items-center">
                <div className="w-full h-px bg-linear-to-r from-transparent via-secondary/20 to-transparent my-8"></div>
-               <p className="text-secondary/50 text-[10px] font-bold tracking-[0.2em] uppercase" style={{ fontFamily: TYPOGRAPHY.BODY }}>
+               <p className="text-secondary/50 text-[10px] font-bold tracking-[0.2em] uppercase mb-8" style={{ fontFamily: TYPOGRAPHY.BODY }}>
                 {t("tickets_empty")}
               </p>
+              <Link
+                to="/"
+                className="px-8 py-3 border border-secondary text-secondary text-xs font-black uppercase tracking-widest hover:bg-secondary/10 transition-all"
+                style={{ fontFamily: TYPOGRAPHY.TECH }}
+              >
+                [ {t("tickets_explore")} ]
+              </Link>
             </div>
           )}
         </div>

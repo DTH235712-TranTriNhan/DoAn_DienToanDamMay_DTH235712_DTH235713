@@ -4,12 +4,12 @@
  * Design style: Cyberpunk / Vaporwave (Premium).
  */
 
-import { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../context/AuthContext.jsx';
-import { useLanguage } from '../context/LanguageContext.jsx';
-import { THEME_COLORS, SHADOWS, TYPOGRAPHY } from '../constants/uiConstants.js';
+import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "../context/AuthContext.jsx";
+import { useLanguage } from "../context/LanguageContext.jsx";
+import { THEME_COLORS, SHADOWS, TYPOGRAPHY } from "../constants/uiConstants.js";
 
 // ─── Animation Variants ───────────────────────────────────────────────────────
 
@@ -19,23 +19,23 @@ const dropdownVariants = {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { type: 'spring', stiffness: 300, damping: 20 },
+    transition: { type: "spring", stiffness: 300, damping: 20 }
   },
   exit: {
     opacity: 0,
     y: -5,
     scale: 0.95,
-    transition: { duration: 0.2 },
-  },
+    transition: { duration: 0.2 }
+  }
 };
 
 const itemVariants = {
   hidden: { opacity: 0, x: -5 },
-  visible: (i) => ({
+  visible: i => ({
     opacity: 1,
     x: 0,
-    transition: { delay: i * 0.05, duration: 0.2 },
-  }),
+    transition: { delay: i * 0.05, duration: 0.2 }
+  })
 };
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -65,42 +65,58 @@ const UserAvatar = ({ user, onClick }) => (
     <div className="relative">
       <div className="absolute -inset-0.5 bg-linear-to-r from-primary to-secondary rounded-full blur opacity-40 group-hover:opacity-100 transition duration-300"></div>
       <img
-        src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || 'U')}&background=FF00FF&color=00FFFF&size=128`}
+        src={
+          user?.avatar ||
+          `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || "U")}&background=FF00FF&color=00FFFF&size=128`
+        }
         alt="Avatar"
         className="relative w-9 h-9 rounded-full object-cover border border-white/20"
         referrerPolicy="no-referrer"
-        onError={(e) => {
-          e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || 'U')}&background=FF00FF&color=00FFFF&size=128`;
+        onError={e => {
+          e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || "U")}&background=FF00FF&color=00FFFF&size=128`;
         }}
       />
     </div>
     <div className="hidden sm:block text-left">
-      <p className="text-[10px] font-mono text-white/40 uppercase tracking-widest leading-none">Logged_In</p>
-      <p className="text-xs font-bold text-white truncate max-w-[100px] mt-1">{user?.displayName || user?.name}</p>
+      <p className="text-[10px] font-mono text-white/40 uppercase tracking-widest leading-none">
+        Logged_In
+      </p>
+      <p className="text-xs font-bold text-white truncate max-w-[100px] mt-1">
+        {user?.displayName || user?.name}
+      </p>
     </div>
-    <span className="text-primary text-[10px] opacity-40 group-hover:opacity-100 transition-opacity">▼</span>
+    <span className="text-primary text-[10px] opacity-40 group-hover:opacity-100 transition-opacity">
+      ▼
+    </span>
   </button>
 );
 
 const UserDropdown = ({ user, onLogout, t }) => {
   const menuItems = [
-    { id: 'nav-tickets', icon: '🎟️', label: t('nav_myTickets'), path: '/my-tickets' },
-    ...(user?.role === 'admin' ? [{ id: 'nav-admin', icon: '⚡', label: t('nav_admin'), path: '/admin/events' }] : []),
+    { id: "nav-tickets", icon: "🎟️", label: t("nav_myTickets"), path: "/my-tickets" },
+    ...(user?.role === "admin"
+      ? [{ id: "nav-admin", icon: "⚡", label: t("nav_admin"), path: "/admin/events" }]
+      : [])
   ];
 
   return (
     <motion.div
-      variants={dropdownVariants} initial="hidden" animate="visible" exit="exit"
+      variants={dropdownVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
       className="absolute right-0 top-[calc(100%+15px)] w-56 rounded-lg overflow-hidden z-50 p-1"
       style={{
-        background: 'rgba(10, 5, 20, 0.95)',
-        backdropFilter: 'blur(20px)',
+        background: "rgba(10, 5, 20, 0.95)",
+        backdropFilter: "blur(20px)",
         border: `1px solid ${THEME_COLORS.PRIMARY_GLOW}`,
-        boxShadow: SHADOWS.NEON_PRIMARY,
+        boxShadow: SHADOWS.NEON_PRIMARY
       }}
     >
       <div className="px-4 py-3 border-b border-white/5 mb-1">
-        <p className="text-[9px] font-mono text-primary uppercase tracking-[0.2em] mb-1">Authorization_Token</p>
+        <p className="text-[9px] font-mono text-primary uppercase tracking-[0.2em] mb-1">
+          Authorization_Token
+        </p>
         <p className="text-xs font-bold text-white truncate">{user?.email}</p>
       </div>
 
@@ -118,9 +134,9 @@ const UserDropdown = ({ user, onLogout, t }) => {
             </Link>
           </motion.div>
         ))}
-        
+
         <div className="h-px bg-white/5 my-1 mx-2"></div>
-        
+
         <motion.div custom={menuItems.length} variants={itemVariants}>
           <button
             id="nav-logout-btn"
@@ -129,7 +145,7 @@ const UserDropdown = ({ user, onLogout, t }) => {
             style={{ fontFamily: TYPOGRAPHY.TECH }}
           >
             <span className="group-hover:translate-x-1 transition-transform">🚪</span>
-            {t('nav_logout')}
+            {t("nav_logout")}
           </button>
         </motion.div>
       </div>
@@ -138,13 +154,16 @@ const UserDropdown = ({ user, onLogout, t }) => {
 };
 
 const LanguageToggle = ({ lang, toggleLanguage }) => (
-  <div className="flex items-center gap-1.5 px-3 py-1 bg-white/5 rounded-full border border-white/10" style={{ fontFamily: TYPOGRAPHY.TECH }}>
-    {['vi', 'en'].map((l) => (
+  <div
+    className="flex items-center gap-1.5 px-3 py-1 bg-white/5 rounded-full border border-white/10"
+    style={{ fontFamily: TYPOGRAPHY.TECH }}
+  >
+    {["vi", "en"].map(l => (
       <button
         key={l}
         onClick={() => l !== lang && toggleLanguage()}
         className={`px-2 py-0.5 rounded-full text-[9px] font-black transition-all duration-300 ${
-          l === lang ? 'bg-primary text-black' : 'text-white/30 hover:text-white/60'
+          l === lang ? "bg-primary text-black" : "text-white/30 hover:text-white/60"
         }`}
         style={l === lang ? { boxShadow: SHADOWS.NEON_PRIMARY } : {}}
       >
@@ -159,28 +178,36 @@ const LanguageToggle = ({ lang, toggleLanguage }) => (
 const NavBar = () => {
   const { user, logout } = useAuth();
   const { t, lang, toggleLanguage } = useLanguage();
-  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isMobileMenu, setIsMobileMenu] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
+    const handleClickOutside = e => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setIsOpen(false);
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleLogout = () => {
     setIsOpen(false);
     setIsMobileMenu(false);
     logout();
-    navigate('/login');
+  };
+
+  const handleMobileToggle = () => {
+    setIsMobileMenu(prev => {
+      if (!prev) setIsOpen(false); // Close dropdown when opening mobile menu
+      return !prev;
+    });
   };
 
   return (
-    <nav className="sticky top-0 z-50 backdrop-blur-xl border-b border-white/5" style={{ background: 'rgba(5, 2, 10, 0.7)' }}>
+    <nav
+      className="sticky top-0 z-50 backdrop-blur-xl border-b border-white/5"
+      style={{ background: "rgba(5, 2, 10, 0.7)" }}
+    >
       <div className="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
         <NavLogo />
 
@@ -199,22 +226,28 @@ const NavBar = () => {
               className="px-6 py-2 bg-transparent border border-secondary text-secondary text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-secondary hover:text-black transition-all duration-300 rounded shadow-[0_0_15px_rgba(0,255,255,0.2)]"
               style={{ fontFamily: TYPOGRAPHY.TECH }}
             >
-              {t('nav_login')}
+              {t("nav_login")}
             </Link>
           )}
           <LanguageToggle lang={lang} toggleLanguage={toggleLanguage} />
         </div>
 
         {/* Mobile Toggle */}
-        <button 
+        <button
           className="md:hidden text-white p-2"
-          onClick={() => setIsMobileMenu(!isMobileMenu)}
+          onClick={handleMobileToggle}
           aria-label="Toggle Menu"
         >
           <div className="w-6 h-5 flex flex-col justify-between items-end">
-            <span className={`h-0.5 bg-primary transition-all duration-300 ${isMobileMenu ? 'w-6 translate-y-2 rotate-45' : 'w-6'}`} />
-            <span className={`h-0.5 bg-primary transition-all duration-300 ${isMobileMenu ? 'opacity-0' : 'w-4'}`} />
-            <span className={`h-0.5 bg-primary transition-all duration-300 ${isMobileMenu ? 'w-6 -translate-y-2.5 -rotate-45' : 'w-6'}`} />
+            <span
+              className={`h-0.5 bg-primary transition-all duration-300 ${isMobileMenu ? "w-6 translate-y-2 rotate-45" : "w-6"}`}
+            />
+            <span
+              className={`h-0.5 bg-primary transition-all duration-300 ${isMobileMenu ? "opacity-0" : "w-4"}`}
+            />
+            <span
+              className={`h-0.5 bg-primary transition-all duration-300 ${isMobileMenu ? "w-6 -translate-y-2.5 -rotate-45" : "w-6"}`}
+            />
           </div>
         </button>
       </div>
@@ -223,44 +256,118 @@ const NavBar = () => {
       <AnimatePresence>
         {isMobileMenu && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/90 z-40" onClick={() => setIsMobileMenu(false)} />
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/90 z-40"
+              onClick={() => setIsMobileMenu(false)}
+            />
             <motion.aside
-              initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-              className="fixed top-0 right-0 h-full w-72 z-50 p-8 flex flex-col border-l border-white/5"
-              style={{ background: 'rgba(10, 5, 20, 0.98)' }}
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed top-0 right-0 h-full w-72 z-100 p-8 flex flex-col border-l border-white/10 overflow-y-auto scrollbar-none"
+              style={{
+                background: "rgba(10, 5, 20, 0.98)",
+                boxShadow: "-10px 0 30px rgba(0,0,0,0.5)"
+              }}
             >
-              <div className="flex justify-between items-center mb-12">
-                <span className="text-primary text-[10px] font-mono tracking-widest">[ NAVIGATION_GRID ]</span>
-                <button onClick={() => setIsMobileMenu(false)} className="text-white">✕</button>
+              <div className="flex justify-between items-center mb-10 shrink-0">
+                <span className="text-primary text-[10px] font-mono tracking-widest">
+                  [ NAVIGATION_GRID ]
+                </span>
+                <button
+                  onClick={() => setIsMobileMenu(false)}
+                  className="text-white p-2 -mr-2 hover:text-primary transition-colors"
+                >
+                  ✕
+                </button>
               </div>
 
-              <div className="flex flex-col gap-6">
-                <Link to="/" onClick={() => setIsMobileMenu(false)} className="text-lg font-bold text-white uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-4 py-2" style={{ fontFamily: TYPOGRAPHY.TECH }}>
-                  <span className="text-xs text-white/20 font-mono">01</span> {t('nav_home')}
+              {/* Mobile Profile Section */}
+              {user && (
+                <div className="mb-10 p-4 border border-white/10 bg-white/5 rounded-xl flex items-center gap-4">
+                  <img
+                    src={
+                      user?.avatar ||
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || "U")}&background=FF00FF&color=00FFFF&size=128`
+                    }
+                    alt="Mobile Avatar"
+                    className="w-12 h-12 rounded-full border border-primary/50 object-cover"
+                  />
+                  <div className="overflow-hidden">
+                    <p className="text-[9px] font-mono text-primary uppercase tracking-widest mb-1">
+                      Auth_User
+                    </p>
+                    <p
+                      className="text-sm font-bold text-white truncate uppercase tracking-tighter"
+                      style={{ fontFamily: TYPOGRAPHY.HEADING }}
+                    >
+                      {user?.displayName || user?.name}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex flex-col gap-4 relative z-10">
+                <Link
+                  to="/"
+                  onClick={() => setIsMobileMenu(false)}
+                  className="text-lg font-bold text-white uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-4 py-3 border-b border-white/5"
+                  style={{ fontFamily: TYPOGRAPHY.TECH }}
+                >
+                  <span className="text-xs text-white/20 font-mono">01</span>{" "}
+                  {t("nav_home") || "HOME"}
                 </Link>
                 {user ? (
                   <>
-                    <Link to="/my-tickets" onClick={() => setIsMobileMenu(false)} className="text-lg font-bold text-white uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-4 py-2" style={{ fontFamily: TYPOGRAPHY.TECH }}>
-                      <span className="text-xs text-white/20 font-mono">02</span> {t('nav_myTickets')}
+                    <Link
+                      to="/my-tickets"
+                      onClick={() => setIsMobileMenu(false)}
+                      className="text-lg font-bold text-white uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-4 py-3 border-b border-white/5"
+                      style={{ fontFamily: TYPOGRAPHY.TECH }}
+                    >
+                      <span className="text-xs text-white/20 font-mono">02</span>{" "}
+                      {t("nav_myTickets") || "MY TICKETS"}
                     </Link>
-                    {user.role === 'admin' && (
-                      <Link to="/admin/events" onClick={() => setIsMobileMenu(false)} className="text-lg font-bold text-white uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-4 py-2" style={{ fontFamily: TYPOGRAPHY.TECH }}>
-                        <span className="text-xs text-white/20 font-mono">03</span> {t('nav_admin')}
+                    {user.role === "admin" && (
+                      <Link
+                        to="/admin/events"
+                        onClick={() => setIsMobileMenu(false)}
+                        className="text-lg font-bold text-white uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-4 py-3 border-b border-white/5"
+                        style={{ fontFamily: TYPOGRAPHY.TECH }}
+                      >
+                        <span className="text-xs text-white/20 font-mono">03</span>{" "}
+                        {t("nav_admin") || "ADMIN_PANEL"}
                       </Link>
                     )}
-                    <button onClick={handleLogout} className="text-lg font-bold text-red-500 uppercase tracking-widest hover:text-red-400 transition-colors flex items-center gap-4 py-2 text-left" style={{ fontFamily: TYPOGRAPHY.TECH }}>
-                      <span className="text-xs text-red-900 font-mono">XX</span> {t('nav_logout')}
+                    <button
+                      onClick={handleLogout}
+                      className="text-lg font-bold text-red-500 uppercase tracking-widest hover:text-red-400 transition-colors flex items-center gap-4 py-3 text-left border-b border-white/5"
+                      style={{ fontFamily: TYPOGRAPHY.TECH }}
+                    >
+                      <span className="text-xs text-red-900 font-mono">XX</span>{" "}
+                      {t("nav_logout") || "LOGOUT"}
                     </button>
                   </>
                 ) : (
-                  <Link to="/login" onClick={() => setIsMobileMenu(false)} className="w-full py-4 border border-secondary text-center text-secondary font-black uppercase tracking-widest shadow-neon-secondary" style={{ fontFamily: TYPOGRAPHY.TECH }}>
-                    {t('nav_login')}
+                  <Link
+                    to="/login"
+                    onClick={() => setIsMobileMenu(false)}
+                    className="w-full py-5 mt-4 border border-secondary text-center text-secondary font-black uppercase tracking-widest shadow-neon-secondary flex items-center justify-center gap-3 bg-secondary/5"
+                    style={{ fontFamily: TYPOGRAPHY.TECH }}
+                  >
+                    <span>➡️</span> {t("nav_login") || "SIGN_IN"}
                   </Link>
                 )}
               </div>
 
               <div className="mt-auto pt-8 border-t border-white/5">
-                <p className="text-[9px] text-white/30 uppercase tracking-[0.2em] mb-4">SYSTEM_LOCALIZATION</p>
+                <p className="text-[9px] text-white/30 uppercase tracking-[0.2em] mb-4">
+                  SYSTEM_LOCALIZATION
+                </p>
                 <LanguageToggle lang={lang} toggleLanguage={toggleLanguage} />
               </div>
             </motion.aside>

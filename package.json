@@ -6,7 +6,7 @@
     "modules/ui"
   ],
   "scripts": {
-    "worker": "npm run dev --workspace=modules/backend -- src/worker.js",
+    "worker": "npm run worker:dev --workspace=modules/backend",
     "dev": "npm-run-all --parallel dev:* worker",
     "dev:backend": "npm run dev --workspace=modules/backend",
     "dev:ui": "npm run dev --workspace=modules/ui",

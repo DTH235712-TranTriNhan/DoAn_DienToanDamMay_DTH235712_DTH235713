@@ -99,7 +99,16 @@ export const translations = {
     auth_error_btn: "QUAY LẠI ĐĂNG NHẬP",
 
     auth_error_no_token: "Không tìm thấy token xác thực trong URL",
-    auth_error_token_fail: "Xác thực thất bại, vui lòng thử lại"
+    auth_error_token_fail: "Xác thực thất bại, vui lòng thử lại",
+
+    // New keys for UI improvements
+    card_login_required: "Vui lòng đăng nhập để tiếp tục",
+    card_retry: "Thử lại",
+    tickets_explore: "Khám phá sự kiện",
+    tickets_status_confirmed: "Đã xác nhận",
+    tickets_status_pending: "Đang xử lý",
+    tickets_status_cancelled: "Đã hủy",
+    events_create_first: "Tạo sự kiện đầu tiên"
   },
   en: {
     // Navigation
@@ -195,6 +204,15 @@ export const translations = {
     auth_error_btn: "BACK_TO_LOGIN",
 
     auth_error_no_token: "No authentication token found in URL",
-    auth_error_token_fail: "Authentication failed, please try again"
+    auth_error_token_fail: "Authentication failed, please try again",
+
+    // New keys for UI improvements
+    card_login_required: "Please login to continue",
+    card_retry: "Retry",
+    tickets_explore: "Explore Events",
+    tickets_status_confirmed: "Confirmed",
+    tickets_status_pending: "Pending",
+    tickets_status_cancelled: "Cancelled",
+    events_create_first: "Create First Event"
   }
 };

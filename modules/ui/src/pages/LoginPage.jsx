@@ -25,10 +25,11 @@ const LoginPage = () => {
   // Terminal typing effect
   useEffect(() => {
     let i = 0;
+    const terminalText = fullText + "\n> ACCESS_GRANTED: WAITING_FOR_USER_INPUT_";
     const timer = setInterval(() => {
-      setDisplayText(fullText.substring(0, i));
+      setDisplayText(terminalText.substring(0, i));
       i++;
-      if (i > fullText.length) clearInterval(timer);
+      if (i > terminalText.length) clearInterval(timer);
     }, 30);
     return () => clearInterval(timer);
   }, [fullText]);
@@ -38,7 +39,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center py-20 px-4 relative">
+    <div className="flex flex-col items-center justify-center py-10 md:py-20 px-4 relative">
       {/* Background Decorative Grid */}
       <div className="absolute inset-0 z-0 bg-scanline opacity-[0.03] pointer-events-none" />
       

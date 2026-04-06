@@ -12,12 +12,10 @@ export const AuthProvider = ({ children }) => {
 
   // Logout function: Clears all authentication footprints
   const logout = useCallback(() => {
-    console.log("[Auth] Performing logout...");
     localStorage.removeItem("jwt_token");
     setToken(null);
     setUser(null);
-    // Navigate to home to prevent redirect loops in protected routes
-    navigate("/", { replace: true });
+    navigate("/login", { replace: true });
   }, [navigate]);
 
   // Profile fetch function: Handles Race Condition and Envelope data extraction
@@ -30,16 +28,11 @@ export const AuthProvider = ({ children }) => {
       // 2. Extract from Envelope structure { success: true, data: user }
       // Direct extraction ensures Avatar display works correctly
       if (response.data && response.data.data) {
-        console.log("[Auth] Profile fetched successfully:", response.data.data.displayName);
         setUser(response.data.data); // ALWAYS extract from .data.data
       } else {
         throw new Error("User data returned does not match Envelope structure");
       }
     } catch (error) {
-      console.error(
-        "[Auth] Error fetching user info:",
-        error.response?.data?.message || error.message
-      );
       // If token is expired (401), clear state immediately
       if (error.response?.status === 401) {
         logout();
@@ -64,7 +57,6 @@ export const AuthProvider = ({ children }) => {
   // Login function: Synchronizes localStorage and profile state
   const login = useCallback(
     async newToken => {
-      console.log("[Auth] Received new token, synchronizing state...");
       // 4. Update localStorage immediately so subsequent requests attach JWT
       localStorage.setItem("jwt_token", newToken);
       setToken(newToken);

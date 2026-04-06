@@ -3,20 +3,20 @@
  * Quản lý trạng thái ngôn ngữ (Vi/En) toàn cục.
  */
 
-import { createContext, useContext, useState, useEffect } from 'react';
-import { translations } from '../constants/translations.js';
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { translations } from "../constants/translations.js";
 
 const LanguageContext = createContext();
 
 export const LanguageProvider = ({ children }) => {
   // Lấy ngôn ngữ đã lưu hoặc mặc định là Tiếng Việt ('vi')
   const [lang, setLang] = useState(() => {
-    return localStorage.getItem('app_lang') || 'vi';
+    return localStorage.getItem("app_lang") || "vi";
   });
 
   // Khi ngôn ngữ thay đổi, lưu vào localStorage
   useEffect(() => {
-    localStorage.setItem('app_lang', lang);
+    localStorage.setItem("app_lang", lang);
   }, [lang]);
 
   /**
@@ -24,13 +24,16 @@ export const LanguageProvider = ({ children }) => {
    * @param {string} key - Khóa trong từ điển translations
    * @returns {string} - Chuỗi ký tự tương ứng
    */
-  const t = (key) => {
-    if (!translations[lang]) return key;
-    return translations[lang][key] || key;
-  };
+  const t = useCallback(
+    key => {
+      if (!translations[lang]) return key;
+      return translations[lang][key] || key;
+    },
+    [lang]
+  );
 
   const toggleLanguage = () => {
-    setLang((prev) => (prev === 'vi' ? 'en' : 'vi'));
+    setLang(prev => (prev === "vi" ? "en" : "vi"));
   };
 
   return (
@@ -43,7 +46,7 @@ export const LanguageProvider = ({ children }) => {
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (!context) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
+    throw new Error("useLanguage must be used within a LanguageProvider");
   }
   return context;
 };

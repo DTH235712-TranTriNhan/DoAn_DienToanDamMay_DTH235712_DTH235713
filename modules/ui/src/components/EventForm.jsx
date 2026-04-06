@@ -79,6 +79,7 @@ const EventForm = ({
   const isTicketsLocked = isEditMode && soldTickets > 0;
 
   const [formData, setFormData] = useState(INITIAL_STATE);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (initialData) {
@@ -112,6 +113,8 @@ const EventForm = ({
   useEffect(() => {
     const dirty = JSON.stringify(formData) !== JSON.stringify(compareTo);
     onDirtyChange(dirty);
+    // Clear error for a field when it changes
+    if (Object.keys(errors).length > 0) setErrors({});
   }, [formData, compareTo, onDirtyChange]);
 
   const handleChange = (e) => {
@@ -134,6 +137,19 @@ const EventForm = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Custom Validation
+    const newErrors = {};
+    if (!formData.title.trim()) newErrors.title = t('form_error_required') || 'Title is required';
+    if (!formData.totalTickets || Number(formData.totalTickets) < 1) {
+      newErrors.totalTickets = t('form_error_min_tickets') || 'Tickets must be at least 1';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     const payload = {
       ...formData,
       date: formData.date ? new Date(formData.date).toISOString() : '',
@@ -179,7 +195,19 @@ const EventForm = ({
       </AnimatePresence>
 
       <FormField label={t('form_label_title')}>
-        <input {...sharedInputProps} name="title" type="text" placeholder="Flash Sale Event..." value={formData.title} required />
+        <input 
+          {...sharedInputProps} 
+          name="title" 
+          type="text" 
+          placeholder="Flash Sale Event..." 
+          value={formData.title} 
+          style={{ 
+            ...sharedInputProps.style, 
+            borderColor: errors.title ? '#ff4444' : sharedInputProps.style.borderColor,
+            boxShadow: errors.title ? '0 0 10px rgba(255, 68, 68, 0.2)' : 'none'
+          }} 
+        />
+        {errors.title && <p className="text-[10px] text-red-500 font-mono mt-1 uppercase tracking-tighter">! {errors.title}</p>}
       </FormField>
 
       <FormField label={t('form_label_desc')}>
@@ -221,8 +249,21 @@ const EventForm = ({
       </div>
 
       <FormField label={t('form_label_tickets')} hint={isTicketsLocked ? `⚠️ Locked: ${soldTickets} sold` : ''}>
-        <input {...sharedInputProps} name="totalTickets" type="number" value={formData.totalTickets} required min={1} disabled={isSubmitting || isTicketsLocked}
-          style={{ ...inputStyle, opacity: isTicketsLocked ? 0.5 : 1 }} />
+        <input 
+          {...sharedInputProps} 
+          name="totalTickets" 
+          type="number" 
+          value={formData.totalTickets} 
+          min={1} 
+          disabled={isSubmitting || isTicketsLocked}
+          style={{ 
+            ...sharedInputProps.style, 
+            opacity: isTicketsLocked ? 0.5 : 1,
+            borderColor: errors.totalTickets ? '#ff4444' : sharedInputProps.style.borderColor,
+            boxShadow: errors.totalTickets ? '0 0 10px rgba(255, 68, 68, 0.2)' : 'none'
+          }} 
+        />
+        {errors.totalTickets && <p className="text-[10px] text-red-500 font-mono mt-1 uppercase tracking-tighter">! {errors.totalTickets}</p>}
       </FormField>
 
       {submitError && <p className="text-red-500 text-xs font-mono p-2 border border-red-500/30 bg-red-500/10">⛔ {submitError}</p>}

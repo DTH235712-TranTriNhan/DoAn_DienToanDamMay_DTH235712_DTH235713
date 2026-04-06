@@ -6,6 +6,7 @@ import LoginPage from "./pages/LoginPage.jsx";
 import AuthCallbackPage from "./pages/AuthCallbackPage.jsx";
 import MyTicketsPage from "./pages/MyTicketsPage.jsx";
 import AdminEventsPage from "./pages/AdminEventsPage.jsx";
+import Footer from "./components/Footer.jsx";
 
 // Component con để sử dụng hook useAuth bên trong AuthProvider
 const Layout = () => {
@@ -54,6 +55,7 @@ const Layout = () => {
             <Route path="/admin/events" element={<AdminEventsPage />} />
           </Routes>
         </main>
+        <Footer />
       </div>
     </div>
   );
