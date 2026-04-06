@@ -194,7 +194,6 @@ const UserDropdown = ({ user, onLogout, t }) => {
             labelKey: 'nav.admin',
             to: '/admin/events',
             fallback: 'Quản trị',
-            badge: '[PLAN]',
           },
         ]
       : []),
@@ -552,7 +551,6 @@ const NavBar = () => {
                         to="/admin/events"
                         icon="⚙️"
                         label="Quản trị"
-                        badge="[PLAN]"
                         onClick={() => setIsMobileMenuOpen(false)}
                       />
                     )}
