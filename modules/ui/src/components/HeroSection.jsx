@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { THEME_COLORS, TYPOGRAPHY } from "../constants/uiConstants.js";
+import LanguageContext from "../context/LanguageContext.jsx";
 
 const HeroSection = ({ events = [], loading }) => {
+  const { t } = useContext(LanguageContext);
   const featuredEvents = events.filter(e => e.isFeatured);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -53,7 +55,7 @@ const HeroSection = ({ events = [], loading }) => {
           className="inline-flex items-center gap-2 px-3 py-1 bg-primary/20 border border-primary/50 text-white font-mono text-[10px] uppercase tracking-widest mb-6"
         >
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          FEATURED_SEQUENCE_DETECTED
+          {t("hero.featured")}
         </motion.div>
 
         <AnimatePresence mode="wait">
@@ -85,7 +87,7 @@ const HeroSection = ({ events = [], loading }) => {
             className="px-8 py-4 bg-primary text-white font-bold uppercase tracking-[0.2em] text-sm transition-all flex items-center gap-3"
             style={{ fontFamily: TYPOGRAPHY.HEADING }}
           >
-            🎟️ Săn vé ngay
+            🎟️ {t("hero.bookNow")}
           </motion.button>
 
           {/* Slider Indicators */}

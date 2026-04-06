@@ -1,4 +1,8 @@
+import { useContext } from "react";
+import LanguageContext from "../context/LanguageContext.jsx";
+
 const MyTicketsPage = () => {
+  const { t } = useContext(LanguageContext);
   return (
     <div className="py-20 flex flex-col items-center">
       <div className="relative p-1 border-2 border-secondary/50 bg-card backdrop-blur-xl shadow-[0_0_20px_rgba(0,255,255,0.2)] max-w-2xl w-full">
@@ -10,7 +14,7 @@ const MyTicketsPage = () => {
 
         <div className="bg-secondary/10 px-6 py-4 border-b border-secondary/30 flex justify-between items-center">
           <h2 className="font-heading text-lg text-secondary tracking-widest uppercase font-bold">
-            USER_INVENTORY / MY_TICKETS.DAT
+            {t("myTickets.header")}
           </h2>
           <div className="flex gap-1">
             <div className="h-2 w-2 rounded-full bg-primary/60"></div>
@@ -20,11 +24,11 @@ const MyTicketsPage = () => {
 
         <div className="p-8 text-center">
           <p className="font-sans font-bold text-foreground/70 text-lg mb-4 animate-pulse uppercase tracking-widest">
-            &gt; QUERYING_DECRYPTED_STORAGE...
+            &gt; {t("myTickets.querying")}
           </p>
           <div className="w-full h-px bg-linear-to-r from-transparent via-secondary/50 to-transparent my-6"></div>
           <p className="text-secondary/80 text-[10px] font-sans font-bold tracking-[0.2em] uppercase">
-            [ STATUS: NO_ASSETS_FOUND_IN_VAULT ]
+            {t("myTickets.noAssets")}
           </p>
         </div>
       </div>

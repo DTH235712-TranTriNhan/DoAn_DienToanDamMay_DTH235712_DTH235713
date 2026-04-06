@@ -1,12 +1,14 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useContext } from "react";
 import { motion } from "framer-motion";
 import { THEME_COLORS, TYPOGRAPHY } from "../constants/uiConstants.js";
+import LanguageContext from "../context/LanguageContext.jsx";
 
 const EventCard = ({ event }) => {
   const [bookingStatus, setBookingStatus] = useState("idle");
+  const { t } = useContext(LanguageContext);
 
   const formattedDate = useMemo(() => {
-    if (!event?.date) return "TBA";
+    if (!event?.date) return t("eventCard.tba");
     return new Date(event.date).toLocaleDateString("vi-VN", {
       day: "2-digit",
       month: "2-digit",
@@ -45,7 +47,7 @@ const EventCard = ({ event }) => {
           <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md border ${
             available === 0 ? "bg-red-500/20 border-red-500/50 text-red-400" : "bg-secondary/20 border-secondary/50 text-secondary"
           }`}>
-            {available === 0 ? "SOLD_OUT" : "LIVE_NOW"}
+            {available === 0 ? t("eventCard.soldOut") : t("eventCard.liveNow")}
           </span>
         </div>
       </div>
@@ -53,13 +55,13 @@ const EventCard = ({ event }) => {
       <div className="p-6 grow flex flex-col relative z-10">
         <div className="flex justify-between items-start mb-4 gap-2">
           <h3 
-            className="text-xl font-black text-white leading-tight uppercase tracking-tight line-clamp-2"
+            className="text-xl font-black text-white leading-tight uppercase tracking-tight truncate"
             style={{ fontFamily: TYPOGRAPHY.HEADING }}
           >
             {event.title}
           </h3>
           <span className="shrink-0 text-[10px] font-mono p-1 border border-secondary/40 text-secondary bg-secondary/5 truncate max-w-[80px] whitespace-nowrap">
-            ID: {event._id?.slice(-6).toUpperCase() || "UNK"}
+            {t("eventCard.id")}: {event._id?.slice(-6).toUpperCase() || "UNK"}
           </span>
         </div>
 
@@ -82,9 +84,9 @@ const EventCard = ({ event }) => {
         {/* Progress Bar */}
         <div className="mb-6">
           <div className="flex justify-between items-center text-[10px] font-mono mb-2 uppercase tracking-tighter">
-            <span className="text-foreground/40">TICKETS_SOLD: {progressPercentage}%</span>
+            <span className="text-foreground/40">{t("eventCard.ticketsSold")} {progressPercentage}%</span>
             <span className={available < 50 ? "text-primary animate-pulse" : "text-secondary"}>
-              LEFT: {available}
+              {t("eventCard.left")} {available}
             </span>
           </div>
           <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
@@ -117,11 +119,11 @@ const EventCard = ({ event }) => {
             style={{ fontFamily: TYPOGRAPHY.HEADING }}
           >
             {bookingStatus === "idle" && (
-              <>{available === 0 ? "STATUS: DEPLETED" : "🎟️ Đặt vé ngay"}</>
+              <>{available === 0 ? t("eventCard.statusDepleted") : `🎟️ ${t("eventCard.bookNow")}`}</>
             )}
-            {bookingStatus === "submitting" && <span className="animate-pulse">REQUESTING...</span>}
-            {bookingStatus === "queued" && <span className="animate-bounce">IN_QUEUE...</span>}
-            {bookingStatus === "completed" && "SUCCESS_CONFIRMED"}
+            {bookingStatus === "submitting" && <span>{t("eventCard.requesting")}</span>}
+            {bookingStatus === "queued" && <span className="animate-pulse">{t("eventCard.inQueue")}</span>}
+            {bookingStatus === "completed" && t("eventCard.success")}
           </motion.button>
         </div>
       </div>
