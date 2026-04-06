@@ -1,7 +1,15 @@
-import Event from "../../models/EventModel.js"; // Nhớ kiểm tra tên file Model có đúng EventModel.js không nhé
+import Event from "../../models/EventModel.js";
 
-export const getEvents = async (filters = {}) => {
+/**
+ * Service: Lấy danh sách sự kiện
+ * 
+ * @param {Object} filters - Bộ lọc tìm kiếm
+ * @returns {Promise<Array>} - Danh sách sự kiện
+ */
+const getEvents = async (filters = {}) => {
   // Tìm tất cả sự kiện và sắp xếp theo ngày gần nhất
   const events = await Event.find(filters).sort({ date: 1 });
   return events;
 };
+
+export default getEvents;
