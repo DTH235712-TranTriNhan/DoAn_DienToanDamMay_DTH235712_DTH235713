@@ -1,9 +1,4 @@
-import { Queue } from "bullmq";
-// CHÚ Ý: Đảm bảo file redis.js trong thư mục libs đã dùng export default
-import redisClient from "../../../libs/redis.js";
-
-// Khởi tạo Queue để truy vấn trạng thái Job
-const ticketQueue = new Queue("ticketQueue", { connection: redisClient });
+import ticketQueue from "../../../queues/ticketQueue.js";
 
 /**
  * Handler kiểm tra trạng thái của tiến trình đặt vé (Job)

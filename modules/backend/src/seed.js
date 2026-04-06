@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import { Redis } from "ioredis";
 import Event from "./models/EventModel.js"; // Nhớ thêm đuôi .js
-import { REDIS_KEYS } from "./types/constants.js"; // Nhớ thêm đuôi .js
+import { REDIS_KEYS } from "./types/constants/redisKeys.js"; // Nhớ thêm đuôi .js
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -81,10 +81,11 @@ const seed = async () => {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log("[Seed] 🍃 MongoDB Connected");
 
-    // 2. Kết nối Redis (Dùng URL từ .env, hỗ trợ cả Local và Upstash)
+    const isLocal = (process.env.REDIS_URL || "").includes("127.0.0.1");
     const redis = new Redis(process.env.REDIS_URL, {
       maxRetriesPerRequest: null,
-      enableReadyCheck: false
+      enableReadyCheck: false,
+      tls: !isLocal && (process.env.REDIS_URL || "").startsWith("rediss://") ? {} : undefined
     });
     console.log("[Seed] ⚡ Redis Connected");
 

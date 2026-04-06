@@ -19,7 +19,10 @@ const validateJwt = (req, res, next) => {
 
   try {
     // 2. Giải mã token bằng Secret Key trong .env
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "bi_mat_quan_su_123");
+    const secret = process.env.JWT_SECRET;
+    if (!secret) throw new Error("JWT_SECRET is not configured");
+
+    const decoded = jwt.verify(token, secret);
 
     // 3. Gắn thông tin (userId, email) vào request để các Handler phía sau sử dụng
     // eslint-disable-next-line no-param-reassign

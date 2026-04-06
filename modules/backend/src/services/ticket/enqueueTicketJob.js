@@ -1,11 +1,5 @@
-import { Queue } from "bullmq";
-import redisClient from "../../libs/redis.js";
+import ticketQueue from "../../queues/ticketQueue.js";
 import { checkIdempotency } from "./checkIdempotency.js";
-
-/**
- * Khởi tạo Queue "ticketQueue" kết nối qua Redis
- */
-const ticketQueue = new Queue("ticketQueue", { connection: redisClient });
 
 /**
  * Service đẩy yêu cầu đặt vé vào hàng đợi xử lý

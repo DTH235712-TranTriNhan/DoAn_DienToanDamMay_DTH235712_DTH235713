@@ -23,7 +23,7 @@ router.get(
     passport.authenticate("google", { session: false }, (err, user) => {
       if (err || !user) {
         const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5000";
-        return res.redirect(`${frontendUrl || ""}/login?error=google_auth_failed`);
+        return res.redirect(`${frontendUrl}/login?error=google_auth_failed`);
       }
       req.user = user;
       next();

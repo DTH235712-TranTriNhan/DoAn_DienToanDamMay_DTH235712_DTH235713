@@ -54,7 +54,7 @@ const EventsPage = () => {
       {/* Dynamic Banner for Hot Events */}
       <EventBanner events={events} />
 
-      <div className="mb-12 border-l-4 border-secondary pl-6 relative">
+      <div id="event-grid-header" className="mb-12 border-l-4 border-secondary pl-6 relative">
         <div className="absolute -left-[4px] top-0 bottom-0 w-[4px] bg-secondary shadow-[0_0_15px_rgba(0,255,255,0.5)]" />
         <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight uppercase" style={{ fontFamily: TYPOGRAPHY.HEADING }}>
           {t("events_all_title")}

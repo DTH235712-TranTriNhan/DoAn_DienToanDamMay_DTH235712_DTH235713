@@ -3,14 +3,21 @@
  * Displays individual event cards with progress bars and dynamic booking buttons.
  */
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { THEME_COLORS, TYPOGRAPHY, SHADOWS } from "../constants/uiConstants.js";
 import { useLanguage } from "../context/LanguageContext.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
+import api from "../services/api.js";
 
 const EventCard = ({ event }) => {
   const [bookingStatus, setBookingStatus] = useState("idle");
+  const [jobId, setJobId] = useState(null);
+  const [errorLocal, setErrorLocal] = useState("");
   const { t, lang } = useLanguage();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const formattedDate = useMemo(() => {
     if (!event?.date) return t("card_tba");
@@ -26,11 +33,58 @@ const EventCard = ({ event }) => {
   const soldTickets = Math.max(0, total - available);
   const progressPercentage = Math.round((soldTickets / total) * 100);
 
-  const handleBooking = () => {
+  // Polling logic for ticket job status
+  useEffect(() => {
+    let pollInterval;
+    if (bookingStatus === "queued" && jobId) {
+      pollInterval = setInterval(async () => {
+        try {
+          const res = await api.get(`/tickets/status/${jobId}`);
+          const { state, failedReason } = res.data.data;
+
+          if (state === "completed") {
+            setBookingStatus("completed");
+            clearInterval(pollInterval);
+          } else if (state === "failed") {
+            setBookingStatus("idle");
+            setErrorLocal(failedReason || t("card_error_generic"));
+            clearInterval(pollInterval);
+          }
+          // If 'active' or 'waiting', keep polling
+        } catch (err) {
+          console.error("Polling error:", err);
+          setBookingStatus("idle");
+          setErrorLocal(t("card_error_sync"));
+          clearInterval(pollInterval);
+        }
+      }, 2000); // Poll every 2 seconds
+    }
+    return () => clearInterval(pollInterval);
+  }, [bookingStatus, jobId, t]);
+
+  const handleBooking = async () => {
     if (available === 0 || bookingStatus !== "idle") return;
+    
+    // Check authentication
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
     setBookingStatus("submitting");
-    setTimeout(() => setBookingStatus("queued"), 1500);
-    setTimeout(() => setBookingStatus("completed"), 4000);
+    setErrorLocal("");
+
+    try {
+      const res = await api.post("/tickets", { eventId: event._id });
+      if (res.status === 202) {
+        setJobId(res.data.data.jobId);
+        setBookingStatus("queued");
+      }
+    } catch (err) {
+      setBookingStatus("idle");
+      const errMsg = err.response?.data?.message || t("card_error_generic");
+      setErrorLocal(errMsg);
+    }
   };
 
   return (
@@ -145,6 +199,11 @@ const EventCard = ({ event }) => {
             )}
             {bookingStatus === "completed" && t("card_success")}
           </motion.button>
+          {errorLocal && (
+            <p className="mt-3 text-[9px] text-red-500 font-mono text-center uppercase tracking-tighter">
+              ⚠️ {errorLocal}
+            </p>
+          )}
         </div>
       </div>
     </motion.div>

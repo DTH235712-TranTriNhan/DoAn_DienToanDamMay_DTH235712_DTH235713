@@ -97,7 +97,7 @@ const EventForm = ({
       setFormData(INITIAL_STATE);
       onDirtyChange(false);
     }
-  }, [initialData]);
+  }, [initialData, onDirtyChange]);
 
   const compareTo = useMemo(() => (initialData ? {
     title: initialData.title || '',

@@ -120,6 +120,7 @@ const EventBanner = ({ events = [], loading = false }) => {
                 <motion.button
                   whileHover={{ scale: 1.05, boxShadow: SHADOWS.NEON_SECONDARY }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={() => document.getElementById('event-grid-header')?.scrollIntoView({ behavior: 'smooth' })}
                   className="px-10 py-4 bg-secondary text-black font-black uppercase text-xs tracking-[0.3em] shadow-neon-secondary transition-all"
                   style={{ fontFamily: TYPOGRAPHY.TECH, boxShadow: SHADOWS.NEON_SECONDARY }}
                 >

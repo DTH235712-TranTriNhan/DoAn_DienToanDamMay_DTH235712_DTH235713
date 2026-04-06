@@ -1,6 +1,6 @@
 import rateLimit from "express-rate-limit";
 // CHÚ Ý: Đảm bảo file constants.js cũng đã chuyển sang ES Modules và có đuôi .js
-import { RATE_LIMIT } from "../../types/constants.js";
+import { RATE_LIMIT } from "../../types/constants/rateLimit.js";
 
 /**
  * Rate limiter chung cho tất cả các đầu API

@@ -34,7 +34,7 @@ const AuthCallbackPage = () => {
     };
 
     handleLogin();
-  }, [navigate, login]);
+  }, [navigate, login, t]);
 
   // UI for error states
   if (error) {
