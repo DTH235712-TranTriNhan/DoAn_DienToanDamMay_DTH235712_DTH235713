@@ -218,11 +218,12 @@
 
 ---
 
-### TASK 3.2 🔲 · Tạo middleware phân quyền `requireAdmin`
+### TASK 3.2 ✅ · Tạo middleware phân quyền `requireAdmin`
 
 | Mục | Chi tiết |
 |-----|---------|
 | **Người phụ trách** | Nhân |
+| **Trạng thái** | ✅ Đã xong |
 | **File/Thư mục** | Tạo mới: `backend/src/rest/middlewares/requireAdmin.js` |
 | **Định hướng triển khai** | Middleware này chạy SAU `validateJwt`. Logic: đọc `req.user.userId` → query `User.findById()` → kiểm tra `user.role === "admin"`. Nếu không phải → `throw new AppError("Bạn không có quyền truy cập", 403)`. **Lưu ý:** JWT hiện chỉ chứa `userId` + `email`, không chứa `role` → phải query DB mỗi lần (đảm bảo role luôn up-to-date) |
 | **Kết quả** | Các route Admin sẽ dùng chain: `validateJwt, requireAdmin, asyncHandler(handler)` |
