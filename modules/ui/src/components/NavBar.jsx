@@ -165,6 +165,10 @@ const NavBar = () => {
   const dropdownRef = useRef(null);
 
   useEffect(() => {
+    if (isMobileMenu) setIsOpen(false); // Close user dropdown if mobile menu opens
+  }, [isMobileMenu]);
+
+  useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setIsOpen(false);
     };
@@ -226,35 +230,53 @@ const NavBar = () => {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/90 z-40" onClick={() => setIsMobileMenu(false)} />
             <motion.aside
               initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-              className="fixed top-0 right-0 h-full w-72 z-50 p-8 flex flex-col border-l border-white/5"
-              style={{ background: 'rgba(10, 5, 20, 0.98)' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed top-0 right-0 h-full w-72 z-100 p-8 flex flex-col border-l border-white/10 overflow-y-auto scrollbar-none"
+              style={{ background: 'rgba(10, 5, 20, 0.98)', boxShadow: '-10px 0 30px rgba(0,0,0,0.5)' }}
             >
-              <div className="flex justify-between items-center mb-12">
+              <div className="flex justify-between items-center mb-10 shrink-0">
                 <span className="text-primary text-[10px] font-mono tracking-widest">[ NAVIGATION_GRID ]</span>
-                <button onClick={() => setIsMobileMenu(false)} className="text-white">✕</button>
+                <button onClick={() => setIsMobileMenu(false)} className="text-white p-2 -mr-2 hover:text-primary transition-colors">✕</button>
               </div>
 
-              <div className="flex flex-col gap-6">
-                <Link to="/" onClick={() => setIsMobileMenu(false)} className="text-lg font-bold text-white uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-4 py-2" style={{ fontFamily: TYPOGRAPHY.TECH }}>
-                  <span className="text-xs text-white/20 font-mono">01</span> {t('nav_home')}
+              {/* Mobile Profile Section */}
+              {user && (
+                <div className="mb-10 p-4 border border-white/10 bg-white/5 rounded-xl flex items-center gap-4">
+                  <img
+                    src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || 'U')}&background=FF00FF&color=00FFFF&size=128`}
+                    alt="Mobile Avatar"
+                    className="w-12 h-12 rounded-full border border-primary/50 object-cover"
+                  />
+                  <div className="overflow-hidden">
+                    <p className="text-[9px] font-mono text-primary uppercase tracking-widest mb-1">Auth_User</p>
+                    <p className="text-sm font-bold text-white truncate uppercase tracking-tighter" style={{ fontFamily: TYPOGRAPHY.HEADING }}>
+                      {user?.displayName || user?.name}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex flex-col gap-4 relative z-10">
+                <Link to="/" onClick={() => setIsMobileMenu(false)} className="text-lg font-bold text-white uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-4 py-3 border-b border-white/5" style={{ fontFamily: TYPOGRAPHY.TECH }}>
+                  <span className="text-xs text-white/20 font-mono">01</span> {t('nav_home') || 'HOME'}
                 </Link>
                 {user ? (
                   <>
-                    <Link to="/my-tickets" onClick={() => setIsMobileMenu(false)} className="text-lg font-bold text-white uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-4 py-2" style={{ fontFamily: TYPOGRAPHY.TECH }}>
-                      <span className="text-xs text-white/20 font-mono">02</span> {t('nav_myTickets')}
+                    <Link to="/my-tickets" onClick={() => setIsMobileMenu(false)} className="text-lg font-bold text-white uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-4 py-3 border-b border-white/5" style={{ fontFamily: TYPOGRAPHY.TECH }}>
+                      <span className="text-xs text-white/20 font-mono">02</span> {t('nav_myTickets') || 'MY TICKETS'}
                     </Link>
                     {user.role === 'admin' && (
-                      <Link to="/admin/events" onClick={() => setIsMobileMenu(false)} className="text-lg font-bold text-white uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-4 py-2" style={{ fontFamily: TYPOGRAPHY.TECH }}>
-                        <span className="text-xs text-white/20 font-mono">03</span> {t('nav_admin')}
+                      <Link to="/admin/events" onClick={() => setIsMobileMenu(false)} className="text-lg font-bold text-white uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-4 py-3 border-b border-white/5" style={{ fontFamily: TYPOGRAPHY.TECH }}>
+                        <span className="text-xs text-white/20 font-mono">03</span> {t('nav_admin') || 'ADMIN_PANEL'}
                       </Link>
                     )}
-                    <button onClick={handleLogout} className="text-lg font-bold text-red-500 uppercase tracking-widest hover:text-red-400 transition-colors flex items-center gap-4 py-2 text-left" style={{ fontFamily: TYPOGRAPHY.TECH }}>
-                      <span className="text-xs text-red-900 font-mono">XX</span> {t('nav_logout')}
+                    <button onClick={handleLogout} className="text-lg font-bold text-red-500 uppercase tracking-widest hover:text-red-400 transition-colors flex items-center gap-4 py-3 text-left border-b border-white/5" style={{ fontFamily: TYPOGRAPHY.TECH }}>
+                      <span className="text-xs text-red-900 font-mono">XX</span> {t('nav_logout') || 'LOGOUT'}
                     </button>
                   </>
                 ) : (
-                  <Link to="/login" onClick={() => setIsMobileMenu(false)} className="w-full py-4 border border-secondary text-center text-secondary font-black uppercase tracking-widest shadow-neon-secondary" style={{ fontFamily: TYPOGRAPHY.TECH }}>
-                    {t('nav_login')}
+                  <Link to="/login" onClick={() => setIsMobileMenu(false)} className="w-full py-5 mt-4 border border-secondary text-center text-secondary font-black uppercase tracking-widest shadow-neon-secondary flex items-center justify-center gap-3 bg-secondary/5" style={{ fontFamily: TYPOGRAPHY.TECH }}>
+                    <span>➡️</span> {t('nav_login') || 'SIGN_IN'}
                   </Link>
                 )}
               </div>

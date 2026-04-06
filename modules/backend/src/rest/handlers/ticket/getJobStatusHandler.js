@@ -11,6 +11,11 @@ export const getJobStatusHandler = async (req, res) => {
   // Lấy thông tin Job từ Redis thông qua BullMQ
   const job = await ticketQueue.getJob(jobId);
 
+  // Disable caching for polling endpoint
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.set("Pragma", "no-cache");
+  res.set("Expires", "0");
+
   if (!job) {
     return res.status(404).json({
       success: false,

@@ -18,6 +18,12 @@ const EventCard = ({ event }) => {
   const { t, lang } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [localAvailable, setLocalAvailable] = useState(event.availableTickets || 0);
+
+  // Sync local tickets if prop changes
+  useEffect(() => {
+    setLocalAvailable(event.availableTickets || 0);
+  }, [event.availableTickets]);
 
   const formattedDate = useMemo(() => {
     if (!event?.date) return t("card_tba");
@@ -28,7 +34,7 @@ const EventCard = ({ event }) => {
     });
   }, [event.date, lang, t]);
 
-  const available = event.availableTickets || 0;
+  const available = localAvailable;
   const total = event.totalTickets || 1;
   const soldTickets = Math.max(0, total - available);
   const progressPercentage = Math.round((soldTickets / total) * 100);
@@ -36,30 +42,52 @@ const EventCard = ({ event }) => {
   // Polling logic for ticket job status
   useEffect(() => {
     let pollInterval;
+    let pollTimeout;
+
     if (bookingStatus === "queued" && jobId) {
+      const startTime = Date.now();
+      const MAX_POLL_TIME = 45000; // 45 seconds timeout
+
       pollInterval = setInterval(async () => {
         try {
-          const res = await api.get(`/tickets/status/${jobId}`);
-          const { state, failedReason } = res.data.data;
+          // Check for elapsed time
+          if (Date.now() - startTime > MAX_POLL_TIME) {
+             console.warn(`[Polling] Job ${jobId} timed out.`);
+             setBookingStatus("failed");
+             setErrorLocal(t("card_error_sync") || "Timeout: System is under heavy load. Please check My Tickets.");
+             clearInterval(pollInterval);
+             return;
+          }
+
+          const res = await api.get(`/tickets/status/${jobId}?t=${Date.now()}`);
+          // Ensure data exists before destructuring
+          const jobData = res.data?.data;
+          if (!jobData) return;
+
+          const { state, failedReason } = jobData;
 
           if (state === "completed") {
             setBookingStatus("completed");
+            setLocalAvailable(prev => Math.max(0, prev - 1));
             clearInterval(pollInterval);
           } else if (state === "failed") {
-            setBookingStatus("idle");
+            setBookingStatus("failed");
             setErrorLocal(failedReason || t("card_error_generic"));
             clearInterval(pollInterval);
           }
-          // If 'active' or 'waiting', keep polling
         } catch (err) {
           console.error("Polling error:", err);
-          setBookingStatus("idle");
-          setErrorLocal(t("card_error_sync"));
-          clearInterval(pollInterval);
+          // Only stop on non-transient errors if necessary, or just keep trying if it's 429
+          if (err.response?.status === 404) {
+             setBookingStatus("idle");
+             clearInterval(pollInterval);
+          }
         }
-      }, 2000); // Poll every 2 seconds
+      }, 2000);
     }
-    return () => clearInterval(pollInterval);
+    return () => {
+      if (pollInterval) clearInterval(pollInterval);
+    };
   }, [bookingStatus, jobId, t]);
 
   const handleBooking = async () => {
@@ -67,7 +95,8 @@ const EventCard = ({ event }) => {
     
     // Check authentication
     if (!user) {
-      navigate("/login");
+      setErrorLocal(t("card_login_required"));
+      setTimeout(() => navigate("/login"), 1500);
       return;
     }
 
@@ -198,7 +227,18 @@ const EventCard = ({ event }) => {
               <span className="animate-pulse">{t("card_in_queue")}</span>
             )}
             {bookingStatus === "completed" && t("card_success")}
+            {bookingStatus === "failed" && t("card_retry")}
           </motion.button>
+          
+          {bookingStatus === "failed" && (
+            <button
+               onClick={() => { setBookingStatus("idle"); setErrorLocal(""); }}
+               className="w-full mt-2 py-2 text-[10px] font-mono text-secondary hover:text-white transition-colors"
+            >
+              [ {t("card_retry")} ]
+            </button>
+          )}
+
           {errorLocal && (
             <p className="mt-3 text-[9px] text-red-500 font-mono text-center uppercase tracking-tighter">
               ⚠️ {errorLocal}

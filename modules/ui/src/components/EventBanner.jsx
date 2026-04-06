@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { THEME_COLORS, TYPOGRAPHY, SHADOWS } from "../constants/uiConstants.js";
 import { useLanguage } from "../context/LanguageContext.jsx";
@@ -11,8 +11,18 @@ import { useLanguage } from "../context/LanguageContext.jsx";
 const EventBanner = ({ events = [], loading = false }) => {
   const { t, lang } = useLanguage();
 
-  const hotEvents = events.filter(event => event.isHot);
+  const hotEvents = useMemo(() => 
+    Array.isArray(events) ? events.filter(event => event?.isHot) : [], 
+    [events]
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    // Reset index if it becomes invalid (e.g., event list shrunk)
+    if (currentIndex >= hotEvents.length && hotEvents.length > 0) {
+      setCurrentIndex(0);
+    }
+  }, [hotEvents.length, currentIndex]);
 
   useEffect(() => {
     if (hotEvents.length <= 1) return;
@@ -25,11 +35,13 @@ const EventBanner = ({ events = [], loading = false }) => {
   if (loading) return <BannerSkeleton />;
 
   if (hotEvents.length === 0) return null;
-
-  const currentEvent = hotEvents[currentIndex];
+  
+  // Safety fallback for out-of-bounds or invalid currentEvent access
+  const currentEvent = hotEvents[currentIndex] || hotEvents[0];
+  if (!currentEvent) return null;
 
   return (
-    <div className="relative h-[350px] md:h-[480px] w-full overflow-hidden rounded-3xl mb-12 border border-white/10 shadow-2xl group">
+    <div className="relative min-h-[350px] md:min-h-[480px] h-[350px] md:h-[480px] w-full overflow-hidden rounded-3xl mb-12 border border-white/10 shadow-2xl group bg-black/20">
       {/* Scanline Overlay Effect - Tăng tính Cyberpunk */}
       <div
         className="absolute inset-0 z-10 pointer-events-none opacity-[0.05]"
@@ -55,7 +67,7 @@ const EventBanner = ({ events = [], loading = false }) => {
         />
       </div>
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
         <motion.div
           key={currentEvent._id || currentEvent.id}
           initial={{ opacity: 0, scale: 1.08, filter: "blur(10px)" }}
@@ -98,7 +110,7 @@ const EventBanner = ({ events = [], loading = false }) => {
 
               {/* Title - Orbitron Heading */}
               <h2
-                className="text-5xl md:text-7xl font-black text-white mb-6 leading-[1.1] uppercase tracking-tighter"
+                className="text-3xl md:text-5xl lg:text-7xl font-black text-white mb-6 leading-[1.1] uppercase tracking-tighter"
                 style={{
                   fontFamily: TYPOGRAPHY.HEADING,
                   textShadow: `0 0 40px ${THEME_COLORS.PRIMARY_GLOW}, 2px 2px 0px ${THEME_COLORS.SECONDARY}`
@@ -109,7 +121,7 @@ const EventBanner = ({ events = [], loading = false }) => {
 
               {/* Description - i18n & Body Font */}
               <p
-                className="text-white/80 text-sm md:text-base mb-10 line-clamp-2 md:line-clamp-3 border-l-4 border-primary pl-6 backdrop-blur-md bg-white/5 py-3 pr-6 rounded-r-xl"
+                className="text-white/80 text-xs md:text-sm lg:text-base mb-10 line-clamp-2 md:line-clamp-3 border-l-4 border-primary pl-6 backdrop-blur-md bg-white/5 py-3 pr-6 rounded-r-xl"
                 style={{ fontFamily: TYPOGRAPHY.BODY }}
               >
                 {currentEvent.description}
@@ -120,6 +132,7 @@ const EventBanner = ({ events = [], loading = false }) => {
                 <motion.button
                   whileHover={{ scale: 1.05, boxShadow: SHADOWS.NEON_SECONDARY }}
                   whileTap={{ scale: 0.95 }}
+                  aria-label={`${t("card_book_now")}: ${currentEvent.title}`}
                   onClick={() => document.getElementById('event-grid-header')?.scrollIntoView({ behavior: 'smooth' })}
                   className="px-10 py-4 bg-secondary text-black font-black uppercase text-xs tracking-[0.3em] shadow-neon-secondary transition-all"
                   style={{ fontFamily: TYPOGRAPHY.TECH, boxShadow: SHADOWS.NEON_SECONDARY }}
@@ -148,14 +161,14 @@ const EventBanner = ({ events = [], loading = false }) => {
                       {t("card_date")}
                     </span>
                     <span className="text-sm font-bold">
-                      {new Date(currentEvent.date).toLocaleDateString(
-                        lang === "vi" ? "vi-VN" : "en-US",
-                        {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric"
-                        }
-                      )}
+                      {(() => {
+                        try {
+                          return new Date(currentEvent.date).toLocaleDateString(
+                            lang === "vi" ? "vi-VN" : "en-US",
+                            { day: "2-digit", month: "2-digit", year: "numeric" }
+                          );
+                        } catch { return "TBA"; }
+                      })()}
                     </span>
                   </div>
                 </div>
@@ -188,7 +201,7 @@ const EventBanner = ({ events = [], loading = false }) => {
       )}
 
       {/* Trang trí góc Cyberpunk - Nâng cấp chi tiết kỹ thuật */}
-      <div className="absolute top-0 right-0 w-40 h-40 pointer-events-none overflow-hidden opacity-50">
+      <div className="hidden sm:block absolute top-0 right-0 w-40 h-40 pointer-events-none overflow-hidden opacity-50">
         <div className="absolute top-[-60px] right-[-60px] w-[120px] h-[120px] border-2 border-primary/40 rotate-45" />
         <div className="absolute top-2 right-10 text-[8px] font-mono text-primary/40 tracking-widest vertical-text uppercase">
           HOT_EVENT_STREAM_V3.0

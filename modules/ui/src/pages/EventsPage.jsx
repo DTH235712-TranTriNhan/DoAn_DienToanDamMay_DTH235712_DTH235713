@@ -9,9 +9,12 @@ import EventCardSkeleton from "../components/EventCardSkeleton.jsx";
 import useEvents from "../hooks/useEvents.js";
 import { TYPOGRAPHY, THEME_COLORS } from "../constants/uiConstants.js";
 import { useLanguage } from "../context/LanguageContext.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
+import { Link } from "react-router-dom";
 
 const EventsPage = () => {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const { events, loading, error } = useEvents();
 
   if (loading) {
@@ -72,10 +75,20 @@ const EventsPage = () => {
           ))}
         </div>
       ) : (
-        <div className="text-center py-20 border border-dashed border-white/10 rounded-3xl bg-white/5">
-          <p className="text-white/30 font-mono text-sm tracking-widest uppercase">
+        <div className="text-center py-24 border border-dashed border-white/10 rounded-3xl bg-white/5 flex flex-col items-center justify-center">
+          <span className="text-6xl mb-6 opacity-20">📭</span>
+          <p className="text-white/30 font-mono text-sm tracking-widest uppercase mb-8">
             {t("events_no_all")}
           </p>
+          {user?.role === 'admin' && (
+            <Link 
+              to="/admin/events" 
+              className="px-8 py-3 bg-primary text-black font-black uppercase text-xs tracking-widest hover:scale-105 transition-transform"
+              style={{ fontFamily: TYPOGRAPHY.TECH }}
+            >
+              {t("events_create_first")}
+            </Link>
+          )}
         </div>
       )}
     </div>
