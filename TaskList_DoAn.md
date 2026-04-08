@@ -446,11 +446,12 @@ export default function useBookTicket() {
 
 ---
 
-### TASK 4.3 🔲 · Frontend: Cập nhật EventCard — nút "Đặt vé" hoạt động thật
+### TASK 4.3 ✅ · Frontend: Cập nhật EventCard — nút "Đặt vé" hoạt động thật
 
 | Mục | Chi tiết |
 |-----|---------|
 | **Người phụ trách** | Nhật |
+| **Trạng thái** | ✅ Đã xong | đã fix giao diện mobile bị ẩn kèm theo icon đồng bộ 
 | **File/Thư mục** | `ui/src/components/EventCard.jsx` |
 | **Định hướng triển khai** | 1. Import `useBookTicket` từ hooks. 2. Nút "Đặt Vé Ngay" gọi `bookTicket(event._id)`. Kiểm tra `isAuthenticated` trước — nếu chưa đăng nhập → `navigate("/login")`. 3. **Hiển thị trạng thái trên nút theo `status`:** |
 

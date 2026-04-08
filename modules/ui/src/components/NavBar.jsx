@@ -162,9 +162,8 @@ const LanguageToggle = ({ lang, toggleLanguage }) => (
       <button
         key={l}
         onClick={() => l !== lang && toggleLanguage()}
-        className={`px-2 py-0.5 rounded-full text-[9px] font-black transition-all duration-300 ${
-          l === lang ? "bg-primary text-black" : "text-white/30 hover:text-white/60"
-        }`}
+        className={`px-2 py-0.5 rounded-full text-[9px] font-black transition-all duration-300 ${l === lang ? "bg-primary text-black" : "text-white/30 hover:text-white/60"
+          }`}
         style={l === lang ? { boxShadow: SHADOWS.NEON_PRIMARY } : {}}
       >
         {l.toUpperCase()}
@@ -204,7 +203,8 @@ const NavBar = () => {
   };
 
   return (
-    <nav
+    <>
+      <nav
       className="sticky top-0 z-50 backdrop-blur-xl border-b border-white/5"
       style={{ background: "rgba(5, 2, 10, 0.7)" }}
     >
@@ -251,6 +251,7 @@ const NavBar = () => {
           </div>
         </button>
       </div>
+    </nav>
 
       {/* Mobile Menu */}
       <AnimatePresence>
@@ -260,7 +261,7 @@ const NavBar = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/90 z-40"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
               onClick={() => setIsMobileMenu(false)}
             />
             <motion.aside
@@ -268,10 +269,9 @@ const NavBar = () => {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 h-full w-72 z-100 p-8 flex flex-col border-l border-white/10 overflow-y-auto scrollbar-none"
+              className="fixed top-0 right-0 h-full w-64 z-100 p-8 flex flex-col border-l border-cyan-500 overflow-y-auto scrollbar-none bg-black/95 backdrop-blur-lg"
               style={{
-                background: "rgba(10, 5, 20, 0.98)",
-                boxShadow: "-10px 0 30px rgba(0,0,0,0.5)"
+                boxShadow: "-10px 0 30px rgba(0,0,0,0.8), -2px 0 15px rgba(0, 255, 255, 0.4)"
               }}
             >
               <div className="flex justify-between items-center mb-10 shrink-0">
@@ -315,10 +315,10 @@ const NavBar = () => {
                 <Link
                   to="/"
                   onClick={() => setIsMobileMenu(false)}
-                  className="text-lg font-bold text-white uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-4 py-3 border-b border-white/5"
+                  className="text-lg font-bold text-white uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-4 py-3 border-b border-white/5 group"
                   style={{ fontFamily: TYPOGRAPHY.TECH }}
                 >
-                  <span className="text-xs text-white/20 font-mono">01</span>{" "}
+                  <span className="text-xl group-hover:scale-125 transition-transform">🏠</span>{" "}
                   {t("nav_home") || "HOME"}
                 </Link>
                 {user ? (
@@ -326,29 +326,29 @@ const NavBar = () => {
                     <Link
                       to="/my-tickets"
                       onClick={() => setIsMobileMenu(false)}
-                      className="text-lg font-bold text-white uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-4 py-3 border-b border-white/5"
+                      className="text-lg font-bold text-white uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-4 py-3 border-b border-white/5 group"
                       style={{ fontFamily: TYPOGRAPHY.TECH }}
                     >
-                      <span className="text-xs text-white/20 font-mono">02</span>{" "}
+                      <span className="text-xl group-hover:scale-125 transition-transform">🎟️</span>{" "}
                       {t("nav_myTickets") || "MY TICKETS"}
                     </Link>
                     {user.role === "admin" && (
                       <Link
                         to="/admin/events"
                         onClick={() => setIsMobileMenu(false)}
-                        className="text-lg font-bold text-white uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-4 py-3 border-b border-white/5"
+                        className="text-lg font-bold text-white uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-4 py-3 border-b border-white/5 group"
                         style={{ fontFamily: TYPOGRAPHY.TECH }}
                       >
-                        <span className="text-xs text-white/20 font-mono">03</span>{" "}
+                        <span className="text-xl group-hover:scale-125 transition-transform">⚡</span>{" "}
                         {t("nav_admin") || "ADMIN_PANEL"}
                       </Link>
                     )}
                     <button
                       onClick={handleLogout}
-                      className="text-lg font-bold text-red-500 uppercase tracking-widest hover:text-red-400 transition-colors flex items-center gap-4 py-3 text-left border-b border-white/5"
+                      className="text-lg font-bold text-red-500 uppercase tracking-widest hover:text-red-400 transition-colors flex items-center gap-4 py-3 text-left border-b border-white/5 group"
                       style={{ fontFamily: TYPOGRAPHY.TECH }}
                     >
-                      <span className="text-xs text-red-900 font-mono">XX</span>{" "}
+                      <span className="text-xl group-hover:translate-x-1 transition-transform">🚪</span>{" "}
                       {t("nav_logout") || "LOGOUT"}
                     </button>
                   </>
@@ -366,7 +366,7 @@ const NavBar = () => {
 
               <div className="mt-auto pt-8 border-t border-white/5">
                 <p className="text-[9px] text-white/30 uppercase tracking-[0.2em] mb-4">
-                  SYSTEM_LOCALIZATION
+                  LANGUAGE 
                 </p>
                 <LanguageToggle lang={lang} toggleLanguage={toggleLanguage} />
               </div>
@@ -374,7 +374,7 @@ const NavBar = () => {
           </>
         )}
       </AnimatePresence>
-    </nav>
+    </>
   );
 };
 

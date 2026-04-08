@@ -26,7 +26,7 @@ const EventCard = ({ event }) => {
   } = useBookTicket();
 
   const { t, lang } = useLanguage();
-  const { user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [localDecrement, setLocalDecrement] = useState(0);
   
@@ -54,6 +54,19 @@ const EventCard = ({ event }) => {
     }
   }, [isCompleted]);
 
+  // Tự động ẩn thông báo lỗi sau 4 giây bằng cách reset
+  useEffect(() => {
+    let timer;
+    if (isFailed && errorLocal) {
+      timer = setTimeout(() => {
+        reset();
+      }, 4000);
+    }
+    return () => clearTimeout(timer);
+  }, [isFailed, errorLocal, reset]);
+
+
+
   const handleBooking = async () => {
     if (isFailed) {
       reset();
@@ -63,13 +76,12 @@ const EventCard = ({ event }) => {
     if (available === 0 || !isIdle) return;
 
     // Check authentication
-    if (!user) {
-      // Logic redirect đã có trong hook nhưng ở đây vẫn giữ t để hiện thông báo UI
-      // thực tế hook sẽ gọi window.location.href = "/login"
-      bookTicket(event._id); 
+    if (!isAuthenticated) {
+      navigate("/login");
       return;
     }
 
+    console.log(`[UI] Bắt đầu đặt vé cho sự kiện: ${event._id}`);
     bookTicket(event._id);
   };
 
@@ -161,49 +173,72 @@ const EventCard = ({ event }) => {
         </div>
 
         {/* Action Button */}
-        <div className="mt-auto">
-          <motion.button
-            whileHover={available > 0 && bookingStatus === "idle" ? { scale: 1.02 } : {}}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleBooking}
-            disabled={available === 0 || bookingStatus === "completed" || bookingStatus === "queued" || bookingStatus === "submitting"}
-            className={`w-full py-3.5 font-black uppercase tracking-[0.2em] text-[10px] transition-all border-2 flex items-center justify-center gap-2 ${
-              available === 0
-                ? "border-white/10 text-white/20 cursor-not-allowed"
-                : isCompleted
-                  ? "border-green-500 text-green-400 bg-green-500/10"
-                  : isQueued
-                    ? "border-primary text-primary animate-pulse" // Task 4.3: animate-pulse when queued
-                    : "border-primary text-primary hover:bg-primary/10 shadow-[0_0_10px_rgba(255,0,255,0.2)]"
-            }`}
-            style={{ fontFamily: TYPOGRAPHY.HEADING }}
-          >
-            {bookingStatus === "idle" && (
-              <>{available === 0 ? t("card_sold_out") : `🎟️ ${t("card_book_now")}`}</>
-            )}
-            {bookingStatus === "submitting" && <span>{t("card_requesting")}</span>}
-            {isQueued && (
-              <span className="uppercase">{t("card_in_queue")}</span>
-            )}
-            {isCompleted && t("card_success")}
-            {isFailed && t("card_retry")}
-          </motion.button>
-
-          {bookingStatus === "failed" && (
-            <button
-              onClick={reset}
-              className="w-full mt-2 py-2 text-[10px] font-mono text-secondary hover:text-white transition-colors"
+        <div className="mt-auto relative z-10">
+          <div className="flex items-center gap-2 w-full">
+            <motion.button
+              whileHover={available > 0 && bookingStatus === "idle" ? { scale: 1.02 } : {}}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleBooking}
+              disabled={available === 0 || bookingStatus === "completed" || bookingStatus === "queued" || bookingStatus === "submitting"}
+              className={`w-full grow py-3.5 font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-300 flex items-center justify-center gap-2 border-2 ${
+                available === 0 && bookingStatus === "idle"
+                  ? "border-gray-800 text-gray-500 bg-transparent cursor-not-allowed"
+                  : isCompleted
+                    ? "border-green-400 text-green-400 bg-green-900/20 shadow-[0_0_15px_rgba(74,222,128,0.2)] cursor-not-allowed"
+                    : isQueued || isSubmitting
+                      ? "border-yellow-300 text-yellow-300 border-dashed animate-pulse bg-transparent shadow-[0_0_15px_rgba(253,224,71,0.2)] cursor-not-allowed"
+                      : isFailed
+                        ? "border-red-500 text-red-500 bg-red-900/30 shadow-[0_0_15px_rgba(239,68,68,0.4)]"
+                        : "border-cyan-400 text-cyan-400 bg-transparent hover:bg-cyan-400 hover:text-black hover:shadow-[0_0_20px_rgba(34,211,238,0.6)]"
+              }`}
+              style={{ fontFamily: TYPOGRAPHY.HEADING }}
             >
-              [ {t("card_retry")} ]
-            </button>
-          )}
-
-          {errorLocal && (
-            <p className="mt-3 text-[9px] text-red-500 font-mono text-center uppercase tracking-tighter">
-              ⚠️ {errorLocal}
-            </p>
-          )}
+              {bookingStatus === "idle" && (
+                <>{available === 0 ? t("card_sold_out") : "🎟️ Đặt Vé Ngay"}</>
+              )}
+              {bookingStatus === "submitting" && <span>⏳ Đang gửi...</span>}
+              {isQueued && <span>⏳ Đang xử lý...</span>}
+              {isCompleted && <span>✅ Đặt vé thành công!</span>}
+              {isFailed && <span>❌ Thất bại</span>}
+            </motion.button>
+          </div>
         </div>
+
+        {/* Custom Notification Error System (Full Card Overlay) */}
+        {isFailed && errorLocal && (
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/70 backdrop-blur-md border-l-4 border-pink-600 p-6 overflow-hidden"
+          >
+            {/* Cyberpunk Scanning Line */}
+            <motion.div
+              animate={{ y: [-100, 400] }}
+              transition={{ repeat: Infinity, duration: 2.5, ease: 'linear' }}
+              className="absolute top-0 left-0 right-0 h-[2px] bg-pink-500/50 shadow-[0_0_15px_#ec4899] z-0"
+            />
+            
+            <div className="relative z-10 flex flex-col items-center text-center space-y-3">
+               <h4 className="text-pink-600 font-black text-lg font-mono uppercase tracking-widest drop-shadow-[0_0_8px_rgba(219,39,119,0.5)]">
+                 [ĐẶT VÉ THẤT BẠI]
+               </h4>
+               <p className="text-pink-300 text-xs font-mono uppercase">
+                 {errorLocal}
+               </p>
+               <p className="text-pink-400/80 text-[10px] font-mono leading-relaxed mt-2 uppercase tracking-wider max-w-[85%]">
+                 Vui lòng chọn mã sự kiện khác hoặc tái khởi động yêu cầu.
+               </p>
+
+               <button
+                  onClick={reset}
+                  className="mt-6 px-6 py-2 border-2 border-pink-600 text-pink-500 bg-transparent hover:bg-pink-600 hover:text-white text-[12px] font-black uppercase tracking-widest transition-all duration-300 shadow-[0_0_10px_rgba(236,72,153,0.3)] hover:shadow-[0_0_20px_rgba(236,72,153,0.8)]"
+                  style={{ fontFamily: TYPOGRAPHY.HEADING }}
+                >
+                  THỬ LẠI
+               </button>
+            </div>
+          </motion.div>
+        )}
       </div>
     </motion.div>
   );
