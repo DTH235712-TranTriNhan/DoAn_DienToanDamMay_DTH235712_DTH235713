@@ -39,3 +39,34 @@ export const TYPOGRAPHY = {
   BODY: "'Inter', sans-serif",
   TECH: "'Share Tech Mono', monospace"
 };
+
+/**
+ * Configuration for Booking Button States
+ * Maps status to specific CSS classes and labels as per system requirements.
+ */
+export const BOOKING_UI_CONFIG = {
+  idle: {
+    label: "🎟️ Đặt Vé Ngay",
+    className: "bg-blue-600 hover:bg-blue-700 text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]",
+  },
+  submitting: {
+    label: "⏳ Đang gửi...",
+    className: "bg-blue-800 text-white/70 cursor-not-allowed opacity-70",
+  },
+  queued: {
+    label: "⏳ Đang xử lý...",
+    className: "bg-yellow-500 text-black animate-pulse cursor-not-allowed shadow-[0_0_15px_rgba(234,179,8,0.5)]",
+  },
+  completed: {
+    label: "✅ Đặt vé thành công!",
+    className: "bg-green-500 text-white cursor-not-allowed shadow-[0_0_15px_rgba(34,197,94,0.4)]",
+  },
+  failed: {
+    label: "❌ Thất bại - Thử lại",
+    className: "bg-red-500 text-white hover:bg-red-600 shadow-[0_0_15px_rgba(239,68,68,0.5)]",
+  },
+  sold_out: {
+    label: "Hết vé",
+    className: "border-gray-800 text-gray-500 bg-transparent cursor-not-allowed",
+  }
+};

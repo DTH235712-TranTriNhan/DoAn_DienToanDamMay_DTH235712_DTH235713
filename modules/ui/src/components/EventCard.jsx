@@ -6,7 +6,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { THEME_COLORS, TYPOGRAPHY, SHADOWS } from "../constants/uiConstants.js";
+import { THEME_COLORS, TYPOGRAPHY, SHADOWS, BOOKING_UI_CONFIG } from "../constants/uiConstants.js";
 import { useLanguage } from "../context/LanguageContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useBookTicket } from "../hooks/useBookTicket.js";
@@ -84,6 +84,22 @@ const EventCard = ({ event }) => {
     console.log(`[UI] Bắt đầu đặt vé cho sự kiện: ${event._id}`);
     bookTicket(event._id);
   };
+
+  // Logic nút bấm dựa trên cấu hình tập trung
+  const getButtonConfig = () => {
+    if (available === 0 && bookingStatus === "idle") return BOOKING_UI_CONFIG.sold_out;
+    const config = { ...BOOKING_UI_CONFIG[bookingStatus] || BOOKING_UI_CONFIG.idle };
+    
+    // Nếu failed, hiển thị lý do rút gọn ngay trên nút
+    if (bookingStatus === "failed" && errorLocal) {
+      const shortError = errorLocal.length > 15 ? errorLocal.substring(0, 15) + "..." : errorLocal;
+      config.label = `❌ ${shortError} - THỬ LẠI`;
+    }
+    
+    return config;
+  };
+
+  const btnConfig = getButtonConfig();
 
   return (
     <motion.div
@@ -180,26 +196,10 @@ const EventCard = ({ event }) => {
               whileTap={{ scale: 0.98 }}
               onClick={handleBooking}
               disabled={available === 0 || bookingStatus === "completed" || bookingStatus === "queued" || bookingStatus === "submitting"}
-              className={`w-full grow py-3.5 font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-300 flex items-center justify-center gap-2 border-2 ${
-                available === 0 && bookingStatus === "idle"
-                  ? "border-gray-800 text-gray-500 bg-transparent cursor-not-allowed"
-                  : isCompleted
-                    ? "border-green-400 text-green-400 bg-green-900/20 shadow-[0_0_15px_rgba(74,222,128,0.2)] cursor-not-allowed"
-                    : isQueued || isSubmitting
-                      ? "border-yellow-300 text-yellow-300 border-dashed animate-pulse bg-transparent shadow-[0_0_15px_rgba(253,224,71,0.2)] cursor-not-allowed"
-                      : isFailed
-                        ? "border-red-500 text-red-500 bg-red-900/30 shadow-[0_0_15px_rgba(239,68,68,0.4)]"
-                        : "border-cyan-400 text-cyan-400 bg-transparent hover:bg-cyan-400 hover:text-black hover:shadow-[0_0_20px_rgba(34,211,238,0.6)]"
-              }`}
+              className={`w-full grow py-3.5 font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-300 flex items-center justify-center gap-2 border-2 ${btnConfig.className}`}
               style={{ fontFamily: TYPOGRAPHY.HEADING }}
             >
-              {bookingStatus === "idle" && (
-                <>{available === 0 ? t("card_sold_out") : "🎟️ Đặt Vé Ngay"}</>
-              )}
-              {bookingStatus === "submitting" && <span>⏳ Đang gửi...</span>}
-              {isQueued && <span>⏳ Đang xử lý...</span>}
-              {isCompleted && <span>✅ Đặt vé thành công!</span>}
-              {isFailed && <span>❌ Thất bại</span>}
+              {btnConfig.label}
             </motion.button>
           </div>
         </div>
