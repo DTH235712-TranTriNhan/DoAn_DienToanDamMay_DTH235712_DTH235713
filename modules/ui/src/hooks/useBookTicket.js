@@ -30,6 +30,7 @@ export const useBookTicket = () => {
   /**
    * Stage 2: Polling Job Status (UC-04)
    * Kiểm tra trạng thái của Job từ BullMQ mỗi 2 giây
+   * Sử dụng đệ quy setTimeout thay cho setInterval để tránh overlap requests
    */
   const checkJobStatus = useCallback(async (jobId) => {
     try {
@@ -44,11 +45,28 @@ export const useBookTicket = () => {
         clearTimers();
         setStatus("failed");
         setError(reason || "Đặt vé thất bại. Vui lòng thử lại sau.");
+      } else {
+        // Nếu still active/waiting thì tiếp tục polling sau 2 giây
+        pollingRef.current = setTimeout(() => checkJobStatus(jobId), 2000);
       }
-      // Nếu still active/waiting thì tiếp tục polling ở interval tiếp theo
     } catch (err) {
-      // Nếu lỗi 404 hoặc lỗi mạng khi polling, có thể coi như thất bại sau vài lần thử
       console.error("Polling error:", err);
+      const statusCode = err.response?.status;
+      
+      if (statusCode === 401) {
+        clearTimers();
+        setStatus("failed");
+        setError("Vui lòng đăng nhập để thực hiện đặt vé.");
+        window.location.href = "/login";
+      } else if (statusCode === 404) {
+        // Job có thể đã hết hạn hoặc bị xóa trên Redis
+        clearTimers();
+        setStatus("failed");
+        setError("Không tìm thấy thông tin đặt vé.");
+      } else {
+        // Đối với các lỗi mạng khác, vẫn thử lại polling ở chu kỳ sau
+        pollingRef.current = setTimeout(() => checkJobStatus(jobId), 2000);
+      }
     }
   }, [clearTimers]);
 
@@ -75,14 +93,12 @@ export const useBookTicket = () => {
         timeoutRef.current = setTimeout(() => {
           clearTimers();
           setStatus("failed");
-          setError("Yêu cầu quá thời hạn (Timeout). Vui lòng thử lại sau.");
+          setError("Hệ thống bận"); // Chuẩn hóa message theo yêu cầu
           console.warn("Booking Timeout after 30s");
         }, 30000);
 
-        // Bắt đầu Polling mỗi 2 giây để kiểm tra kết quả xử lý của Worker
-        pollingRef.current = setInterval(() => {
-          checkJobStatus(jobId);
-        }, 2000);
+        // Bắt đầu Polling sau 2 giây
+        pollingRef.current = setTimeout(() => checkJobStatus(jobId), 2000);
       }
     } catch (err) {
       setStatus("failed");
@@ -91,10 +107,11 @@ export const useBookTicket = () => {
       // Xử lý các mã lỗi đặc thù theo yêu cầu nghiệp vụ
       if (statusCode === 401) {
         setError("Vui lòng đăng nhập để thực hiện đặt vé.");
+        window.location.href = "/login";
       } else if (statusCode === 409) {
-        setError("Bạn đã đặt vé cho sự kiện này rồi (Idempotency).");
+        setError("Bạn đã đặt vé rồi"); // Chuẩn hóa message
       } else if (statusCode === 429) {
-        setError("Hệ thống đang bận do quá nhiều yêu cầu. Vui lòng thử lại sau 15 phút.");
+        setError("Vượt Rate limit (Yêu cầu user chờ)"); // Chuẩn hóa message
       } else {
         setError(err.response?.data?.message || "Đã có lỗi xảy ra khi gửi yêu cầu.");
       }
