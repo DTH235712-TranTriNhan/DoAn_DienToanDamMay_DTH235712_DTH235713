@@ -14,8 +14,8 @@
     "start": "npm run build:all && cross-env NODE_ENV=production SERVE_UI=true npm run start --workspace=modules/backend",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "dev:backend": "npm run build:all && npm run backend",
-    "dev:ui": "npm run build:all && npm run ui",
+    "dev:backend": "npm run backend",
+    "dev:ui": "npm run ui",
     "dev": "npm run build:all && npm-run-all --parallel dev:* worker"
   },
   "devDependencies": {
