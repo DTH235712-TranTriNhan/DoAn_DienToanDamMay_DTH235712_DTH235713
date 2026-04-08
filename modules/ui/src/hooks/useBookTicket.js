@@ -35,7 +35,7 @@ export const useBookTicket = () => {
   const checkJobStatus = useCallback(async (jobId) => {
     try {
       const response = await api.get(`/tickets/status/${jobId}`);
-      const { state, reason } = response.data;
+      const { state, failedReason: reason } = response.data.data || {};
 
       if (state === "completed") {
         clearTimers();
