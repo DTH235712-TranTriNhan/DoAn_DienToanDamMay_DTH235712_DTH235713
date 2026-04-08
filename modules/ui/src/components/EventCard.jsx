@@ -9,16 +9,27 @@ import { motion } from "framer-motion";
 import { THEME_COLORS, TYPOGRAPHY, SHADOWS } from "../constants/uiConstants.js";
 import { useLanguage } from "../context/LanguageContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useBookTicket } from "../hooks/useBookTicket.js";
 import api from "../services/api.js";
 
 const EventCard = ({ event }) => {
-  const [bookingStatus, setBookingStatus] = useState("idle");
-  const [jobId, setJobId] = useState(null);
-  const [errorLocal, setErrorLocal] = useState("");
+  const { 
+    bookTicket, 
+    status: bookingStatus, 
+    error: errorLocal, 
+    isIdle,
+    isSubmitting,
+    isQueued,
+    isCompleted,
+    isFailed,
+    reset
+  } = useBookTicket();
+
   const { t, lang } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [localDecrement, setLocalDecrement] = useState(0);
+  
   const baseAvailable = event.availableTickets || 0;
   const localAvailable = Math.max(0, baseAvailable - localDecrement);
 
@@ -36,87 +47,30 @@ const EventCard = ({ event }) => {
   const soldTickets = Math.max(0, total - available);
   const progressPercentage = Math.round((soldTickets / total) * 100);
 
-  // Polling logic for ticket job status
+  // Đồng bộ số lượng vé khi đặt thành công từ hook
   useEffect(() => {
-    let pollInterval;
-
-    if (bookingStatus === "queued" && jobId) {
-      const startTime = Date.now();
-      const MAX_POLL_TIME = 45000; // 45 seconds timeout
-
-      pollInterval = setInterval(async () => {
-        try {
-          // Check for elapsed time
-          if (Date.now() - startTime > MAX_POLL_TIME) {
-            setBookingStatus("failed");
-            setErrorLocal(
-              t("card_error_sync") ||
-                "Timeout: System is under heavy load. Please check My Tickets."
-            );
-            clearInterval(pollInterval);
-            return;
-          }
-
-          const res = await api.get(`/tickets/status/${jobId}?t=${Date.now()}`);
-          // Ensure data exists before destructuring
-          const jobData = res.data?.data;
-          if (!jobData) return;
-
-          const { state, failedReason } = jobData;
-
-          if (state === "completed") {
-            setBookingStatus("completed");
-            setLocalDecrement(prev => prev + 1);
-            clearInterval(pollInterval);
-          } else if (state === "failed") {
-            setBookingStatus("failed");
-            setErrorLocal(failedReason || t("card_error_generic"));
-            clearInterval(pollInterval);
-          }
-        } catch (err) {
-          // Only stop on non-transient errors if necessary, or just keep trying if it's 429
-          if (err.response?.status === 404) {
-            setBookingStatus("idle");
-            clearInterval(pollInterval);
-          }
-        }
-      }, 2000);
+    if (isCompleted) {
+      setLocalDecrement(prev => prev + 1);
     }
-    return () => {
-      if (pollInterval) clearInterval(pollInterval);
-    };
-  }, [bookingStatus, jobId, t]);
+  }, [isCompleted]);
 
   const handleBooking = async () => {
-    if (bookingStatus === "failed") {
-      setBookingStatus("idle");
-      setErrorLocal("");
+    if (isFailed) {
+      reset();
       return;
     }
 
-    if (available === 0 || bookingStatus !== "idle") return;
+    if (available === 0 || !isIdle) return;
 
     // Check authentication
     if (!user) {
-      setErrorLocal(t("card_login_required"));
-      setTimeout(() => navigate("/login"), 1500);
+      // Logic redirect đã có trong hook nhưng ở đây vẫn giữ t để hiện thông báo UI
+      // thực tế hook sẽ gọi window.location.href = "/login"
+      bookTicket(event._id); 
       return;
     }
 
-    setBookingStatus("submitting");
-    setErrorLocal("");
-
-    try {
-      const res = await api.post("/tickets", { eventId: event._id });
-      if (res.status === 202) {
-        setJobId(res.data.data.jobId);
-        setBookingStatus("queued");
-      }
-    } catch (err) {
-      setBookingStatus("idle");
-      const errMsg = err.response?.data?.message || t("card_error_generic");
-      setErrorLocal(errMsg);
-    }
+    bookTicket(event._id);
   };
 
   return (
@@ -216,9 +170,11 @@ const EventCard = ({ event }) => {
             className={`w-full py-3.5 font-black uppercase tracking-[0.2em] text-[10px] transition-all border-2 flex items-center justify-center gap-2 ${
               available === 0
                 ? "border-white/10 text-white/20 cursor-not-allowed"
-                : bookingStatus === "completed"
+                : isCompleted
                   ? "border-green-500 text-green-400 bg-green-500/10"
-                  : "border-primary text-primary hover:bg-primary/10 shadow-[0_0_10px_rgba(255,0,255,0.2)]"
+                  : isQueued
+                    ? "border-primary text-primary animate-pulse" // Task 4.3: animate-pulse when queued
+                    : "border-primary text-primary hover:bg-primary/10 shadow-[0_0_10px_rgba(255,0,255,0.2)]"
             }`}
             style={{ fontFamily: TYPOGRAPHY.HEADING }}
           >
@@ -226,19 +182,16 @@ const EventCard = ({ event }) => {
               <>{available === 0 ? t("card_sold_out") : `🎟️ ${t("card_book_now")}`}</>
             )}
             {bookingStatus === "submitting" && <span>{t("card_requesting")}</span>}
-            {bookingStatus === "queued" && (
-              <span className="animate-pulse">{t("card_in_queue")}</span>
+            {isQueued && (
+              <span className="uppercase">{t("card_in_queue")}</span>
             )}
-            {bookingStatus === "completed" && t("card_success")}
-            {bookingStatus === "failed" && t("card_retry")}
+            {isCompleted && t("card_success")}
+            {isFailed && t("card_retry")}
           </motion.button>
 
           {bookingStatus === "failed" && (
             <button
-              onClick={() => {
-                setBookingStatus("idle");
-                setErrorLocal("");
-              }}
+              onClick={reset}
               className="w-full mt-2 py-2 text-[10px] font-mono text-secondary hover:text-white transition-colors"
             >
               [ {t("card_retry")} ]
