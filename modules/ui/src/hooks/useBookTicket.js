@@ -1,114 +1,123 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
-import api from '../services/api.js';
+import { useState, useCallback, useRef, useEffect } from "react";
+import api from "../services/api";
 
 /**
- * useBookTicket — Hook xử lý đặt vé Flash Sale (Asynchronous Workflow)
- * Tuân thủ đặc tả UC-03 (Gửi yêu cầu) và UC-04 (Kiểm tra trạng thái)
- * 
- * Luồng hoạt động:
- * 1. Submit: POST /api/tickets kèm eventId. Nếu nhận 202, lấy jobId.
- * 2. Polling: GET /api/tickets/status/:jobId mỗi 2s để kiểm tra BullMQ state.
- * 3. Timeout: Tự động dừng sau 30s nếu không có kết quả cuối cùng.
+ * Custom Hook useBookTicket
+ * Xử lý UC-03: Đặt vé Flash Sale (Asynchronous Booking)
+ * Xử lý UC-04: Kiểm tra trạng thái đặt vé (Polling Job Status)
  */
-const useBookTicket = () => {
-  // Trạng thái: idle -> submitting -> queued -> completed | failed
-  const [status, setStatus] = useState('idle');
+export const useBookTicket = () => {
+  const [status, setStatus] = useState("idle"); // idle, submitting, queued, completed, failed
   const [error, setError] = useState(null);
+  
+  // Sử dụng useRef để quản lý Timer tránh rò rỉ bộ nhớ (Memory Leak)
+  const pollingRef = useRef(null);
+  const timeoutRef = useRef(null);
 
-  // Sử dụng useRef quản lý Timers để đảm bảo dọn dẹp (Cleanup) triệt để
-  const pollingTimerRef = useRef(null);
-  const timeoutTimerRef = useRef(null);
-
-  // Hàm dọn dẹp các timers đang chạy
-  const cleanup = useCallback(() => {
-    if (pollingTimerRef.current) clearInterval(pollingTimerRef.current);
-    if (timeoutTimerRef.current) clearTimeout(timeoutTimerRef.current);
-    pollingTimerRef.current = null;
-    timeoutTimerRef.current = null;
+  // Hàm dọn dẹp các Timer
+  const clearTimers = useCallback(() => {
+    if (pollingRef.current) clearInterval(pollingRef.current);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    pollingRef.current = null;
+    timeoutRef.current = null;
   }, []);
 
-  // Cleanup Function khi Component Unmount để tránh rò rỉ bộ nhớ
+  // Cleanup khi component unmount
   useEffect(() => {
-    return () => cleanup();
-  }, [cleanup]);
+    return () => clearTimers();
+  }, [clearTimers]);
 
+  /**
+   * Stage 2: Polling Job Status (UC-04)
+   * Kiểm tra trạng thái của Job từ BullMQ mỗi 2 giây
+   */
+  const checkJobStatus = useCallback(async (jobId) => {
+    try {
+      const response = await api.get(`/tickets/status/${jobId}`);
+      const { state, reason } = response.data;
+
+      if (state === "completed") {
+        clearTimers();
+        setStatus("completed");
+        setError(null);
+      } else if (state === "failed") {
+        clearTimers();
+        setStatus("failed");
+        setError(reason || "Đặt vé thất bại. Vui lòng thử lại sau.");
+      }
+      // Nếu still active/waiting thì tiếp tục polling ở interval tiếp theo
+    } catch (err) {
+      // Nếu lỗi 404 hoặc lỗi mạng khi polling, có thể coi như thất bại sau vài lần thử
+      console.error("Polling error:", err);
+    }
+  }, [clearTimers]);
+
+  /**
+   * Stage 1: Submit Booking (UC-03)
+   * Gửi yêu cầu đặt vé vào hàng đợi Redis thông qua BullMQ
+   */
   const bookTicket = useCallback(async (eventId) => {
-    // Reset state về mặc định
-    setStatus('submitting');
+    // Reset trạng thái trước khi bắt đầu
+    clearTimers();
+    setStatus("submitting");
     setError(null);
-    cleanup();
 
     try {
-      /**
-       * GIAI ĐOẠN 1 (UC-03): Gửi yêu cầu đặt vé vào hàng đợi
-       * api.js đã có baseURL là /api, nên gọi /tickets => /api/tickets
-       */
-      const response = await api.post('/tickets', { eventId });
+      // Gửi POST /api/tickets kèm eventId
+      const response = await api.post("/tickets", { eventId });
 
-      // Nếu nhận 202 Accepted: Job đã vào hàng đợi của BullMQ
+      // Nếu nhận 202 Accepted: Job đã được đưa vào hàng đợi thành công
       if (response.status === 202) {
-        const { jobId } = response.data.data; // Backend pattern: { success, message, data: { jobId } }
-        setStatus('queued');
+        const { jobId } = response.data;
+        setStatus("queued");
 
-        // Bắt đầu Timeout 30 giây bảo vệ hệ thống
-        timeoutTimerRef.current = setTimeout(() => {
-          cleanup();
-          setStatus('failed');
-          setError('Vui lòng thử lại sau - Yêu cầu quá thời gian xử lý.');
+        // Thiết lập Timeout 30 giây: Nếu quá lâu không có kết quả thì dừng polling
+        timeoutRef.current = setTimeout(() => {
+          clearTimers();
+          setStatus("failed");
+          setError("Yêu cầu quá thời hạn (Timeout). Vui lòng thử lại sau.");
+          console.warn("Booking Timeout after 30s");
         }, 30000);
 
-        /**
-         * GIAI ĐOẠN 2 (UC-04): Polling trạng thái mỗi 2 giây
-         */
-        pollingTimerRef.current = setInterval(async () => {
-          try {
-            const statusRes = await api.get(`/tickets/status/${jobId}`);
-            const { state, failedReason } = statusRes.data.data;
-
-            // Dừng polling khi có kết quả cuối cùng
-            if (state === 'completed') {
-              cleanup();
-              setStatus('completed');
-            } else if (state === 'failed') {
-              cleanup();
-              setStatus('failed');
-              setError(failedReason || 'Hết vé hoặc giao dịch thất bại.');
-            }
-          } catch (pollErr) {
-            // Lỗi kỹ thuật khi polling (mất mạng, server bảo trì...)
-            cleanup();
-            setStatus('failed');
-            setError('Lỗi đồng bộ trạng thái vé.');
-          }
+        // Bắt đầu Polling mỗi 2 giây để kiểm tra kết quả xử lý của Worker
+        pollingRef.current = setInterval(() => {
+          checkJobStatus(jobId);
         }, 2000);
-      } else {
-        // Xử lý các trường hợp thành công trực tiếp (nếu có)
-        setStatus('completed');
       }
     } catch (err) {
-      // Xử lý lỗi cụ thể theo yêu cầu (Giai đoạn 1)
-      setStatus('failed');
+      setStatus("failed");
       const statusCode = err.response?.status;
-
+      
+      // Xử lý các mã lỗi đặc thù theo yêu cầu nghiệp vụ
       if (statusCode === 401) {
-        setError('Hãy đăng nhập để săn vé Flash Sale.');
+        setError("Vui lòng đăng nhập để thực hiện đặt vé.");
       } else if (statusCode === 409) {
-        setError('Bạn đã tham gia đặt vé cho sự kiện này rồi.');
+        setError("Bạn đã đặt vé cho sự kiện này rồi (Idempotency).");
       } else if (statusCode === 429) {
-        setError('Hệ thống đang quá tải (Rate limit), vui lòng đợi thêm.');
+        setError("Hệ thống đang bận do quá nhiều yêu cầu. Vui lòng thử lại sau 15 phút.");
       } else {
-        setError(err.response?.data?.message || 'Lỗi kết nối máy chủ.');
+        setError(err.response?.data?.message || "Đã có lỗi xảy ra khi gửi yêu cầu.");
       }
+      
+      console.error("Booking submission error:", err);
     }
-  }, [cleanup]);
+  }, [checkJobStatus, clearTimers]);
 
-  const reset = useCallback(() => {
-    cleanup();
-    setStatus('idle');
-    setError(null);
-  }, [cleanup]);
-
-  return { status, error, bookTicket, reset };
+  return {
+    bookTicket,
+    status,
+    error,
+    isIdle: status === "idle",
+    isSubmitting: status === "submitting",
+    isQueued: status === "queued",
+    isCompleted: status === "completed",
+    isFailed: status === "failed",
+    reset: () => {
+      clearTimers();
+      setStatus("idle");
+      setError(null);
+    }
+  };
 };
 
 export default useBookTicket;
