@@ -5,6 +5,7 @@ import EventsPage from "./pages/EventsPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import AuthCallbackPage from "./pages/AuthCallbackPage.jsx";
 import MyTicketsPage from "./pages/MyTicketsPage.jsx";
+import TicketDetailsPage from "./pages/TicketDetailsPage.jsx";
 import AdminEventsPage from "./pages/AdminEventsPage.jsx";
 import Footer from "./components/Footer.jsx";
 
@@ -51,6 +52,8 @@ const Layout = () => {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/auth/callback" element={<AuthCallbackPage />} />
             <Route path="/my-tickets" element={<MyTicketsPage />} />
+            <Route path="/events/:eventId" element={<TicketDetailsPage />} />
+          <Route path="/my-tickets/:ticketId" element={<TicketDetailsPage />} />
             {/* Route quản trị — AdminEventsPage tự redirect nếu không phải admin */}
             <Route path="/admin/events" element={<AdminEventsPage />} />
           </Routes>

@@ -17,6 +17,7 @@ import { useLanguage } from '../context/LanguageContext.jsx';
 import useEvents from '../hooks/useEvents.js';
 import EventForm from '../components/EventForm.jsx';
 import ConfirmDialog from '../components/ConfirmDialog.jsx';
+import Breadcrumb from '../components/Breadcrumb.jsx';
 import api from '../services/api.js';
 import { THEME_COLORS, SHADOWS, TYPOGRAPHY } from '../constants/uiConstants.js';
 
@@ -247,6 +248,9 @@ const AdminEventsPage = () => {
 
   return (
     <div className="py-8 px-4 max-w-7xl mx-auto">
+      <div className="mb-6">
+        <Breadcrumb items={[{ label: 'ADMIN' }, { label: 'EVENTS' }]} />
+      </div>
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
