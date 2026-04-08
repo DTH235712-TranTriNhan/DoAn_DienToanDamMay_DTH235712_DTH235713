@@ -352,11 +352,12 @@ Frontend hiển thị kết quả:
 
 ---
 
-### TASK 4.2 🔲 · Frontend: Hook `useBookTicket` — logic đặt vé + polling
+### TASK 4.2 ✅ · Frontend: Hook `useBookTicket` — logic đặt vé + polling
 
 | Mục | Chi tiết |
 |-----|---------|
 | **Người phụ trách** | Nhật |
+| **Trạng thái** | ✅ Đã xong |
 | **File/Thư mục** | Tạo mới: `ui/src/hooks/useBookTicket.js` |
 | **Định hướng triển khai** | Đây là hook **quan trọng nhất** của Frontend, cần xử lý đúng luồng async 2 bước (submit → polling). |
 
