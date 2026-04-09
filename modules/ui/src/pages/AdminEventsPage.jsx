@@ -322,7 +322,12 @@ const AdminEventsPage = () => {
                   <div className="flex-1 overflow-hidden">
                     <h3 className="font-bold text-white truncate uppercase text-sm" style={{ fontFamily: TYPOGRAPHY.HEADING }}>{event.title}</h3>
                     <p className="text-[10px] text-white/40 truncate uppercase font-mono mt-1">{event.location || 'NO_LOCATION'}</p>
-                    <div className="mt-2"><StatusBadge event={event} /></div>
+                    <div className="mt-2 flex items-center gap-3">
+                      <StatusBadge event={event} />
+                      <span className="text-[10px] text-cyan-400 font-mono">
+                        {event.price ? new Intl.NumberFormat(lang === 'vi' ? 'vi-VN' : 'en-US', { style: 'currency', currency: 'VND' }).format(event.price) : t('card_price_free')}
+                      </span>
+                    </div>
                   </div>
                 </div>
                 
@@ -366,7 +371,7 @@ const AdminEventsPage = () => {
           <table className="w-full min-w-[700px] border-collapse text-sm">
             <thead>
               <tr style={{ backgroundColor: 'rgba(255,0,255,0.08)', borderBottom: `1px solid ${THEME_COLORS.PRIMARY_GLOW}` }}>
-                {[t('admin_table_img'), t('admin_table_name'), t('admin_table_loc'), t('admin_table_date'), t('admin_table_tickets'), t('admin_table_status'), t('admin_table_actions')].map((h) => (
+                {[t('admin_table_img'), t('admin_table_name'), t('admin_table_loc'), t('admin_table_price'), t('admin_table_date'), t('admin_table_tickets'), t('admin_table_status'), t('admin_table_actions')].map((h) => (
                   <th key={h} style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.PRIMARY, fontSize: '0.65rem', textAlign: 'left' }} className="px-4 py-3 uppercase tracking-widest font-normal">
                     {h}
                   </th>
@@ -376,7 +381,7 @@ const AdminEventsPage = () => {
             <tbody>
               {events.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-12" style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.TEXT_MUTED, fontSize: '0.75rem' }}>
+                  <td colSpan={8} className="text-center py-12" style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.TEXT_MUTED, fontSize: '0.75rem' }}>
                     {t('admin_no_events')}
                   </td>
                 </tr>
@@ -398,6 +403,9 @@ const AdminEventsPage = () => {
                       </div>
                     </td>
                     <td className="px-4 py-3 max-w-[150px] truncate" style={{ fontFamily: TYPOGRAPHY.BODY, color: THEME_COLORS.TEXT_MUTED }}>{event.location || '—'}</td>
+                    <td className="px-4 py-3 whitespace-nowrap" style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.ACCENT, fontSize: '0.78rem' }}>
+                      {event.price ? new Intl.NumberFormat(lang === 'vi' ? 'vi-VN' : 'en-US', { style: 'currency', currency: 'VND' }).format(event.price) : t('card_price_free')}
+                    </td>
                     <td className="px-4 py-3 whitespace-nowrap" style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.SECONDARY, fontSize: '0.78rem' }}>{formatDate(event.date, lang)}</td>
                     <td className="px-4 py-3 min-w-[120px]">
                       <div className="flex flex-col gap-1">

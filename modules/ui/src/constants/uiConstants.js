@@ -46,27 +46,27 @@ export const TYPOGRAPHY = {
  */
 export const BOOKING_UI_CONFIG = {
   idle: {
-    label: "🎟️ Đặt Vé Ngay",
-    className: "bg-blue-600 hover:bg-blue-700 text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]",
+    labelKey: "card_book_now",
+    className: "border-secondary/50 text-secondary bg-transparent hover:bg-secondary/10 hover:shadow-neon-secondary",
   },
   submitting: {
-    label: "⏳ Đang gửi...",
-    className: "bg-blue-800 text-white/70 cursor-not-allowed opacity-70",
+    labelKey: "card_requesting",
+    className: "bg-yellow-400 text-black animate-pulse cursor-not-allowed border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.5)]",
   },
   queued: {
-    label: "⏳ Đang xử lý...",
-    className: "bg-yellow-500 text-black animate-pulse cursor-not-allowed shadow-[0_0_15px_rgba(234,179,8,0.5)]",
+    labelKey: "card_in_queue",
+    className: "bg-yellow-400 text-black animate-pulse cursor-not-allowed border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.5)]",
   },
   completed: {
-    label: "✅ Đặt vé thành công!",
-    className: "bg-green-500 text-white cursor-not-allowed shadow-[0_0_15px_rgba(34,197,94,0.4)]",
+    labelKey: "card_success",
+    className: "bg-green-500 text-white cursor-not-allowed border-green-500 shadow-[0_0_15px_rgba(34,197,94,0.4)]",
   },
   failed: {
-    label: "❌ Thất bại - Thử lại",
-    className: "bg-red-500 text-white hover:bg-red-600 shadow-[0_0_15px_rgba(239,68,68,0.5)]",
+    labelKey: "card_retry",
+    className: "bg-red-600 text-white hover:bg-red-700 border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.5)]",
   },
   sold_out: {
-    label: "Hết vé",
-    className: "border-gray-800 text-gray-500 bg-transparent cursor-not-allowed",
+    labelKey: "card_sold_out",
+    className: "border-gray-800 text-gray-500 bg-transparent cursor-not-allowed opacity-50",
   }
 };

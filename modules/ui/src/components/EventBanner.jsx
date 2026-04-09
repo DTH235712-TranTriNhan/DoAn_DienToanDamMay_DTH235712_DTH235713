@@ -36,6 +36,10 @@ const EventBanner = ({ events = [], loading = false }) => {
   const currentEvent = hotEvents[safeIndex] || hotEvents[0];
   if (!currentEvent) return null;
 
+  const handleImageError = (e) => {
+    e.target.src = "https://placehold.co/1200x600/090014/00FFFF?text=IMAGE+NOT+FOUND";
+  };
+
   return (
     <div className="relative min-h-[350px] md:min-h-[480px] h-[350px] md:h-[480px] w-full overflow-hidden rounded-3xl mb-12 border border-white/10 shadow-2xl group bg-black/20">
       {/* Scanline Overlay Effect - Tăng tính Cyberpunk */}
@@ -78,6 +82,7 @@ const EventBanner = ({ events = [], loading = false }) => {
               currentEvent.imageUrl || "https://placehold.co/1200x600/090014/FF00FF?text=Hot+Event"
             }
             alt={currentEvent.title}
+            onError={handleImageError}
             className="w-full h-full object-cover transition-transform duration-10000 ease-linear group-hover:scale-110"
           />
 

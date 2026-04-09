@@ -6,8 +6,8 @@ import Ticket from "../../../models/TicketModel.js";
 export const getMyTicketsHandler = async (req, res) => {
   // Tìm các vé thuộc về userId này (userId lấy từ middleware validateJwt)
   const tickets = await Ticket.find({ user: req.user.userId })
-    // "Kết nối" với bảng Event để lấy thêm Title, Date, Location của sự kiện đó
-    .populate("event", "title date location")
+    // "Kết nối" với bảng Event để lấy thêm đầy đủ thông tin sự kiện
+    .populate("event", "title date location imageUrl price description")
     // Sắp xếp vé mới mua lên đầu (Descending)
     .sort({ createdAt: -1 });
 

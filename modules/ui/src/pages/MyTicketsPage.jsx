@@ -4,8 +4,10 @@ import { useAuth } from '../context/AuthContext.jsx';
 import useMyTickets from '../hooks/useMyTickets.js';
 import Breadcrumb from '../components/Breadcrumb.jsx';
 import { THEME_COLORS, TYPOGRAPHY, SHADOWS } from '../constants/uiConstants.js';
+import { useLanguage } from '../context/LanguageContext.jsx';
 
 const MyTicketsPage = () => {
+  const { t, lang } = useLanguage();
   const { isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { tickets, loading: ticketsLoading, error, refresh, cancelTicket } = useMyTickets();
@@ -30,15 +32,19 @@ const MyTicketsPage = () => {
     try {
       await cancelTicket(ticketId);
     } catch (err) {
-      setAlertMessage("Đã xảy ra lỗi khi hủy vé. Vui lòng thử lại sau.");
+      setAlertMessage(t("details_error_cancel"));
     }
+  };
+
+  const handleImageError = (e) => {
+    e.target.src = "https://placehold.co/600x400/090014/00FFFF?text=IMAGE+NOT+FOUND";
   };
 
   if (authLoading || (ticketsLoading && tickets.length === 0)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center font-sans tracking-widest" style={{ fontFamily: TYPOGRAPHY.BODY }}>
         <div className="text-secondary animate-pulse text-lg border border-secondary/50 px-8 py-4 rounded backdrop-blur-md shadow-neon-secondary">
-          ĐANG TẢI DỮ LIỆU...
+          {t("events_loading")}
         </div>
       </div>
     );
@@ -50,17 +56,17 @@ const MyTicketsPage = () => {
     <div className="min-h-screen bg-background text-foreground py-16 px-4 sm:px-6 relative" style={{ fontFamily: TYPOGRAPHY.BODY }}>
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <Breadcrumb items={[{ label: 'MY TICKETS' }]} />
+          <Breadcrumb items={[{ label: t("nav_myTickets").toUpperCase() }]} />
         </div>
         <div className="flex flex-col sm:flex-row justify-between items-center mb-12 gap-4">
           <h1 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-secondary to-primary tracking-[0.1em] uppercase drop-shadow-[0_0_10px_rgba(0,255,255,0.5)]">
-            Vé của tôi
+            {t("tickets_title")}
           </h1>
           <button 
             onClick={refresh}
             className="px-5 py-2 border border-secondary/50 text-secondary text-sm font-bold tracking-widest uppercase hover:bg-secondary/10 hover:shadow-neon-secondary transition-all rounded backdrop-blur-md cursor-pointer"
           >
-            Làm mới
+            {t("tickets_refresh")}
           </button>
         </div>
 
@@ -73,28 +79,27 @@ const MyTicketsPage = () => {
         {tickets.length === 0 ? (
           <div className="py-24 px-6 border border-secondary/30 bg-card/40 backdrop-blur-md rounded-lg flex flex-col items-center justify-center shadow-card text-center">
             <h2 className="text-2xl font-bold text-secondary mb-8 uppercase tracking-widest drop-shadow-[0_0_8px_rgba(0,255,255,0.5)]">
-              Bạn chưa có vé nào. Hãy săn vé ngay!
+              {t("tickets_empty_msg")}
             </h2>
             <Link 
               to="/" 
               className="px-8 py-3 bg-transparent border-2 border-secondary text-secondary hover:bg-secondary hover:text-black font-black uppercase tracking-widest transition-all rounded shadow-neon-secondary hover:shadow-[0_0_25px_rgba(0,255,255,0.7)]"
             >
-              Về trang chủ
+              {t("tickets_back_home")}
             </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {tickets.map((ticket) => {
               const eventDate = ticket.event?.date 
-                ? new Date(ticket.event.date).toLocaleDateString('vi-VN', {
+                ? new Date(ticket.event.date).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US', {
                     day: '2-digit',
                     month: '2-digit',
                     year: 'numeric'
                   })
-                : 'Đang cập nhật';
-              
+                : t("card_tba");
+
               let statusBadgeClasses = "";
-              let statusText = ticket.status;
 
               if (ticket.status === 'confirmed') {
                 statusBadgeClasses = "text-green-400 border-green-400 shadow-[0_0_8px_rgba(74,222,128,0.4)]";
@@ -106,25 +111,43 @@ const MyTicketsPage = () => {
                 statusBadgeClasses = "text-slate-400 border-slate-400";
               }
 
+              const statusText = t(`tickets_status_${ticket.status || 'pending'}`).toUpperCase();
+
               return (
                 <div 
                   key={ticket._id} 
-                  className={`relative p-6 border ${ticket.status === 'cancelled' ? 'border-red-900/50 bg-background opacity-70' : 'border-border bg-card transition-colors hover:border-secondary/50 shadow-card'} backdrop-blur-md rounded-lg group overflow-hidden flex flex-col`}
+                  className={`relative p-5 border ${ticket.status === 'cancelled' ? 'border-red-900/50 bg-background opacity-70' : 'border-border bg-card transition-colors hover:border-secondary/50 shadow-card'} backdrop-blur-md rounded-lg group overflow-hidden flex flex-col`}
                 >
                   {ticket.status !== 'cancelled' && (
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-secondary to-primary opacity-30 group-hover:opacity-100 transition-opacity"></div>
                   )}
                   
-                  <div className="mb-4 pr-24 flex-grow">
-                    <h3 className="text-xl font-bold text-slate-100 uppercase tracking-wide truncate">
-                      {ticket.event?.title || 'Sự kiện không xác định'}
-                    </h3>
-                  </div>
+                  <div className="flex justify-between items-start gap-4 mb-4">
+                    <div className="flex gap-4 min-w-0 pr-4">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded border border-border overflow-hidden flex-shrink-0 bg-slate-900">
+                          <img 
+                            src={ticket.event?.imageUrl || 'https://via.placeholder.com/400x400'} 
+                            alt={ticket.event?.title} 
+                            onError={handleImageError}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                          />
+                        </div>
+                        <div className="flex-grow min-w-0">
+                          <h3 className="text-md sm:text-lg font-bold text-slate-100 uppercase tracking-wide whitespace-normal break-words line-clamp-2 mb-1" style={{ fontFamily: TYPOGRAPHY.HEADING }}>
+                            {ticket.event?.title || t("events_no_all")}
+                          </h3>
+                          <p className="text-cyan-400 font-black text-[10px] sm:text-xs drop-shadow-[0_0_8px_rgba(0,255,255,0.3)]">
+                             <span className="opacity-50 mr-1">{t("card_price")}:</span>
+                             {ticket.event?.price ? new Intl.NumberFormat(lang === 'vi' ? 'vi-VN' : 'en-US', { style: 'currency', currency: 'VND' }).format(ticket.event.price) : t("card_price_free")}
+                          </p>
+                        </div>
+                    </div>
 
-                  <div className="absolute top-6 right-6">
-                    <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest border rounded backdrop-blur-sm bg-slate-950/50 ${statusBadgeClasses}`}>
-                      {statusText}
-                    </span>
+                    <div className="shrink-0">
+                      <span className={`px-2 py-1 text-[9px] sm:text-[10px] font-black uppercase tracking-widest border rounded backdrop-blur-sm bg-slate-950/50 ${statusBadgeClasses}`}>
+                        {statusText}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="space-y-3 text-sm text-foreground font-mono mb-6">
@@ -134,8 +157,8 @@ const MyTicketsPage = () => {
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-secondary text-lg">📍</span>
-                      <span className="truncate" title={ticket.event?.location || 'Đang cập nhật'}>
-                        {ticket.event?.location || 'Đang cập nhật'}
+                      <span className="truncate" title={ticket.event?.location || t("card_tba")}>
+                        {ticket.event?.location || t("card_tba")}
                       </span>
                     </div>
                   </div>
@@ -143,9 +166,9 @@ const MyTicketsPage = () => {
                   <div className="mt-auto pt-4 border-t border-border flex flex-wrap gap-2 justify-end items-center">
                     <button 
                       onClick={() => navigate(`/my-tickets/${ticket._id}`)}
-                      className="px-3 py-1.5 border border-primary/50 text-primary text-[10px] sm:text-xs font-bold uppercase tracking-widest hover:bg-primary/10 hover:shadow-neon-primary transition-all rounded cursor-pointer"
+                      className="px-3 py-1.5 border border-primary/50 text-primary text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-primary/10 hover:shadow-neon-primary transition-all rounded cursor-pointer"
                     >
-                      Chi tiết
+                      {t("card_details")}
                     </button>
                     {ticket.event?.location && (
                       <a 
@@ -154,7 +177,7 @@ const MyTicketsPage = () => {
                         rel="noopener noreferrer"
                         className="px-3 py-1.5 border border-secondary/50 text-secondary text-[10px] sm:text-xs font-bold uppercase tracking-widest hover:bg-secondary/10 hover:shadow-neon-secondary transition-all rounded"
                       >
-                        Xem địa điểm
+                        {t("tickets_view_map")}
                       </a>
                     )}
                     {(ticket.status === 'confirmed' || ticket.status === 'pending') && (
@@ -162,7 +185,7 @@ const MyTicketsPage = () => {
                         onClick={() => handleCancelClick(ticket._id)}
                         className="px-3 py-1.5 border border-red-500/50 text-red-500 text-[10px] sm:text-xs font-bold uppercase tracking-widest hover:bg-red-500/10 hover:shadow-[0_0_10px_rgba(239,68,68,0.4)] transition-all rounded cursor-pointer"
                       >
-                        Hủy vé
+                        {t("tickets_cancel")}
                       </button>
                     )}
                   </div>
@@ -185,9 +208,9 @@ const MyTicketsPage = () => {
               <span className="text-red-500 text-3xl font-black drop-shadow-[0_0_8px_rgba(239,68,68,1)]">!</span>
             </div>
             
-            <h3 className="text-xl font-black text-red-500 uppercase tracking-widest mb-4">Cảnh Báo</h3>
+            <h3 className="text-xl font-black text-red-500 uppercase tracking-widest mb-4">{t("details_confirm_cancel_title")}</h3>
             <p className="text-slate-300 font-mono text-sm tracking-wide mb-8">
-              Bạn có chắc chắn muốn hủy vé này không? Hành động này <span className="text-red-400 font-bold">không thể hoàn tác</span>.
+              {t("details_confirm_cancel_msg")}
             </p>
             
             <div className="flex w-full gap-4">
@@ -195,13 +218,13 @@ const MyTicketsPage = () => {
                 onClick={() => setConfirmCancelTicketId(null)}
                 className="flex-1 px-4 py-2 border border-border text-foreground/50 font-bold uppercase tracking-widest hover:bg-white/5 transition-colors rounded cursor-pointer"
               >
-                Hủy Bỏ
+                {t("details_btn_stay")}
               </button>
               <button 
                 onClick={confirmCancel}
                 className="flex-1 px-4 py-2 bg-red-500/10 border border-red-500 text-red-500 font-black uppercase tracking-widest hover:bg-red-500 hover:text-black hover:shadow-[0_0_20px_rgba(239,68,68,0.6)] transition-all rounded cursor-pointer"
               >
-                Đồng Ý
+                {t("details_btn_confirm")}
               </button>
             </div>
           </div>
@@ -214,7 +237,7 @@ const MyTicketsPage = () => {
           <div className="relative bg-background border-2 border-yellow-500/50 p-6 sm:p-8 max-w-sm w-full shadow-[0_0_40px_rgba(250,204,21,0.3)] rounded flex flex-col items-center text-center overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-500 to-yellow-900"></div>
             
-            <h3 className="text-xl font-black text-yellow-500 uppercase tracking-widest mb-4 mt-2">Thông Cáo Hệ Thống</h3>
+            <h3 className="text-xl font-black text-yellow-500 uppercase tracking-widest mb-4 mt-2">{t("details_alert_title")}</h3>
             <p className="text-slate-300 font-mono text-sm tracking-wide mb-8">
               {alertMessage}
             </p>
@@ -223,7 +246,7 @@ const MyTicketsPage = () => {
               onClick={() => setAlertMessage(null)}
               className="w-full px-4 py-2 border border-yellow-500 text-yellow-500 font-bold uppercase tracking-widest hover:bg-yellow-500 hover:text-black hover:shadow-[0_0_20px_rgba(250,204,21,0.6)] transition-all rounded cursor-pointer"
             >
-              Xác Nhận
+              {t("details_alert_ok")}
             </button>
           </div>
         </div>

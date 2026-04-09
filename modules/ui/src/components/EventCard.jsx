@@ -42,10 +42,21 @@ const EventCard = ({ event }) => {
     });
   }, [event.date, lang, t]);
 
+  const formattedPrice = useMemo(() => {
+    return new Intl.NumberFormat(lang === "vi" ? "vi-VN" : "en-US", {
+      style: "currency",
+      currency: "VND"
+    }).format(event.price || 0);
+  }, [event.price, lang]);
+
   const available = localAvailable;
   const total = event.totalTickets || 1;
   const soldTickets = Math.max(0, total - available);
   const progressPercentage = Math.round((soldTickets / total) * 100);
+
+  const handleImageError = (e) => {
+    e.target.src = "https://placehold.co/600x400/090014/00FFFF?text=IMAGE+NOT+FOUND";
+  };
 
   // Đồng bộ số lượng vé khi đặt thành công từ hook
   useEffect(() => {
@@ -88,12 +99,15 @@ const EventCard = ({ event }) => {
   // Logic nút bấm dựa trên cấu hình tập trung
   const getButtonConfig = () => {
     if (available === 0 && bookingStatus === "idle") return BOOKING_UI_CONFIG.sold_out;
-    const config = { ...BOOKING_UI_CONFIG[bookingStatus] || BOOKING_UI_CONFIG.idle };
+    const config = { ...(BOOKING_UI_CONFIG[bookingStatus] || BOOKING_UI_CONFIG.idle) };
     
+    // Resolve label using t hook
+    config.label = t(config.labelKey);
+
     // Nếu failed, hiển thị lý do rút gọn ngay trên nút
     if (bookingStatus === "failed" && errorLocal) {
       const shortError = errorLocal.length > 15 ? errorLocal.substring(0, 15) + "..." : errorLocal;
-      config.label = `❌ ${shortError} - THỬ LẠI`;
+      config.label = `❌ ${shortError} - ${t("card_retry")}`;
     }
     
     return config;
@@ -113,6 +127,7 @@ const EventCard = ({ event }) => {
         <img
           src={event.imageUrl || "https://placehold.co/600x400/090014/FF00FF?text=Event+Image"}
           alt={event.title}
+          onError={handleImageError}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-linear-to-t from-background/90 via-transparent to-transparent opacity-60" />
@@ -126,7 +141,7 @@ const EventCard = ({ event }) => {
                   : "bg-secondary/20 border-secondary/50 text-secondary"
               }`}
             >
-              {available === 0 ? t("card_sold_out") : "LIVE"}
+              {available === 0 ? t("card_sold_out") : t("status_live")}
             </span>
             {event.isHot && (
               <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-primary/20 border border-primary/50 text-primary animate-pulse text-center">
@@ -139,16 +154,23 @@ const EventCard = ({ event }) => {
 
       <div className="p-6 grow flex flex-col relative z-10">
         <div className="flex justify-between items-start mb-4 gap-2">
-          <Link to={`/events/${event._id}`} className="block hover:text-secondary transition-colors">
+          <Link to={`/events/${event._id}`} className="block hover:text-secondary transition-colors overflow-hidden">
             <h3
-              className="text-xl font-black text-white leading-tight uppercase tracking-tight truncate"
+              className="text-xl font-black text-white leading-tight uppercase tracking-tight whitespace-normal break-words line-clamp-2"
               style={{ fontFamily: TYPOGRAPHY.HEADING }}
             >
               {event.title}
             </h3>
           </Link>
-          <span className="shrink-0 text-[10px] font-mono p-1 border border-secondary/40 text-secondary bg-secondary/5">
-            {t("card_id")}: {event._id?.slice(-4).toUpperCase()}
+          <span className="shrink-0 text-[10px] font-mono p-1 border border-secondary/40 text-secondary bg-secondary/5 self-start">
+            {t("card_id")}: {String(event._id).slice(-4).toUpperCase()}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-[10px] font-mono text-foreground/40 uppercase tracking-widest">{t("card_price")}:</span>
+          <span className="text-lg font-black text-yellow-500 drop-shadow-[0_0_8px_rgba(234,179,8,0.4)]">
+            {formattedPrice}
           </span>
         </div>
 
@@ -223,13 +245,13 @@ const EventCard = ({ event }) => {
             
             <div className="relative z-10 flex flex-col items-center text-center space-y-3">
                <h4 className="text-pink-600 font-black text-lg font-mono uppercase tracking-widest drop-shadow-[0_0_8px_rgba(219,39,119,0.5)]">
-                 [ĐẶT VÉ THẤT BẠI]
+                 [{t("details_booking_failed")}]
                </h4>
                <p className="text-pink-300 text-xs font-mono uppercase">
                  {errorLocal}
                </p>
                <p className="text-pink-400/80 text-[10px] font-mono leading-relaxed mt-2 uppercase tracking-wider max-w-[85%]">
-                 Vui lòng chọn mã sự kiện khác hoặc tái khởi động yêu cầu.
+                 {t("details_msg_failed_hint")}
                </p>
 
                <button
@@ -237,7 +259,7 @@ const EventCard = ({ event }) => {
                   className="mt-6 px-6 py-2 border-2 border-pink-600 text-pink-500 bg-transparent hover:bg-pink-600 hover:text-white text-[12px] font-black uppercase tracking-widest transition-all duration-300 shadow-[0_0_10px_rgba(236,72,153,0.3)] hover:shadow-[0_0_20px_rgba(236,72,153,0.8)]"
                   style={{ fontFamily: TYPOGRAPHY.HEADING }}
                 >
-                  THỬ LẠI
+                  {t("card_retry")}
                </button>
             </div>
           </motion.div>

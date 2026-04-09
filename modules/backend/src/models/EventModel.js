@@ -9,6 +9,7 @@ const eventSchema = new mongoose.Schema(
     totalTickets: { type: Number, required: true },
     // Số vé còn lại - Rất quan trọng cho logic Flash Sale
     availableTickets: { type: Number, required: true },
+    price: { type: Number, default: 0 },
     imageUrl: {
       type: String,
       default: "https://placehold.co/600x400/090014/FF00FF?text=Event+Image"

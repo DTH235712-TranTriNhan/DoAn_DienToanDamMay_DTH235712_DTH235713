@@ -36,8 +36,12 @@ export const translations = {
     card_left: "Còn",
     card_success: "THÀNH CÔNG",
     card_requesting: "ĐANG XỬ LÝ...",
-    card_in_queue: "ĐANG CHỜ HÀNG...",
-    card_tba: "Sắp ra mắt",
+    card_in_queue: "ĐANG CHỜ XỬ LÝ...",
+    card_tba: "SẮP RA MẮT",
+    card_price: "GIÁ VÉ",
+    card_details: "CHI TIẾT",
+    card_login_required: "Vui lòng đăng nhập để tiếp tục",
+    card_retry: "THỬ LẠI",
 
     // Admin Page
     admin_title: "Quản lý Sự kiện",
@@ -46,6 +50,7 @@ export const translations = {
     admin_table_img: "Ảnh",
     admin_table_name: "Tên Sự Kiện",
     admin_table_loc: "Địa Điểm",
+    admin_table_price: "Giá Vé",
     admin_table_date: "Ngày Giờ",
     admin_table_tickets: "Vé (Đã bán/Tổng)",
     admin_table_status: "Trạng Thái",
@@ -62,6 +67,7 @@ export const translations = {
     form_label_desc: "MÔ TẢ",
     form_label_date: "NGÀY GIỜ *",
     form_label_loc: "ĐỊA ĐIỂM",
+    form_label_price: "GIÁ VÉ (VND) *",
     form_label_tickets: "TỔNG SỐ VÉ *",
     form_label_img: "URL ẢNH SỰ KIỆN",
     form_label_hot: "CHẾ ĐỘ HOT_MODE (ƯU TIÊN BANNER)",
@@ -70,6 +76,7 @@ export const translations = {
     form_btn_upload: "GIẢ LẬP UPLOAD",
     form_status_hot: "TRẠNG THÁI: HOT_MODE_ACTIVE",
     form_dirty_warn: "[ PHÁT_HIỆN_THAY_ĐỔI_CHƯA_LƯU ]",
+    form_error_price: "Giá vé không được âm",
 
     // Confirm Dialog
     confirm_title: "CẢNH BÁO: THAY ĐỔI CHƯA LƯU",
@@ -102,12 +109,44 @@ export const translations = {
     auth_error_token_fail: "Xác thực thất bại, vui lòng thử lại",
 
     // New keys for UI improvements
-    card_login_required: "Vui lòng đăng nhập để tiếp tục",
-    card_retry: "Thử lại",
     tickets_explore: "Khám phá sự kiện",
     tickets_status_confirmed: "Đã xác nhận",
     tickets_status_pending: "Đang xử lý",
     tickets_status_cancelled: "Đã hủy",
+    tickets_cancel: "HỦY VÉ",
+    tickets_back: "QUAY LẠI DANH SÁCH VÉ",
+    tickets_refresh: "LÀM MỚI",
+    tickets_empty_msg: "BẠN CHƯA CÓ VÉ NÀO. HÃY SĂN VÉ NGAY!",
+    tickets_back_home: "VỀ TRANG CHỦ",
+    tickets_id: "JOB_ID",
+    tickets_view_map: "XEM ĐỊA ĐIỂM",
+
+    // Ticket Details Page
+    details_nav_back: "QUAY LẠI",
+    details_schedule: "LỊCH TRÌNH SỰ KIỆN",
+    details_location_matrix: "VỊ TRÍ SỰ KIỆN / LOCATION MATRIX",
+    details_about: "GIỚI THIỆU SỰ KIỆN",
+    details_rules: "QUY TẮC THAM DỰ",
+    details_security: "LƯU Ý BẢO MẬT VÉ",
+    details_organizer: "NHÀ TỔ CHỨC",
+    details_interaction: "TÙY CHỌN TƯƠNG TÁC",
+    details_download_pdf: "TẢI PDF VÉ",
+    details_google_maps: "MỞ GOOGLE MAPS",
+    details_support: "LIÊN HỆ HỖ TRỢ",
+    details_error_cancel: "ĐÃ XẢY RA LỖI KHI HỦY VÉ. VUI LÒNG THỬ LẠI SAU.",
+    details_success_book: "YÊU CẦU ĐẶT VÉ ĐÃ ĐƯỢC GỬI! VUI LÒNG KIỂM TRA TRẠNG THÁI TRONG MỤC VÉ CỦA TÔI.",
+    details_error_book: "KHÔNG THỂ THỰC HIỆN ĐẶT VÉ LÚC NÀY.",
+    details_event_id: "EVENT_ID",
+    details_status_live: "LIVE",
+    details_booking_failed: "ĐẶT VÉ THẤT BẠI",
+    details_msg_failed_hint: "Vui lòng chọn mã sự kiện khác hoặc tái khởi động yêu cầu.",
+    details_alert_title: "THÔNG BÁO",
+    details_alert_ok: "ĐÃ HIỂU",
+    details_confirm_cancel_title: "CÁCH LY VÉ",
+    details_confirm_cancel_msg: "Bạn đang yêu cầu hủy quyền truy cập vào sự kiện này. Quá trình này không thể thu hồi.",
+    details_btn_confirm: "XÁC NHẬN HỦY",
+    details_btn_stay: "QUAY LẠI",
+    
     events_create_first: "Tạo sự kiện đầu tiên"
   },
   en: {
@@ -142,8 +181,10 @@ export const translations = {
     card_left: "Left",
     card_success: "SUCCESS",
     card_requesting: "REQUESTING...",
-    card_in_queue: "IN QUEUE...",
+    card_in_queue: "PENDING QUEUE...",
     card_tba: "TBA",
+    card_price: "PRICE",
+    card_details: "DETAILS",
 
     // Admin Page
     admin_title: "Event Management",
@@ -152,6 +193,7 @@ export const translations = {
     admin_table_img: "Img",
     admin_table_name: "Event Name",
     admin_table_loc: "Location",
+    admin_table_price: "Price",
     admin_table_date: "Date & Time",
     admin_table_tickets: "Tickets (Sold/Total)",
     admin_table_status: "Status",
@@ -168,6 +210,7 @@ export const translations = {
     form_label_desc: "DESCRIPTION",
     form_label_date: "DATE & TIME *",
     form_label_loc: "LOCATION",
+    form_label_price: "TICKET PRICE (VND) *",
     form_label_tickets: "TOTAL TICKETS *",
     form_label_img: "EVENT IMAGE URL",
     form_label_hot: "HOT_MODE (BANNER PRIORITY)",
@@ -176,6 +219,7 @@ export const translations = {
     form_btn_upload: "SIMULATE UPLOAD",
     form_status_hot: "STATUS: HOT_MODE_ACTIVE",
     form_dirty_warn: "[ UN_SAVED_CHANGES_DETECTED ]",
+    form_error_price: "Price cannot be negative",
 
     // Confirm Dialog
     confirm_title: "WARNING: UNSAVED CHANGES",
@@ -207,12 +251,44 @@ export const translations = {
     auth_error_token_fail: "Authentication failed, please try again",
 
     // New keys for UI improvements
-    card_login_required: "Please login to continue",
-    card_retry: "Retry",
     tickets_explore: "Explore Events",
     tickets_status_confirmed: "Confirmed",
     tickets_status_pending: "Pending",
     tickets_status_cancelled: "Cancelled",
+    tickets_cancel: "CANCEL TICKET",
+    tickets_back: "BACK TO TICKETS",
+    tickets_refresh: "REFRESH",
+    tickets_empty_msg: "NO TICKETS FOUND. START BOOKING NOW!",
+    tickets_back_home: "BACK TO HOME",
+    tickets_id: "JOB_ID",
+    tickets_view_map: "VIEW LOCATION",
+
+    // Ticket Details Page
+    details_nav_back: "BACK",
+    details_schedule: "EVENT SCHEDULE",
+    details_location_matrix: "EVENT LOCATION / LOCATION MATRIX",
+    details_about: "ABOUT EVENT",
+    details_rules: "ATTENDANCE RULES",
+    details_security: "TICKET SECURITY",
+    details_organizer: "ORGANIZER",
+    details_interaction: "INTERACTION OPTIONS",
+    details_download_pdf: "DOWNLOAD PDF",
+    details_google_maps: "OPEN GOOGLE MAPS",
+    details_support: "SUPPORT INFO",
+    details_error_cancel: "AN ERROR OCCURRED WHILE CANCELING THE TICKET. PLEASE TRY AGAIN LATER.",
+    details_success_book: "BOOKING REQUEST SENT! PLEASE CHECK STATUS IN MY TICKETS.",
+    details_error_book: "CANNOT PERFORM BOOKING AT THIS TIME.",
+    details_event_id: "EVENT_ID",
+    details_status_live: "LIVE",
+    details_booking_failed: "BOOKING FAILED",
+    details_msg_failed_hint: "Please select another event or restart the request.",
+    details_alert_title: "NOTIFICATION",
+    details_alert_ok: "UNDERSTOOD",
+    details_confirm_cancel_title: "VACCINATE TICKET",
+    details_confirm_cancel_msg: "You are requesting to cancel access to this event. This process cannot be reversed.",
+    details_btn_confirm: "CONFIRM CANCEL",
+    details_btn_stay: "GO BACK",
+
     events_create_first: "Create First Event"
   }
 };
