@@ -41,11 +41,12 @@ const updateEvent = async (eventId, eventData) => {
   });
   console.log(`[DB] Updated event ${eventId} in MongoDB`);
 
-  // 4. Đồng bộ lại Redis nếu totalTickets thay đổi
+  // 4. Đồng bộ lại Redis nếu có thay đổi về số lượng vé
+  // Luôn sử dụng availableTickets để đảm bảo tính nhất quán [cite: Task 3.3]
   if (updateData.totalTickets !== undefined) {
     const redisKey = REDIS_KEYS.EVENT_TICKETS(eventId);
-    await redisClient.set(redisKey, updateData.totalTickets);
-    console.log(`[Redis] Updated tickets for event ${eventId} to ${updateData.totalTickets}`);
+    await redisClient.set(redisKey, updatedEvent.availableTickets);
+    console.log(`[Redis] Synced availableTickets for event ${eventId} to ${updatedEvent.availableTickets}`);
   }
 
   return updatedEvent;

@@ -13,13 +13,36 @@ export const bookTicket = async (userId, eventId) => {
   const key = REDIS_KEYS.EVENT_TICKETS(eventId);
 
   // 🚀 Bước 1: DECR atomic trên Redis (Chiến thuật Gatekeeper)
-  // Redis xử lý cực nhanh trong RAM, giúp chặn đứng 1000 người khi chỉ còn 1 vé.
-  const remaining = await redisClient.decr(key);
+  let remaining = await redisClient.decr(key);
 
+  // 🛡️ BỔ SUNG: Cơ chế Fallback nếu Redis mất dữ liệu tạm thời
   if (remaining < 0) {
-    // Hoàn lại slot nếu lỡ trừ quá (Concurrency safety)
-    await redisClient.incr(key);
-    throw new OutOfTicketsError("Hết vé rồi bạn ơi, vui lòng đợi đợt sau!");
+    console.warn(`[Redis] Key ${key} is negative (${remaining}). Attempting fallback from DB...`);
+    
+    // Tìm thông tin thực tế từ MongoDB
+    const event = await Event.findById(eventId).select("availableTickets title");
+    
+    if (!event) {
+      throw new OutOfTicketsError("Sự kiện không tồn tại hoặc đã bị xóa");
+    }
+
+    // Nếu DB vẫn còn vé, nghĩa là Redis bị lệch pha hoặc mất key
+    if (event.availableTickets > 0) {
+      console.log(`[Fallback] DB has ${event.availableTickets} tickets for "${event.title}". Re-syncing Redis...`);
+      
+      // Đồng bộ lại Redis (Dùng SET để ghi đè số âm hiện tại)
+      await redisClient.set(key, event.availableTickets);
+      
+      // Thử lại lệnh DECR một lần cuối sau khi đã sync
+      remaining = await redisClient.decr(key);
+      
+      if (remaining < 0) {
+        throw new OutOfTicketsError("Hết vé rồi bạn ơi, vui lòng đợi đợt sau!");
+      }
+    } else {
+      // Nếu DB cũng hết vé, ném lỗi luôn
+      throw new OutOfTicketsError("Hết vé rồi bạn ơi, vui lòng đợi đợt sau!");
+    }
   }
 
   // 📝 Bước 2: Ghi ticket vào MongoDB Atlas (Persistent Storage)
@@ -30,16 +53,13 @@ export const bookTicket = async (userId, eventId) => {
   });
 
   // 🔄 Bước 3: Đồng bộ ngược lại MongoDB (Eventual Consistency)
-  // Cập nhật số lượng vé thực tế trong DB để hiển thị trên giao diện quản lý.
   try {
     await Event.findByIdAndUpdate(eventId, { $inc: { availableTickets: -1 } });
   } catch (updateError) {
-    // Log để admin biết cần manual sync — ticket đã tạo thành công
     console.error(
       `[WARN] Event ${eventId} availableTickets sync failed after ticket ${ticket._id}. Manual fix needed.`,
       updateError.message
     );
-    // Không throw — đây chỉ là eventual consistency issue
   }
 
   return ticket;
