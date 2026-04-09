@@ -54,7 +54,7 @@ export const useBookTicket = () => {
         console.log(`[Polling] Đặt vé thất bại: ${reason}`);
       } else {
         // Nếu still active/waiting thì tiếp tục polling sau 2 giây
-        pollingRef.current = setTimeout(() => checkJobStatus(jobId), 2000);
+        pollingRef.current = setTimeout(() => checkJobStatus(jobId), 5000);
       }
     } catch (err) {
       console.error("Polling error:", err);
@@ -72,7 +72,7 @@ export const useBookTicket = () => {
         setError("Không tìm thấy thông tin đặt vé.");
       } else {
         // Đối với các lỗi mạng khác, vẫn thử lại polling ở chu kỳ sau
-        pollingRef.current = setTimeout(() => checkJobStatus(jobId), 2000);
+        pollingRef.current = setTimeout(() => checkJobStatus(jobId), 5000);
       }
     }
   }, [clearTimers]);
@@ -113,8 +113,8 @@ export const useBookTicket = () => {
           console.warn("[Booking] Quá thời gian chờ (30s)");
         }, 30000);
 
-        // Bắt đầu Polling sau 2 giây
-        pollingRef.current = setTimeout(() => checkJobStatus(jobId), 2000);
+        // Bắt đầu Polling sau 5 giây
+        pollingRef.current = setTimeout(() => checkJobStatus(jobId), 5000);
       }
     } catch (err) {
       setStatus("failed");
