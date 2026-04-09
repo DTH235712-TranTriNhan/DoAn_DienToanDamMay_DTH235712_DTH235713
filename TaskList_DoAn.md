@@ -474,18 +474,19 @@ export default function useBookTicket() {
 | Mục | Chi tiết |
 |-----|---------|
 | **Người phụ trách** | Nhật |
-| **Trạng thái** | ✅ Đã xong |đã xong và hoàn thành luôn vé đã đặt có chi tiết, vị trí, huỷ vé và hoàn thành luôn trang vé chi tiết có cả bản đồ nhúng 
+| **Trạng thái** | ✅ Đã xong | đã xong và hoàn thành luôn vé đã đặt có chi tiết, vị trí, huỷ vé và hoàn thành luôn trang vé chi tiết có cả bản đồ nhúng 
 | **File/Thư mục** | Tạo mới: `ui/src/pages/MyTicketsPage.jsx`, `ui/src/hooks/useMyTickets.js` |
 | **Định hướng triển khai** | **`useMyTickets.js`:** Gọi `GET /api/tickets/my` (handler đã có sẵn trên Backend). Return `{ tickets, loading, error }`. Mỗi ticket object có dạng: `{ _id, event: { title, date, location }, status, createdAt }` (do Backend đã `.populate("event", "title date location")`). **`MyTicketsPage.jsx`:** Kiểm tra auth — chưa đăng nhập thì redirect. Hiển thị danh sách vé dạng card hoặc table. Mỗi vé hiện: tên sự kiện, ngày, địa điểm, trạng thái (badge màu: `confirmed` = xanh lá, `pending` = vàng, `cancelled` = đỏ), ngày đặt (format từ `createdAt`). Empty state: "Bạn chưa đặt vé nào." Thêm route: `<Route path="/my-tickets" element={<MyTicketsPage />} />` |
 | **Kết quả** | User xem được danh sách vé đã đặt thành công, có trạng thái rõ ràng |
 
 ---
 
-### TASK 4.5 🔲 · Chạy Worker song song & Test end-to-end
+### TASK 4.5 ✅ · Chạy Worker song song & Test end-to-end
 
 | Mục | Chi tiết |
 |-----|---------|
-| **Người phụ trách** | Nhân + Nhật (cùng test) |
+| **Người phụ trách** | Nhân + Nhật (Test) |
+| **Trạng thái** | ✅ Đã xong |
 | **Quy trình test** | Thực hiện tuần tự: |
 
 **Bước 1 — Mở 3 terminal:**
@@ -539,22 +540,24 @@ npm run seed --workspace=modules/backend
 
 ---
 
-### TASK 5.1 🔲 · Chuẩn bị build production
+### TASK 5.1 ✅ · Chuẩn bị build production
 
 | Mục | Chi tiết |
 |-----|---------|
 | **Người phụ trách** | Nhân |
+| **Trạng thái** | ✅ Đã xong |
 | **File/Thư mục** | `backend/src/index.js` (đã có logic serve static), `package.json` root |
 | **Định hướng triển khai** | 1. Chạy `npm start` từ root → verify: build UI thành công (`modules/ui/dist/` có file), Backend serve static. 2. Truy cập `http://localhost:5000` → phải thấy giao diện Frontend đầy đủ. 3. Test tất cả chức năng: trang chủ, đăng nhập, đặt vé, vé của tôi. 4. Code serve static đã có sẵn trong `index.js` (regex SPA catch-all cho non-API routes) |
 | **Kết quả** | `npm start` → toàn bộ app hoạt động trên 1 port duy nhất (production mode) |
 
 ---
 
-### TASK 5.2 🔲 · Deploy Backend + Worker lên Render.com
+### TASK 5.2 ✅ · Deploy Backend + Worker lên Render.com
 
 | Mục | Chi tiết |
 |-----|---------|
 | **Người phụ trách** | Nhân |
+| **Trạng thái** | ✅ Đã xong |
 | **Định hướng triển khai** | Thực hiện tuần tự: |
 
 **Bước 1 — Push lên GitHub:**

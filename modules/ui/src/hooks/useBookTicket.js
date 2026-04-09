@@ -34,17 +34,24 @@ export const useBookTicket = () => {
    */
   const checkJobStatus = useCallback(async (jobId) => {
     try {
+      console.log(`[Polling] Đang kiểm tra trạng thái cho jobId: ${jobId}`);
       const response = await api.get(`/tickets/status/${jobId}`);
+      console.log("[Polling] Dữ liệu phản hồi:", response.data);
+
+      // Bóc tách state và failedReason từ response.data.data theo chuẩn Envelope JSON
       const { state, failedReason: reason } = response.data.data || {};
+      console.log(`[Polling] Trạng thái Job: ${state}`);
 
       if (state === "completed") {
         clearTimers();
         setStatus("completed");
         setError(null);
+        console.log("[Polling] Đặt vé thành công!");
       } else if (state === "failed") {
         clearTimers();
         setStatus("failed");
         setError(reason || "Đặt vé thất bại. Vui lòng thử lại sau.");
+        console.log(`[Polling] Đặt vé thất bại: ${reason}`);
       } else {
         // Nếu still active/waiting thì tiếp tục polling sau 2 giây
         pollingRef.current = setTimeout(() => checkJobStatus(jobId), 2000);
@@ -82,11 +89,20 @@ export const useBookTicket = () => {
 
     try {
       // Gửi POST /api/tickets kèm eventId
+      console.log(`[Booking] Đang gửi yêu cầu đặt vé cho eventId: ${eventId}`);
       const response = await api.post("/tickets", { eventId });
+      console.log("[Booking] Dữ liệu phản hồi:", response.data);
 
       // Nếu nhận 202 Accepted: Job đã được đưa vào hàng đợi thành công
       if (response.status === 202) {
-        const { jobId } = response.data;
+        // Bóc tách jobId từ response.data.data (Envelope JSON)
+        const { jobId } = response.data.data || {};
+        console.log("[Booking] Đã nhận jobId:", jobId);
+        
+        if (!jobId) {
+          throw new Error("Không nhận được jobId từ server");
+        }
+
         setStatus("queued");
 
         // Thiết lập Timeout 30 giây: Nếu quá lâu không có kết quả thì dừng polling
@@ -94,7 +110,7 @@ export const useBookTicket = () => {
           clearTimers();
           setStatus("failed");
           setError("Hệ thống bận"); // Chuẩn hóa message theo yêu cầu
-          console.warn("Booking Timeout after 30s");
+          console.warn("[Booking] Quá thời gian chờ (30s)");
         }, 30000);
 
         // Bắt đầu Polling sau 2 giây
