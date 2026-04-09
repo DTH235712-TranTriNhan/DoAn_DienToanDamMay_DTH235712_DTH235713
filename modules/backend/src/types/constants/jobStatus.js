@@ -3,7 +3,7 @@
  * Giúp Frontend biết được vé đang được xử lý, thành công hay thất bại.
  */
 export const JOB_STATUS = {
-  PENDING: "pending",     // Đang chờ trong hàng đợi
+  PENDING: "pending", // Đang chờ trong hàng đợi
   COMPLETED: "completed", // Xử lý thành công
-  FAILED: "failed"        // Xử lý thất bại (VD: Hết vé)
+  FAILED: "failed" // Xử lý thất bại (VD: Hết vé)
 };

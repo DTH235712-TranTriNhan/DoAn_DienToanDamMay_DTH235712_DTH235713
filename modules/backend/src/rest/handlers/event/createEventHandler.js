@@ -2,20 +2,12 @@ import createEvent from "../../../services/event/createEvent.js";
 
 /**
  * Handler: Tạo sự kiện mới - Task 3.3
- * 
+ *
  * @param {import('express').Request} req - Express request
  * @param {import('express').Response} res - Express response
  */
 const createEventHandler = async (req, res) => {
-  const {
-    title,
-    description,
-    date,
-    location,
-    totalTickets,
-    imageUrl,
-    isHot
-  } = req.body;
+  const { title, description, date, location, totalTickets, imageUrl, isHot } = req.body;
 
   // Gọi Service để lưu DB và sync Redis
   const newEvent = await createEvent({

@@ -6,7 +6,7 @@ import { REDIS_KEYS } from "../../types/constants/redisKeys.js";
 /**
  * Service: Cập nhật sự kiện - Task 3.3
  * Ràng buộc: Không cho phép sửa đổi totalTickets nếu sự kiện đã bắt đầu bán vé
- * 
+ *
  * @param {string} eventId - ID của sự kiện cần cập nhật
  * @param {Object} updateData - Dữ liệu cập nhật mới
  * @returns {Promise<Object>} - Đối tượng sự kiện đã cập nhật
@@ -30,7 +30,7 @@ const updateEvent = async (eventId, eventData) => {
     }
 
     // Nếu hợp lệ, tự động đồng bộ lại availableTickets cho hợp lý
-    // eslint-disable-next-line no-param-reassign
+
     updateData.availableTickets = updateData.totalTickets;
   }
 

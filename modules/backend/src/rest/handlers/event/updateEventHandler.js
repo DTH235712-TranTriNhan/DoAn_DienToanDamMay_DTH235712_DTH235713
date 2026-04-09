@@ -2,21 +2,13 @@ import updateEvent from "../../../services/event/updateEvent.js";
 
 /**
  * Handler: Cập nhật sự kiện - Task 3.3
- * 
+ *
  * @param {import('express').Request} req - Express request
  * @param {import('express').Response} res - Express response
  */
 const updateEventHandler = async (req, res) => {
   const { id } = req.params;
-  const {
-    title,
-    description,
-    date,
-    location,
-    totalTickets,
-    imageUrl,
-    isHot
-  } = req.body;
+  const { title, description, date, location, totalTickets, imageUrl, isHot } = req.body;
 
   // Gọi Service để xử lý cập nhật MongoDB và sync Redis (nếu có)
   const updatedEvent = await updateEvent(id, {

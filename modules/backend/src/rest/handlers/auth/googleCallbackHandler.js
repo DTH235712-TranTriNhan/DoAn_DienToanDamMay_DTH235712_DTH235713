@@ -25,16 +25,21 @@ export const googleCallbackHandler = async (req, res) => {
   const isProd = process.env.NODE_ENV === "production";
 
   // Kiểm tra: nếu oauthState nằm trong whitelist thì mới dùng, không thì dùng fallback mặc định
-  let frontendUrl = (oauthState && allowedOrigins.includes(oauthState)) 
-    ? oauthState 
-    : (isProd ? (process.env.FRONTEND_URL || "http://localhost:5000") : "http://localhost:5173");
+  let frontendUrl =
+    oauthState && allowedOrigins.includes(oauthState)
+      ? oauthState
+      : isProd
+        ? process.env.FRONTEND_URL || "http://localhost:5000"
+        : "http://localhost:5173";
 
   // Đảm bảo URL kết thúc không có dấu /
   if (frontendUrl.endsWith("/")) {
     frontendUrl = frontendUrl.slice(0, -1);
   }
 
-  console.log(`[GoogleAuth] Đang điều hướng về: ${frontendUrl}/auth/callback (Môi trường: ${process.env.NODE_ENV})`);
+  console.log(
+    `[GoogleAuth] Đang điều hướng về: ${frontendUrl}/auth/callback (Môi trường: ${process.env.NODE_ENV})`
+  );
 
   // Redirect về Frontend kèm theo token trong URL một cách an toàn
   res.redirect(`${frontendUrl}/auth/callback?token=${token}`);

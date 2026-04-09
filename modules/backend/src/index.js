@@ -25,11 +25,16 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-        // Cho phép ảnh từ chính server, dữ liệu base64 và domain ảnh của Google
-        "img-src": ["'self'", "data:", "https://lh3.googleusercontent.com"]
+        // Cần thêm images.unsplash.com vào danh sách cho phép
+        "img-src": [
+          "'self'",
+          "data:",
+          "https://lh3.googleusercontent.com",
+          "https://images.unsplash.com"
+        ]
       }
     },
-    // Tránh lỗi CORS khi tải ảnh từ domain khác (Google Avatar)
+    // Rất quan trọng: Tránh lỗi CORS khi trình duyệt tải ảnh từ domain khác (Task 2.6)
     crossOriginResourcePolicy: { policy: "cross-origin" }
   })
 );

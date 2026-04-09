@@ -6,11 +6,11 @@ import { REDIS_KEYS } from "../../types/constants/redisKeys.js";
  * Service: Tạo sự kiện mới - Task 3.3
  * 1. Lưu thông tin vào MongoDB
  * 2. Đồng bộ số lượng vé lên Redis để phục vụ luồng Flash Sale nguyên tử (Atomic DECR)
- * 
+ *
  * @param {Object} eventData - Dữ liệu sự kiện từ request body
  * @returns {Promise<Object>} - Đối tượng sự kiện đã được lưu
  */
-const createEvent = async (eventData) => {
+const createEvent = async eventData => {
   // 1. Khởi tạo và trích xuất trường tường minh (Input Sanitization)
   const { title, description, date, location, totalTickets, imageUrl, isHot } = eventData;
 

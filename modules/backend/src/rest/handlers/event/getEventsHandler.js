@@ -2,7 +2,7 @@ import getEvents from "../../../services/event/getEvents.js";
 
 /**
  * Handler: Lấy danh sách sự kiện
- * 
+ *
  * @param {import('express').Request} req
  * @param {import('express').Response} res
  */

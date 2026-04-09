@@ -10,7 +10,7 @@ const router = Router();
 // Bước 1: Redirect user sang Google login page (Hỗ trợ tham số 'state' để quay lại đúng Port/Origin)
 router.get("/google", (req, res, next) => {
   const { origin } = req.query; // Nhận URL nguồn từ Frontend (VD: localhost:5173)
-  passport.authenticate("google", { 
+  passport.authenticate("google", {
     scope: ["profile", "email"],
     state: origin || "" // Lưu URL nguồn vào OAuth state một cách an toàn
   })(req, res, next);
