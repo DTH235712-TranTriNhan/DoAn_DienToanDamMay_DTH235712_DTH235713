@@ -31,6 +31,7 @@ const INITIAL_STATE = {
   date: '',
   location: '',
   totalTickets: '',
+  price: 0,
   imageUrl: '',
   isHot: false,
 };
@@ -89,6 +90,7 @@ const EventForm = ({
         date: toDatetimeLocal(initialData.date),
         location: initialData.location || '',
         totalTickets: initialData.totalTickets ?? '',
+        price: initialData.price ?? 0,
         imageUrl: initialData.imageUrl || '',
         isHot: initialData.isHot || false,
       };
@@ -106,6 +108,7 @@ const EventForm = ({
     date: toDatetimeLocal(initialData.date),
     location: initialData.location || '',
     totalTickets: initialData.totalTickets ?? '',
+    price: initialData.price ?? 0,
     imageUrl: initialData.imageUrl || '',
     isHot: initialData.isHot || false,
   } : INITIAL_STATE), [initialData]);
@@ -144,6 +147,9 @@ const EventForm = ({
     if (!formData.totalTickets || Number(formData.totalTickets) < 1) {
       newErrors.totalTickets = t('form_error_min_tickets') || 'Tickets must be at least 1';
     }
+    if (formData.price < 0) {
+      newErrors.price = t('form_error_price') || 'Price cannot be negative';
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -154,6 +160,7 @@ const EventForm = ({
       ...formData,
       date: formData.date ? new Date(formData.date).toISOString() : '',
       totalTickets: Number(formData.totalTickets),
+      price: Number(formData.price),
     };
     onSubmit(payload);
   };
@@ -248,23 +255,41 @@ const EventForm = ({
         <span className="text-primary font-bold text-[10px] tracking-widest uppercase" style={{ fontFamily: TYPOGRAPHY.TECH }}>{t('form_label_hot')}</span>
       </div>
 
-      <FormField label={t('form_label_tickets')} hint={isTicketsLocked ? `⚠️ Locked: ${soldTickets} sold` : ''}>
-        <input 
-          {...sharedInputProps} 
-          name="totalTickets" 
-          type="number" 
-          value={formData.totalTickets} 
-          min={1} 
-          disabled={isSubmitting || isTicketsLocked}
-          style={{ 
-            ...sharedInputProps.style, 
-            opacity: isTicketsLocked ? 0.5 : 1,
-            borderColor: errors.totalTickets ? '#ff4444' : sharedInputProps.style.borderColor,
-            boxShadow: errors.totalTickets ? '0 0 10px rgba(255, 68, 68, 0.2)' : 'none'
-          }} 
-        />
-        {errors.totalTickets && <p className="text-[10px] text-red-500 font-mono mt-1 uppercase tracking-tighter">! {errors.totalTickets}</p>}
-      </FormField>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <FormField label={t('form_label_tickets')} hint={isTicketsLocked ? `⚠️ Locked: ${soldTickets} sold` : ''}>
+          <input 
+            {...sharedInputProps} 
+            name="totalTickets" 
+            type="number" 
+            value={formData.totalTickets} 
+            min={1} 
+            disabled={isSubmitting || isTicketsLocked}
+            style={{ 
+              ...sharedInputProps.style, 
+              opacity: isTicketsLocked ? 0.5 : 1,
+              borderColor: errors.totalTickets ? '#ff4444' : sharedInputProps.style.borderColor,
+              boxShadow: errors.totalTickets ? '0 0 10px rgba(255, 68, 68, 0.2)' : 'none'
+            }} 
+          />
+          {errors.totalTickets && <p className="text-[10px] text-red-500 font-mono mt-1 uppercase tracking-tighter">! {errors.totalTickets}</p>}
+        </FormField>
+
+        <FormField label={t('form_label_price')}>
+          <input 
+            {...sharedInputProps} 
+            name="price" 
+            type="number" 
+            value={formData.price} 
+            min={0}
+            style={{ 
+              ...sharedInputProps.style, 
+              borderColor: errors.price ? '#ff4444' : sharedInputProps.style.borderColor,
+              boxShadow: errors.price ? '0 0 10px rgba(255, 68, 68, 0.2)' : 'none'
+            }} 
+          />
+          {errors.price && <p className="text-[10px] text-red-500 font-mono mt-1 uppercase tracking-tighter">! {errors.price}</p>}
+        </FormField>
+      </div>
 
       {submitError && <p className="text-red-500 text-xs font-mono p-2 border border-red-500/30 bg-red-500/10">⛔ {submitError}</p>}
 

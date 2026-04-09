@@ -13,8 +13,8 @@ import { REDIS_KEYS } from "../../types/constants/redisKeys.js";
  */
 const updateEvent = async (eventId, eventData) => {
   // 1. Khởi tạo và trích xuất trường tường minh (Input Sanitization)
-  const { title, description, date, location, totalTickets, imageUrl, isHot } = eventData;
-  const updateData = { title, description, date, location, totalTickets, imageUrl, isHot };
+  const { title, description, date, location, totalTickets, imageUrl, isHot, price } = eventData;
+  const updateData = { title, description, date, location, totalTickets, imageUrl, isHot, price };
 
   // 2. Tìm sự kiện hiện tại trong MongoDB
   const event = await Event.findById(eventId);

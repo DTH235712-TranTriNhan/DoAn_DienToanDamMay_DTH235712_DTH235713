@@ -7,7 +7,7 @@ import createEvent from "../../../services/event/createEvent.js";
  * @param {import('express').Response} res - Express response
  */
 const createEventHandler = async (req, res) => {
-  const { title, description, date, location, totalTickets, imageUrl, isHot } = req.body;
+  const { title, description, date, location, totalTickets, imageUrl, isHot, price } = req.body;
 
   // Gọi Service để lưu DB và sync Redis
   const newEvent = await createEvent({
@@ -17,7 +17,8 @@ const createEventHandler = async (req, res) => {
     location,
     totalTickets,
     imageUrl,
-    isHot
+    isHot,
+    price
   });
 
   // Trả về mã 201 Created theo chuẩn REST API
