@@ -469,11 +469,12 @@ export default function useBookTicket() {
 
 ---
 
-### TASK 4.4 🔲 · Frontend: Trang "Vé của tôi"
+### TASK 4.4 ✅ · Frontend: Trang "Vé của tôi"
 
 | Mục | Chi tiết |
 |-----|---------|
 | **Người phụ trách** | Nhật |
+| **Trạng thái** | ✅ Đã xong |đã xong và hoàn thành luôn vé đã đặt có chi tiết, vị trí, huỷ vé và hoàn thành luôn trang vé chi tiết có cả bản đồ nhúng 
 | **File/Thư mục** | Tạo mới: `ui/src/pages/MyTicketsPage.jsx`, `ui/src/hooks/useMyTickets.js` |
 | **Định hướng triển khai** | **`useMyTickets.js`:** Gọi `GET /api/tickets/my` (handler đã có sẵn trên Backend). Return `{ tickets, loading, error }`. Mỗi ticket object có dạng: `{ _id, event: { title, date, location }, status, createdAt }` (do Backend đã `.populate("event", "title date location")`). **`MyTicketsPage.jsx`:** Kiểm tra auth — chưa đăng nhập thì redirect. Hiển thị danh sách vé dạng card hoặc table. Mỗi vé hiện: tên sự kiện, ngày, địa điểm, trạng thái (badge màu: `confirmed` = xanh lá, `pending` = vàng, `cancelled` = đỏ), ngày đặt (format từ `createdAt`). Empty state: "Bạn chưa đặt vé nào." Thêm route: `<Route path="/my-tickets" element={<MyTicketsPage />} />` |
 | **Kết quả** | User xem được danh sách vé đã đặt thành công, có trạng thái rõ ràng |

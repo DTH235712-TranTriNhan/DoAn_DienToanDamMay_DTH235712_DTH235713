@@ -4,7 +4,7 @@
  */
 
 import { useMemo, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { THEME_COLORS, TYPOGRAPHY, SHADOWS, BOOKING_UI_CONFIG } from "../constants/uiConstants.js";
 import { useLanguage } from "../context/LanguageContext.jsx";
@@ -108,7 +108,8 @@ const EventCard = ({ event }) => {
       style={{ boxShadow: `0 0 30px ${THEME_COLORS.PRIMARY}05` }}
     >
       {/* Event Image */}
-      <div className="relative h-48 overflow-hidden">
+      {/* Event Image */}
+      <Link to={`/events/${event._id}`} className="relative h-48 overflow-hidden block">
         <img
           src={event.imageUrl || "https://placehold.co/600x400/090014/FF00FF?text=Event+Image"}
           alt={event.title}
@@ -134,16 +135,18 @@ const EventCard = ({ event }) => {
             )}
           </div>
         </div>
-      </div>
+      </Link>
 
       <div className="p-6 grow flex flex-col relative z-10">
         <div className="flex justify-between items-start mb-4 gap-2">
-          <h3
-            className="text-xl font-black text-white leading-tight uppercase tracking-tight truncate"
-            style={{ fontFamily: TYPOGRAPHY.HEADING }}
-          >
-            {event.title}
-          </h3>
+          <Link to={`/events/${event._id}`} className="block hover:text-secondary transition-colors">
+            <h3
+              className="text-xl font-black text-white leading-tight uppercase tracking-tight truncate"
+              style={{ fontFamily: TYPOGRAPHY.HEADING }}
+            >
+              {event.title}
+            </h3>
+          </Link>
           <span className="shrink-0 text-[10px] font-mono p-1 border border-secondary/40 text-secondary bg-secondary/5">
             {t("card_id")}: {event._id?.slice(-4).toUpperCase()}
           </span>
