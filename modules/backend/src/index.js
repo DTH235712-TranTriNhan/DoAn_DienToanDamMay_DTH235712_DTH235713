@@ -25,16 +25,19 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-        // Cần thêm images.unsplash.com vào danh sách cho phép
+        // 1. Cho phép hiển thị ảnh từ các nguồn đã biết
         "img-src": [
           "'self'",
           "data:",
-          "https://lh3.googleusercontent.com",
-          "https://images.unsplash.com"
-        ]
+          "https://lh3.googleusercontent.com", // Google Avatar
+          "https://images.unsplash.com" // Ảnh sự kiện
+        ],
+        // 2. QUAN TRỌNG: Cho phép nhúng iframe từ Google Maps
+        "frame-src": ["'self'", "https://www.google.com", "https://maps.google.com"],
+        // 3. Cho phép tải các script từ Google (nếu dùng API thay vì iframe)
+        "script-src": ["'self'", "https://maps.googleapis.com"]
       }
     },
-    // Rất quan trọng: Tránh lỗi CORS khi trình duyệt tải ảnh từ domain khác (Task 2.6)
     crossOriginResourcePolicy: { policy: "cross-origin" }
   })
 );
