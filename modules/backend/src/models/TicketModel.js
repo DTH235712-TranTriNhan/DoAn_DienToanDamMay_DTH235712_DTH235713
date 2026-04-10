@@ -30,7 +30,7 @@ const ticketSchema = new mongoose.Schema(
  */
 ticketSchema.index(
   { event: 1, user: 1 },
-  { unique: true, partialFilterExpression: { status: { $ne: 'cancelled' } } }
+  { unique: true, partialFilterExpression: { status: { $ne: TICKET_STATUS.CANCELLED } } }
 );
 
 const Ticket = mongoose.model("Ticket", ticketSchema);

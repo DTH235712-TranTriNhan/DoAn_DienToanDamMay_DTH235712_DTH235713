@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../services/api.js";
 
 /**
@@ -9,6 +10,7 @@ import api from "../services/api.js";
 export const useBookTicket = () => {
   const [status, setStatus] = useState("idle"); // idle, submitting, queued, completed, failed
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
   
   // Sử dụng useRef để quản lý Timer tránh rò rỉ bộ nhớ (Memory Leak)
   const pollingRef = useRef(null);
@@ -64,7 +66,7 @@ export const useBookTicket = () => {
         clearTimers();
         setStatus("failed");
         setError("Vui lòng đăng nhập để thực hiện đặt vé.");
-        window.location.href = "/login";
+        navigate("/login");
       } else if (statusCode === 404) {
         // Job có thể đã hết hạn hoặc bị xóa trên Redis
         clearTimers();
@@ -123,7 +125,7 @@ export const useBookTicket = () => {
       // Xử lý các mã lỗi đặc thù theo yêu cầu nghiệp vụ
       if (statusCode === 401) {
         setError("Vui lòng đăng nhập để thực hiện đặt vé.");
-        window.location.href = "/login";
+        navigate("/login");
       } else if (statusCode === 409) {
         setError("Bạn đã đặt vé rồi"); // Chuẩn hóa message
       } else if (statusCode === 429) {

@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import Ticket from "../../models/TicketModel.js";
 import Event from "../../models/EventModel.js";
 import redisClient from "../../libs/redis.js";
+import { REDIS_KEYS } from "../../types/constants/redisKeys.js";
+import { TICKET_STATUS } from "../../types/constants/statuses.js";
 
 /**
  * Service xử lý hủy vé.
@@ -18,7 +20,7 @@ export const cancelTicketService = async (ticketId, userId) => {
     const ticket = await Ticket.findOne({
       _id: ticketId,
       user: userId,
-      status: { $ne: 'cancelled' }
+      status: { $ne: TICKET_STATUS.CANCELLED }
     }).session(session);
 
     if (!ticket) {
@@ -27,8 +29,8 @@ export const cancelTicketService = async (ticketId, userId) => {
 
     const eventId = ticket.event.toString();
 
-    // Bước 2: Đổi trạng thái vé thành 'cancelled'
-    ticket.status = 'cancelled';
+    // Bước 2: Đổi trạng thái vé
+    ticket.status = TICKET_STATUS.CANCELLED;
     await ticket.save({ session });
 
     // Bước 3: Hoàn trả lại vé cho sự kiện ($inc: 1)
@@ -49,11 +51,11 @@ export const cancelTicketService = async (ticketId, userId) => {
     // Bước 4 (Post-commit): Cập nhật Redis
     try {
       // Hoàn lại vé trên Redis
-      const redisEventKey = `event:${eventId}:available`;
+      const redisEventKey = REDIS_KEYS.EVENT_TICKETS(eventId);
       await redisClient.incr(redisEventKey);
       
       // Xóa Idempotency Key để người dùng có thể đặt lại chính sự kiện này
-      const idempotencyKey = `idempotency:${userId}:${eventId}`;
+      const idempotencyKey = REDIS_KEYS.IDEMPOTENCY(userId, eventId);
       await redisClient.del(idempotencyKey);
       
       console.log(`[Cancel-Ticket-Fix] Cập nhật Redis thành công: INCR ${redisEventKey}, DEL ${idempotencyKey}`);

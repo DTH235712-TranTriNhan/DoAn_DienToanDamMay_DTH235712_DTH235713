@@ -86,14 +86,15 @@ const EventCard = ({ event }) => {
     return () => window.removeEventListener('APP_EVENTS.TICKET_DATA_UPDATED', handler);
   }, [refreshTickets]);
 
-  // Tạo biến logic kiểm tra quyền sở hữu với useMemo
   const isOwned = useMemo(() => {
-    if (!isAuthenticated || !tickets || tickets.length === 0) return false;
+    if (!isAuthenticated) return false;
+    if (isCompleted) return true;
+    if (!tickets || tickets.length === 0) return false;
     return tickets.some(t => {
       const eId = t.event?._id || t.event;
-      return String(eId) === String(event._id) && t.status === 'confirmed';
+      return String(eId) === String(event._id) && (t.status === 'confirmed' || t.status === 'pending');
     });
-  }, [tickets, event._id, isAuthenticated]);
+  }, [tickets, event._id, isAuthenticated, isCompleted]);
 
   const handleBooking = async () => {
     if (isFailed) {

@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api.js";
+import { ROLES } from "../constants/roles.js";
 
 const AuthContext = createContext();
 
@@ -78,7 +79,7 @@ export const AuthProvider = ({ children }) => {
       login,
       logout,
       isAuthenticated: !!user,
-      isAdmin: user?.role === "admin" // Utility for administrative tasks
+      isAdmin: user?.role === ROLES.ADMIN // Utility for administrative tasks
     }),
     [user, token, loading, login, logout]
   );
