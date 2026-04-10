@@ -13,8 +13,8 @@ export const connectToServers = async () => {
       maxPoolSize: 20
     });
 
-    // Sử dụng Structured Logging kèm context [DB] để dễ dàng debug trên Cloud [2, 3]
-    console.log(`[DB] MongoDB Connected: ${conn.connection.host}`);
+    // Sử dụng Structured Logging kèm context [SYSTEM] để dễ dàng debug trên Cloud [2, 3]
+    console.log(`[SYSTEM] MongoDB Connected: ${conn.connection.host}`);
 
     // 2. Kiểm tra trạng thái Upstash Redis
     // Đảm bảo Redis thực sự sẵn sàng trước khi tiếp tục (tránh lỗi hàng đợi khi server chưa link xong)
@@ -24,10 +24,10 @@ export const connectToServers = async () => {
         redisClient.once("error", reject);
       });
     }
-    console.log(`[Redis] Status: ${redisClient.status}`);
+    console.log(`[SYSTEM] Redis Status: ${redisClient.status}`);
   } catch (err) {
     // Luôn sử dụng try/catch để xử lý lỗi kết nối hạ tầng Cloud [1]
-    console.error("[Bootstrap] Lỗi kết nối server hạ tầng:", err.message);
+    console.error("[SYSTEM] Lỗi kết nối server hạ tầng:", err.message);
     throw err; // Ném lỗi ra để hàm bootstrap trong index.js xử lý dừng server
   }
 };

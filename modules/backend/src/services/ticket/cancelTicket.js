@@ -14,7 +14,7 @@ export const cancelTicketService = async (ticketId, userId) => {
   session.startTransaction();
 
   try {
-    console.log(`[Cancel-Ticket-Fix] Bắt đầu hủy vé ${ticketId} cho user ${userId}`);
+    console.log(`[Cancel-Ticket-Fix] ⚙️ Bắt đầu hủy vé ${ticketId} cho user ${userId}`);
 
     // Bước 1: Tìm vé xem có thuộc về user và không ở trạng thái cancelled không
     const ticket = await Ticket.findOne({
@@ -37,7 +37,7 @@ export const cancelTicketService = async (ticketId, userId) => {
     const event = await Event.findByIdAndUpdate(
       eventId,
       { $inc: { availableTickets: 1 } },
-      { new: true, session }
+      { returnDocument: "after", session }
     );
 
     if (!event) {
@@ -46,7 +46,7 @@ export const cancelTicketService = async (ticketId, userId) => {
 
     // Cam kết Transaction
     await session.commitTransaction();
-    console.log(`[Cancel-Ticket-Fix] MongoDB Transaction thành công. Đã hoàn vé cho sự kiện ${eventId}`);
+    console.log(`[Cancel-Ticket-Fix] ✅ MongoDB Transaction thành công. Đã hoàn vé cho sự kiện ${eventId}`);
 
     // Bước 4 (Post-commit): Cập nhật Redis
     try {
@@ -58,10 +58,10 @@ export const cancelTicketService = async (ticketId, userId) => {
       const idempotencyKey = REDIS_KEYS.IDEMPOTENCY(userId, eventId);
       await redisClient.del(idempotencyKey);
       
-      console.log(`[Cancel-Ticket-Fix] Cập nhật Redis thành công: INCR ${redisEventKey}, DEL ${idempotencyKey}`);
+      console.log(`[Cancel-Ticket-Fix] ✅ Cập nhật Redis thành công: INCR ${redisEventKey}, DEL ${idempotencyKey}`);
     } catch (redisError) {
       // Lỗi Redis sau khi DB đã commit không làm rớt DB, nhưng cần log lại để theo dõi
-      console.error(`[Cancel-Ticket-Fix] Lỗi đồng bộ Redis sau khi commit DB:`, redisError);
+      console.error(`[Cancel-Ticket-Fix] ⚠️ Lỗi đồng bộ Redis sau khi commit DB:`, redisError);
     }
 
     return {
@@ -72,7 +72,7 @@ export const cancelTicketService = async (ticketId, userId) => {
   } catch (error) {
     // Nếu có bất kì lỗi gì, Rollback lại dữ liệu cũ
     await session.abortTransaction();
-    console.error(`[Cancel-Ticket-Fix] Lỗi xử lý giao dịch hủy vé:`, error);
+    console.error(`[Cancel-Ticket-Fix] ❌ Lỗi xử lý giao dịch hủy vé:`, error);
     throw error;
   } finally {
     session.endSession();
