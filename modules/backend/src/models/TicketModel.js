@@ -28,7 +28,10 @@ const ticketSchema = new mongoose.Schema(
  * Đảm bảo 1 user chỉ được đặt duy nhất 1 vé cho 1 sự kiện.
  * Nếu cố tình chèn cái thứ 2, MongoDB sẽ báo lỗi "Duplicate Key Error".
  */
-ticketSchema.index({ event: 1, user: 1 }, { unique: true });
+ticketSchema.index(
+  { event: 1, user: 1 },
+  { unique: true, partialFilterExpression: { status: { $ne: 'cancelled' } } }
+);
 
 const Ticket = mongoose.model("Ticket", ticketSchema);
 export default Ticket;

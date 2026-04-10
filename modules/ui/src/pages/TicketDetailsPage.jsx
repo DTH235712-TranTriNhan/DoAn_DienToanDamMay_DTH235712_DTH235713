@@ -13,13 +13,18 @@ const TicketDetailsPage = () => {
   const { ticketId, eventId } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated, loading: authLoading } = useAuth();
+  
   const { ticket, event, loading: ticketLoading, error, refresh } = useTicketDetails(ticketId, eventId);
-  const { cancelTicket } = useMyTickets(); 
+  const { tickets, cancelTicket, refresh: refreshTickets } = useMyTickets(); 
   const { bookTicket, status: bookingStatus, error: bookingError, reset: resetBooking } = useBookTicket(); 
   
   const [activeTab, setActiveTab] = useState('info');
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
+  const [confirmBookOpen, setConfirmBookOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
+  const [successToast, setSuccessToast] = useState(false);
+  const debounceRef = React.useRef(null);
+  const hasDispatchedRef = React.useRef(false);
 
   useEffect(() => {
     // Chỉ yêu cầu đăng nhập nếu đang truy cập vào đường dẫn "Vé của tôi" (ticketId)
@@ -28,30 +33,84 @@ const TicketDetailsPage = () => {
     }
   }, [isAuthenticated, authLoading, navigate, ticketId]);
 
-  const handleCancel = async () => {
+  // Đồng bộ dữ liệu ngầm (Background Sync) với Debounce
+  useEffect(() => {
+    const handleTicketDataUpdated = () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+      debounceRef.current = setTimeout(() => {
+        refresh();
+        refreshTickets();
+      }, 500);
+    };
+    window.addEventListener('APP_EVENTS.TICKET_DATA_UPDATED', handleTicketDataUpdated);
+    return () => {
+      window.removeEventListener('APP_EVENTS.TICKET_DATA_UPDATED', handleTicketDataUpdated);
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [refresh, refreshTickets]);
+
+  // Luồng xử lý sau khi booking hoàn tất hoặc thất bại
+  useEffect(() => {
+    if (bookingStatus === 'completed' && !hasDispatchedRef.current) {
+      hasDispatchedRef.current = true;
+      window.dispatchEvent(new Event('APP_EVENTS.TICKET_DATA_UPDATED'));
+      setSuccessToast(true);
+      const timer = setTimeout(() => {
+        setSuccessToast(false);
+        resetBooking();
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+    
+    if (bookingStatus === 'idle') {
+      hasDispatchedRef.current = false;
+    }
+
+    if (bookingStatus === 'failed' && bookingError) {
+      setAlertMessage(bookingError);
+      resetBooking();
+    }
+  }, [bookingStatus, bookingError, resetBooking]);
+
+  const handleCancel = async (e) => {
+    if (e) e.preventDefault();
     setConfirmCancelOpen(false);
     try {
       await cancelTicket(ticketId);
-      refresh(); 
+      window.dispatchEvent(new Event('APP_EVENTS.TICKET_DATA_UPDATED'));
     } catch (err) {
       setAlertMessage(t("details_error_cancel"));
     }
   };
 
-  const handleBooking = async () => {
+  const handleBooking = async (e) => {
+    if (e) e.preventDefault();
     if (!isAuthenticated) {
       navigate('/login');
       return;
     }
+    setConfirmBookOpen(true);
+  };
+
+  const executeBooking = async () => {
+    setConfirmBookOpen(false);
     try {
       await bookTicket(event._id);
-      setAlertMessage(t("details_success_book"));
     } catch (err) {
-      setAlertMessage(t("details_error_book"));
+      setAlertMessage(t("details_error_book") || "Lỗi khi gọi API đặt vé.");
     }
   };
 
-  if (authLoading || ticketLoading) {
+  // Tính toán trạng thái xem user đã sở hữu vé này chưa, dựa trên ds vé của họ
+  const isOwned = event && tickets && tickets.some(t => {
+      const eId = t.event?._id || t.event;
+      return String(eId) === String(event._id) && (t.status === 'confirmed' || t.status === 'pending');
+  });
+
+  // Tối ưu Loading UI: Chỉ cản màn hình khi ko có event và đang query lần đầu
+  if (authLoading || (ticketLoading && !event)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center font-sans tracking-widest" style={{ fontFamily: TYPOGRAPHY.BODY }}>
         <div className="text-secondary animate-pulse text-lg border border-secondary/50 px-8 py-4 rounded backdrop-blur-md shadow-neon-secondary">
@@ -68,7 +127,8 @@ const TicketDetailsPage = () => {
           <h2 className="text-2xl font-black text-red-500 mb-4 uppercase">{t("auth_error_title")}</h2>
           <p className="text-foreground/80 mb-8">{error}</p>
           <button 
-            onClick={() => navigate(ticketId ? '/my-tickets' : '/')}
+            type="button"
+            onClick={(e) => { e.preventDefault(); navigate(ticketId ? '/my-tickets' : '/'); }}
             className="px-6 py-2 border border-secondary text-secondary font-bold uppercase tracking-widest hover:bg-secondary hover:text-black transition-all rounded"
           >
             {ticketId ? t("tickets_back") : t("nav_home")}
@@ -134,7 +194,8 @@ const TicketDetailsPage = () => {
           
           <div className="flex-grow pb-4 md:pb-0">
             <button 
-              onClick={() => navigate(isTicketMode ? '/my-tickets' : '/')}
+              type="button"
+              onClick={(e) => { e.preventDefault(); navigate(isTicketMode ? '/my-tickets' : '/'); }}
               className="mb-4 flex items-center gap-2 text-secondary text-sm font-bold uppercase tracking-widest hover:text-secondary/80 transition-colors"
             >
               ← {isTicketMode ? t("tickets_back").toUpperCase() : t("details_nav_back").toUpperCase()}
@@ -168,9 +229,10 @@ const TicketDetailsPage = () => {
           <div className="hidden lg:block w-48 h-48 bg-white p-3 rounded-lg border-4 border-secondary/50 shadow-neon-secondary relative group">
              <div className="absolute inset-0 bg-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
              <div className="w-full h-full border-[6px] border-background relative overflow-hidden flex items-center justify-center bg-zinc-800">
-                <div className="absolute top-0 left-0 w-full h-[2px] bg-red-500 shadow-[0_0_10px_red] animate-[ping_2s_infinite]"></div>
+                {/* Ẩn hiệu ứng ping khi đã sở hữu vé / completed */}
+                <div className={`absolute top-0 left-0 w-full h-[2px] ${(isOwned || bookingStatus === 'completed') ? 'bg-green-500 shadow-[0_0_10px_green]' : 'bg-red-500 shadow-[0_0_10px_red] animate-[ping_2s_infinite]'}`}></div>
                 <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white via-zinc-400 to-black"></div>
-                <span className="text-white font-mono font-black text-[10px] break-all z-20 text-center tracking-tighter bg-black/70 p-1 rounded">
+                <span className={`text-white font-mono font-black text-[10px] break-all z-20 text-center tracking-tighter bg-black/70 p-1 rounded transition-colors ${(isOwned || bookingStatus === 'completed') ? 'text-green-400' : ''}`}>
                    {String(ticket?._id || event._id || 'SCANNER').toUpperCase()}
                 </span>
                 <div className="w-6 h-6 border-4 border-white absolute top-1 left-1"></div>
@@ -178,7 +240,7 @@ const TicketDetailsPage = () => {
                 <div className="w-6 h-6 border-4 border-white absolute bottom-1 left-1"></div>
              </div>
              <p className="text-[8px] text-center mt-2 text-background font-bold uppercase tracking-widest">
-              {isTicketMode ? 'E-Ticket Verified' : 'Scan for preview'}
+              {isTicketMode || isOwned ? 'E-Ticket Verified' : 'Scan for preview'}
              </p>
           </div>
         </div>
@@ -199,7 +261,8 @@ const TicketDetailsPage = () => {
               ].map(tab => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); setActiveTab(tab.id); }}
                   className={`px-6 py-4 text-xs md:text-sm font-black uppercase tracking-widest whitespace-nowrap transition-all relative ${
                     activeTab === tab.id ? 'text-secondary' : 'text-foreground/50 hover:text-foreground/80'
                   }`}
@@ -304,7 +367,7 @@ const TicketDetailsPage = () => {
                          <p className="text-foreground/40 mb-4 font-mono text-sm tracking-widest uppercase">Cyber_Agency_V1.0</p>
                          <p className="text-foreground/80 max-w-xl">Hệ thống phân phối vé ứng dụng công nghệ điện toán đám mây và Microservices.</p>
                       </div>
-                      <button className="px-6 py-2 border border-border text-foreground/40 text-xs font-bold uppercase rounded hover:bg-white/5 transition-colors whitespace-nowrap">{t("admin_table_status")}</button>
+                      <button type="button" onClick={(e) => e.preventDefault()} className="px-6 py-2 border border-border text-foreground/40 text-xs font-bold uppercase rounded hover:bg-white/5 transition-colors whitespace-nowrap">{t("admin_table_status")}</button>
                    </div>
                 </div>
               )}
@@ -325,22 +388,33 @@ const TicketDetailsPage = () => {
 
                 <div className="space-y-4">
                    {!isTicketMode ? (
-                      <button 
-                        onClick={handleBooking}
-                        disabled={bookingStatus !== 'idle'}
-                        className={`w-full py-3 px-4 text-[10px] font-black uppercase tracking-widest transition-all rounded border-2 ${
-                           bookingStatus === 'idle' 
-                              ? BOOKING_UI_CONFIG.idle.className 
-                              : bookingStatus === 'submitting' || bookingStatus === 'queued'
-                                 ? BOOKING_UI_CONFIG.submitting.className
-                                 : BOOKING_UI_CONFIG.idle.className
-                        }`}
-                      >
-                        {bookingStatus === 'idle' ? t(BOOKING_UI_CONFIG.idle.labelKey) : t("card_requesting")}
-                      </button>
+                      isOwned || bookingStatus === 'completed' ? (
+                          <button 
+                            type="button"
+                            onClick={(e) => e.preventDefault()}
+                            disabled
+                            className="w-full py-3 px-4 text-[10px] font-black uppercase tracking-widest transition-all rounded border-2 border-green-600 bg-green-600 text-white shadow-[0_0_15px_rgba(22,163,74,0.5)] cursor-not-allowed"
+                          >
+                            ✅ {t("details_owned") || "ĐÃ SỞ HỮU VÉ"}
+                          </button>
+                      ) : (
+                          <button 
+                            type="button"
+                            onClick={handleBooking}
+                            disabled={bookingStatus !== 'idle'}
+                            className={`w-full py-3 px-4 text-[10px] font-black uppercase tracking-widest transition-all rounded border-2 ${
+                               bookingStatus === 'submitting' || bookingStatus === 'queued'
+                                  ? BOOKING_UI_CONFIG.submitting.className
+                                  : BOOKING_UI_CONFIG.idle.className
+                            }`}
+                          >
+                            {bookingStatus === 'submitting' || bookingStatus === 'queued' ? t("card_requesting") : t(BOOKING_UI_CONFIG.idle.labelKey)}
+                          </button>
+                      )
                    ) : (
                       <button 
-                        onClick={() => window.print()}
+                        type="button"
+                        onClick={(e) => { e.preventDefault(); window.print(); }}
                         className="w-full py-3 px-4 border border-secondary/30 text-secondary text-xs font-bold uppercase tracking-widest hover:bg-secondary/10 hover:shadow-neon-secondary transition-all rounded"
                       >
                         {t("details_download_pdf")}
@@ -358,7 +432,8 @@ const TicketDetailsPage = () => {
                    )}
                    {isTicketMode && (ticket?.status === 'confirmed' || ticket?.status === 'pending') && (
                       <button 
-                        onClick={() => setConfirmCancelOpen(true)}
+                        type="button"
+                        onClick={(e) => { e.preventDefault(); setConfirmCancelOpen(true); }}
                         className="w-full py-3 px-4 border border-red-500/30 text-red-500 text-xs font-bold uppercase tracking-widest hover:bg-red-500/10 transition-all rounded"
                       >
                         {t("tickets_cancel")}
@@ -380,6 +455,29 @@ const TicketDetailsPage = () => {
       </div>
 
       {/* MODALS */}
+      {confirmBookOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/90 backdrop-blur-xl">
+          <div className="relative bg-background border-2 border-cyan-500/50 p-8 max-w-sm w-full shadow-[0_0_50px_rgba(34,211,238,0.4)] rounded flex flex-col items-center text-center overflow-hidden animate-[zoomIn_0.2s_ease-out]">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-transparent"></div>
+            <div className="w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-500 flex items-center justify-center mb-6 shadow-[0_0_15px_rgba(34,211,238,0.3)]">
+              <span className="text-cyan-400 text-3xl font-black">?</span>
+            </div>
+            <h3 className="text-xl font-black text-cyan-400 uppercase tracking-widest mb-4">XÁC NHẬN ĐẶT VÉ</h3>
+            <p className="text-foreground/80 font-mono text-sm tracking-wide mb-8">
+              Bạn có chắc chắn muốn tiến hành đặt vé cho sự kiện này? Bấm xác nhận để đưa yêu cầu vào hệ thống.
+            </p>
+            <div className="flex w-full gap-4">
+              <button type="button" onClick={() => setConfirmBookOpen(false)} className="flex-1 py-2 border border-border text-foreground/40 font-bold uppercase text-xs rounded transition-colors hover:bg-white/10">
+                HỦY BỎ
+              </button>
+              <button type="button" onClick={executeBooking} className="flex-1 py-2 bg-cyan-500/20 border border-cyan-500 text-cyan-400 font-black uppercase text-xs rounded transition-all hover:bg-cyan-500 hover:text-black shadow-[0_0_15px_rgba(34,211,238,0.4)]">
+                {t("details_btn_confirm") || "XÁC NHẬN"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {confirmCancelOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/90 backdrop-blur-xl">
           <div className="relative bg-background border-2 border-red-500/50 p-8 max-w-sm w-full shadow-[0_0_50px_rgba(239,68,68,0.4)] rounded flex flex-col items-center text-center overflow-hidden animate-zoomIn">
@@ -392,10 +490,10 @@ const TicketDetailsPage = () => {
               {t("details_confirm_cancel_msg")}
             </p>
             <div className="flex w-full gap-4">
-              <button onClick={() => setConfirmCancelOpen(false)} className="flex-1 py-2 border border-border text-foreground/40 font-bold uppercase text-xs rounded transition-colors hover:bg-white/10">
+              <button type="button" onClick={(e) => { e.preventDefault(); setConfirmCancelOpen(false); }} className="flex-1 py-2 border border-border text-foreground/40 font-bold uppercase text-xs rounded transition-colors hover:bg-white/10">
                 {t("details_btn_stay")}
               </button>
-              <button onClick={handleCancel} className="flex-1 py-2 bg-red-500/20 border border-red-500 text-red-500 font-black uppercase text-xs rounded transition-all hover:bg-red-500 hover:text-black">
+              <button type="button" onClick={handleCancel} className="flex-1 py-2 bg-red-500/20 border border-red-500 text-red-500 font-black uppercase text-xs rounded transition-all hover:bg-red-500 hover:text-black">
                 {t("details_btn_confirm")}
               </button>
             </div>
@@ -408,8 +506,24 @@ const TicketDetailsPage = () => {
           <div className="relative bg-background border-2 border-yellow-500/50 p-8 max-w-sm w-full shadow-2xl rounded text-center">
              <h3 className="text-lg font-black text-yellow-500 uppercase mb-4">{t("details_alert_title")}</h3>
              <p className="text-foreground/80 text-sm mb-6">{alertMessage}</p>
-             <button onClick={() => setAlertMessage(null)} className="w-full py-2 bg-yellow-500 text-black font-black uppercase text-xs rounded">{t("details_alert_ok")}</button>
+             <button type="button" onClick={(e) => { e.preventDefault(); setAlertMessage(null); }} className="w-full py-2 bg-yellow-500 text-black font-black uppercase text-xs rounded">{t("details_alert_ok")}</button>
           </div>
+        </div>
+      )}
+
+      {successToast && (
+        <div className="fixed top-20 right-4 md:right-8 z-[110] animate-[slideInRight_0.3s_ease-out]">
+           <div className="bg-black/90 backdrop-blur-xl border-l-4 border-r border-y border-green-500/50 px-4 py-3 rounded-md shadow-[0_0_20px_rgba(34,197,94,0.4)] flex items-start gap-4 max-w-[320px] sm:max-w-sm w-full">
+              <span className="text-green-400 font-mono text-2xl animate-pulse mt-0.5">⚡</span>
+              <div className="flex-1 overflow-hidden">
+                 <p className="font-mono font-black uppercase text-xs sm:text-sm text-green-400 tracking-widest leading-tight whitespace-normal break-words mb-1">
+                    [ SYSTEM OK ] YÊU CẦU ĐÃ ĐƯỢC LƯU
+                 </p>
+                 <p className="text-[10px] sm:text-xs uppercase font-mono text-foreground/60 tracking-wider whitespace-normal break-words">
+                    ✓ HÃY KIỂM TRA MỤC VÉ CỦA TÔI
+                 </p>
+              </div>
+           </div>
         </div>
       )}
     </div>

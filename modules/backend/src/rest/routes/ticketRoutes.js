@@ -7,6 +7,7 @@ import { ticketLimiter } from "../middlewares/rateLimiter.js";
 import { registerTicketHandler } from "../handlers/ticket/registerTicketHandler.js";
 import { getJobStatusHandler } from "../handlers/ticket/getJobStatusHandler.js";
 import { getMyTicketsHandler } from "../handlers/ticket/getMyTicketsHandler.js";
+import { cancelTicketHandler } from "../handlers/ticket/cancelTicketHandler.js";
 
 const router = Router();
 
@@ -32,5 +33,10 @@ router.get("/status/:jobId", asyncHandler(getJobStatusHandler));
  * 3. LẤY DANH SÁCH VÉ ĐÃ MUA (GET /api/tickets/my)
  */
 router.get("/my", asyncHandler(getMyTicketsHandler));
+
+/**
+ * 4. HỦY VÉ (PATCH /api/tickets/:ticketId/cancel)
+ */
+router.patch("/:ticketId/cancel", validateJwt, asyncHandler(cancelTicketHandler));
 
 export default router;

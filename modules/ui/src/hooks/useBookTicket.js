@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import api from "../services/api";
+import api from "../services/api.js";
 
 /**
  * Custom Hook useBookTicket
@@ -145,11 +145,11 @@ export const useBookTicket = () => {
     isQueued: status === "queued",
     isCompleted: status === "completed",
     isFailed: status === "failed",
-    reset: () => {
+    reset: useCallback(() => {
       clearTimers();
       setStatus("idle");
       setError(null);
-    }
+    }, [clearTimers])
   };
 };
 
