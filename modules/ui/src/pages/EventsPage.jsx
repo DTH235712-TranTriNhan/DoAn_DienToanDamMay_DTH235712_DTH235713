@@ -11,11 +11,12 @@ import { TYPOGRAPHY, THEME_COLORS } from "../constants/uiConstants.js";
 import { useLanguage } from "../context/LanguageContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { Link } from "react-router-dom";
+import { ROLES } from "../constants/roles.js";
 
 const EventsPage = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
-  const { events, loading, error } = useEvents();
+  const { events, loading, error, refetch } = useEvents();
 
   if (loading) {
     return (
@@ -42,7 +43,7 @@ const EventsPage = () => {
             {error}
           </p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => refetch()}
             className="px-8 py-2 border border-secondary text-secondary font-mono text-xs uppercase tracking-widest hover:bg-secondary/10 transition-all"
           >
             [ {t("events_reboot")} ]
@@ -80,7 +81,7 @@ const EventsPage = () => {
           <p className="text-white/30 font-mono text-sm tracking-widest uppercase mb-8">
             {t("events_no_all")}
           </p>
-          {user?.role === 'admin' && (
+          {user?.role === ROLES.ADMIN && (
             <Link 
               to="/admin/events" 
               className="px-8 py-3 bg-primary text-black font-black uppercase text-xs tracking-widest hover:scale-105 transition-transform"

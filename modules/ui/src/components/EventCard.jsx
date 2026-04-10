@@ -10,6 +10,7 @@ import { THEME_COLORS, TYPOGRAPHY, SHADOWS, BOOKING_UI_CONFIG } from "../constan
 import { useLanguage } from "../context/LanguageContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useBookTicket } from "../hooks/useBookTicket.js";
+import useMyTickets from "../hooks/useMyTickets.js";
 import api from "../services/api.js";
 
 const EventCard = ({ event }) => {
@@ -24,6 +25,8 @@ const EventCard = ({ event }) => {
     isFailed,
     reset
   } = useBookTicket();
+
+  const { tickets, refresh: refreshTickets } = useMyTickets();
 
   const { t, lang } = useLanguage();
   const { isAuthenticated } = useAuth();
@@ -76,7 +79,22 @@ const EventCard = ({ event }) => {
     return () => clearTimeout(timer);
   }, [isFailed, errorLocal, reset]);
 
+  // Đảm bảo tính phản ứng: tự động cập nhật ngay khi APP_EVENTS.TICKET_DATA_UPDATED được bắn ra
+  useEffect(() => {
+    const handler = () => refreshTickets();
+    window.addEventListener('APP_EVENTS.TICKET_DATA_UPDATED', handler);
+    return () => window.removeEventListener('APP_EVENTS.TICKET_DATA_UPDATED', handler);
+  }, [refreshTickets]);
 
+  const isOwned = useMemo(() => {
+    if (!isAuthenticated) return false;
+    if (isCompleted) return true;
+    if (!tickets || tickets.length === 0) return false;
+    return tickets.some(t => {
+      const eId = t.event?._id || t.event;
+      return String(eId) === String(event._id) && (t.status === 'confirmed' || t.status === 'pending');
+    });
+  }, [tickets, event._id, isAuthenticated, isCompleted]);
 
   const handleBooking = async () => {
     if (isFailed) {
@@ -84,7 +102,7 @@ const EventCard = ({ event }) => {
       return;
     }
 
-    if (available === 0 || !isIdle) return;
+    if (available === 0 || !isIdle || isOwned) return;
 
     // Check authentication
     if (!isAuthenticated) {
@@ -98,11 +116,28 @@ const EventCard = ({ event }) => {
 
   // Logic nút bấm dựa trên cấu hình tập trung
   const getButtonConfig = () => {
-    if (available === 0 && bookingStatus === "idle") return BOOKING_UI_CONFIG.sold_out;
-    const config = { ...(BOOKING_UI_CONFIG[bookingStatus] || BOOKING_UI_CONFIG.idle) };
+    // 1. Trạng thái sở hữu vé có độ ưu tiên cao nhất
+    if (isOwned) {
+      return {
+        label: "✅ ĐÃ SỞ HỮU VÉ",
+        className: "bg-green-600 text-white cursor-not-allowed border-green-600 shadow-[0_0_15px_rgba(22,163,74,0.5)] opacity-90",
+        disabled: true
+      };
+    }
+
+    if (available === 0 && bookingStatus === "idle") {
+      return { ...BOOKING_UI_CONFIG.sold_out, label: t("card_sold_out"), disabled: true };
+    }
+    
+    const config = { 
+      ...(BOOKING_UI_CONFIG[bookingStatus] || BOOKING_UI_CONFIG.idle),
+      disabled: (available === 0 || bookingStatus === "completed" || bookingStatus === "queued" || bookingStatus === "submitting")
+    };
     
     // Resolve label using t hook
-    config.label = t(config.labelKey);
+    if (!config.label) {
+      config.label = t(config.labelKey);
+    }
 
     // Nếu failed, hiển thị lý do rút gọn ngay trên nút
     if (bookingStatus === "failed" && errorLocal) {
@@ -217,10 +252,10 @@ const EventCard = ({ event }) => {
         <div className="mt-auto relative z-10">
           <div className="flex items-center gap-2 w-full">
             <motion.button
-              whileHover={available > 0 && bookingStatus === "idle" ? { scale: 1.02 } : {}}
+              whileHover={available > 0 && bookingStatus === "idle" && !isOwned ? { scale: 1.02 } : {}}
               whileTap={{ scale: 0.98 }}
               onClick={handleBooking}
-              disabled={available === 0 || bookingStatus === "completed" || bookingStatus === "queued" || bookingStatus === "submitting"}
+              disabled={btnConfig.disabled}
               className={`w-full grow py-3.5 font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-300 flex items-center justify-center gap-2 border-2 ${btnConfig.className}`}
               style={{ fontFamily: TYPOGRAPHY.HEADING }}
             >

@@ -36,7 +36,7 @@ const updateEvent = async (eventId, eventData) => {
 
   // 3. Cập nhật vào MongoDB
   const updatedEvent = await Event.findByIdAndUpdate(eventId, updateData, {
-    new: true,
+    returnDocument: "after",
     runValidators: true
   });
   console.log(`[DB] Updated event ${eventId} in MongoDB`);

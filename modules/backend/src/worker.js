@@ -21,7 +21,7 @@ const bootstrap = async () => {
     await mongoose.connect(process.env.MONGODB_URI, {
       maxPoolSize: 5 // Giới hạn pool để tiết kiệm tài nguyên Cloud
     });
-    console.log("👷 [Worker] MongoDB Connected");
+    console.log("[SYSTEM] 👷 Worker MongoDB Connected");
 
     // 2. Tạo kết nối Redis riêng cho BullMQ
     const isLocal = (process.env.REDIS_URL || "").includes("127.0.0.1");
@@ -46,9 +46,9 @@ const bootstrap = async () => {
       console.error(`❌ [Worker] Job ${job?.id} thất bại:`, err.message);
     });
 
-    console.log("🚀 [Worker] Đang trực chiến, chờ xử lý vé từ hàng chờ...");
+    console.log("[SYSTEM] 🚀 Worker Đang trực chiến, chờ xử lý vé từ hàng chờ...");
   } catch (err) {
-    console.error("🔥 [Worker] Khởi động thất bại:", err);
+    console.error("[SYSTEM] 🔥 Worker Khởi động thất bại:", err);
     process.exit(1);
   }
 };

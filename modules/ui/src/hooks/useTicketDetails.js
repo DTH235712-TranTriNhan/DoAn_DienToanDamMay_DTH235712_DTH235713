@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import api from '../services/api.js';
 
 /**
@@ -10,9 +10,12 @@ const useTicketDetails = (ticketId, eventId = null) => {
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const isFetchingRef = useRef(false);
 
   const fetchData = useCallback(async () => {
     if (!ticketId && !eventId) return;
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
     
     setLoading(true);
     setError(null);
@@ -46,6 +49,7 @@ const useTicketDetails = (ticketId, eventId = null) => {
       setError(err.response?.data?.message || 'Lỗi kết nối khi tải dữ liệu.');
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
   }, [ticketId, eventId]);
 
