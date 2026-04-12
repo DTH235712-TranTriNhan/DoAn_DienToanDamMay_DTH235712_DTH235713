@@ -59,6 +59,11 @@ export const translations = {
     admin_no_events: "// KHÔNG_CÓ_SỰ_KIỆN_NÀO — Hãy tạo sự kiện đầu tiên!",
     admin_success_create: "✅ Đã tạo sự kiện thành công!",
     admin_success_update: "✅ Đã cập nhật sự kiện thành công!",
+    admin_success_delete: "✅ Đã xóa sự kiện thành công!",
+    admin_btn_delete: "🗑️ Xóa",
+    admin_confirm_delete_title: "XÁC NHẬN XÓA SỰ KIỆN",
+    admin_confirm_delete_body: "Bạn có chắc chắn muốn xóa sự kiện này không? Hành động này không thể hoàn tác.",
+    admin_delete_error: "Không thể xóa sự kiện. Vui lòng thử lại.",
 
     // Event Form
     form_create_title: "// TẠO SỰ KIỆN MỚI",
@@ -84,6 +89,8 @@ export const translations = {
       "Bạn có những thay đổi chưa lưu trong biểu mẫu. Bạn có chắc chắn muốn thoát không?",
     confirm_stay: "Ở LẠI",
     confirm_discard: "RỜI ĐI",
+    confirm_cancel: "QUAY LẠI",
+    confirm_confirm_delete: "XÁC NHẬN XÓA",
 
     // My Tickets Page
     tickets_title: "VÉ CỦA TÔI",
@@ -202,6 +209,11 @@ export const translations = {
     admin_no_events: "// NO_EVENTS_FOUND — Create your first event!",
     admin_success_create: "✅ Event created successfully!",
     admin_success_update: "✅ Event updated successfully!",
+    admin_success_delete: "✅ Event deleted successfully!",
+    admin_btn_delete: "🗑️ Delete",
+    admin_confirm_delete_title: "CONFIRM DELETE EVENT",
+    admin_confirm_delete_body: "Are you sure you want to delete this event? This action cannot be undone.",
+    admin_delete_error: "Cannot delete event. Please try again.",
 
     // Event Form
     form_create_title: "// CREATE NEW EVENT",
@@ -226,6 +238,8 @@ export const translations = {
     confirm_body: "You have unsaved changes in the form. Are you sure you want to discard them?",
     confirm_stay: "STAY",
     confirm_discard: "DISCARD",
+    confirm_cancel: "CANCEL",
+    confirm_confirm_delete: "YES, DELETE",
 
     // My Tickets Page
     tickets_title: "MY TICKETS",

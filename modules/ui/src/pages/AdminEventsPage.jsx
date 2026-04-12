@@ -187,6 +187,8 @@ const AdminEventsPage = () => {
   const [submitError, setSubmitError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isDirty, setIsDirty] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (!authLoading && user?.role !== 'admin') {
@@ -231,6 +233,30 @@ const AdminEventsPage = () => {
     } catch (err) {
       console.error('[AdminEventsPage] Submit Error:', err);
       setSubmitError(err.response?.data?.message || 'Submit error. Try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const openDeleteConfirm = (event) => {
+    setEventToDelete(event);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDelete = async () => {
+    if (!eventToDelete) return;
+    setIsSubmitting(true);
+    try {
+      await api.delete(`/events/${eventToDelete._id}`);
+      setSuccessMessage(t('admin_success_delete'));
+      setShowDeleteConfirm(false);
+      setEventToDelete(null);
+      await refetch();
+      setTimeout(() => setSuccessMessage(''), 4000);
+    } catch (err) {
+      console.error('[AdminEventsPage] Delete Error:', err);
+      const msg = err.response?.data?.message || t('admin_delete_error');
+      alert(msg); // fallback to alert for quick error feedback
     } finally {
       setIsSubmitting(false);
     }
@@ -351,12 +377,11 @@ const AdminEventsPage = () => {
                     {t('admin_edit_btn')}
                   </button>
                   <button 
-                    disabled
-                    title="Backend DELETE endpoint: COMING SOON"
-                    className="flex-1 py-2 rounded border border-red-500/10 text-red-500/20 text-[8px] font-black uppercase tracking-widest cursor-not-allowed"
+                    onClick={() => openDeleteConfirm(event)}
+                    className="flex-1 py-2 rounded border border-red-500/50 text-red-500 text-[10px] font-black uppercase tracking-widest hover:bg-red-500/10 transition-colors"
                     style={{ fontFamily: TYPOGRAPHY.TECH }}
                   >
-                    // DELETE_COMING_SOON
+                    {t('admin_btn_delete')}
                   </button>
                 </div>
               </div>
@@ -420,14 +445,12 @@ const AdminEventsPage = () => {
                       <div className="flex items-center gap-2">
                         <button onClick={() => openEditModal(event)} style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.SECONDARY, border: `1px solid ${THEME_COLORS.SECONDARY}`, fontSize: '0.65rem' }} className="px-3 py-1 rounded uppercase tracking-widest hover:bg-cyan-400/10 transition-all">{t('admin_edit_btn')}</button>
                         <button 
-                          disabled 
-                          title="Backend DELETE endpoint: COMING SOON"
-                          style={{ fontFamily: TYPOGRAPHY.TECH, color: 'rgba(255, 68, 68, 0.2)', border: '1px solid rgba(255, 68, 68, 0.1)', fontSize: '0.6rem' }} 
-                          className="px-3 py-1 rounded uppercase tracking-widest cursor-not-allowed"
+                          onClick={() => openDeleteConfirm(event)} 
+                          style={{ fontFamily: TYPOGRAPHY.TECH, color: '#FF4444', border: '1px solid rgba(255, 68, 68, 0.4)', fontSize: '0.65rem' }} 
+                          className="px-3 py-1 rounded uppercase tracking-widest hover:bg-red-400/10 transition-all"
                         >
-                          // DELETE_SOON
+                          {t('admin_btn_delete')}
                         </button>
-                        {/* TODO: Implement DELETE /api/events/:id when backend is ready */}
                       </div>
                     </td>
                   </motion.tr>
@@ -441,6 +464,20 @@ const AdminEventsPage = () => {
       {/* Modal Form */}
       <EventModal
         isOpen={isModalOpen} onClose={closeModal} editEvent={editEvent} onSubmit={handleSubmit} isSubmitting={isSubmitting} submitError={submitError} isDirty={isDirty} setIsDirty={setIsDirty}
+      />
+
+      {/* Delete Confirmation */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title={t('admin_confirm_delete_title')}
+        body={t('admin_confirm_delete_body')}
+        confirmText={t('confirm_confirm_delete')}
+        cancelText={t('confirm_cancel')}
+        onConfirm={handleDelete}
+        onCancel={() => {
+          setShowDeleteConfirm(false);
+          setEventToDelete(null);
+        }}
       />
     </div>
   );
