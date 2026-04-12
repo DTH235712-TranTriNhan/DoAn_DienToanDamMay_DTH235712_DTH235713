@@ -5,6 +5,7 @@ import requireAdmin from "../middlewares/requireAdmin.js";
 import getEventsHandler from "../handlers/event/getEventsHandler.js";
 import createEventHandler from "../handlers/event/createEventHandler.js";
 import updateEventHandler from "../handlers/event/updateEventHandler.js";
+import deleteEventHandler from "../handlers/event/deleteEventHandler.js";
 
 const router = Router();
 
@@ -18,5 +19,7 @@ router.get("/", asyncHandler(getEventsHandler));
 router.post("/", validateJwt, requireAdmin, asyncHandler(createEventHandler));
 
 router.put("/:id", validateJwt, requireAdmin, asyncHandler(updateEventHandler));
+
+router.delete("/:id", validateJwt, requireAdmin, asyncHandler(deleteEventHandler));
 
 export default router;

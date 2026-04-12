@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { THEME_COLORS, SHADOWS, TYPOGRAPHY } from '../constants/uiConstants.js';
 import { useLanguage } from '../context/LanguageContext.jsx';
 
-const ConfirmDialog = ({ isOpen, onConfirm, onCancel, title, body }) => {
+const ConfirmDialog = ({ isOpen, onConfirm, onCancel, title, body, confirmText, cancelText }) => {
   const { t } = useLanguage();
 
   return (
@@ -32,7 +32,7 @@ const ConfirmDialog = ({ isOpen, onConfirm, onCancel, title, body }) => {
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               className="w-full max-w-sm overflow-hidden pointer-events-auto rounded-lg"
               style={{
-                backgroundColor: 'rgba(15, 5, 25, 0.95)',
+                backgroundColor: THEME_COLORS.MOBILE_NAV_BG,
                 border: `1px solid ${THEME_COLORS.PRIMARY_GLOW}`,
                 boxShadow: `0 0 30px ${THEME_COLORS.PRIMARY_GLOW}`,
               }}
@@ -69,10 +69,10 @@ const ConfirmDialog = ({ isOpen, onConfirm, onCancel, title, body }) => {
                     style={{
                       fontFamily: TYPOGRAPHY.TECH,
                       color: THEME_COLORS.TEXT_MUTED,
-                      borderColor: 'rgba(255,255,255,0.2)',
+                      borderColor: THEME_COLORS.BORDER,
                     }}
                   >
-                    {t('confirm_stay')}
+                    {cancelText || t('confirm_stay')}
                   </button>
 
                   {/* Nút Xác nhận (Rời đi) */}
@@ -87,7 +87,7 @@ const ConfirmDialog = ({ isOpen, onConfirm, onCancel, title, body }) => {
                       boxShadow: SHADOWS.NEON_PRIMARY,
                     }}
                   >
-                    {t('confirm_discard')}
+                    {confirmText || t('confirm_discard')}
                   </motion.button>
                 </div>
               </div>

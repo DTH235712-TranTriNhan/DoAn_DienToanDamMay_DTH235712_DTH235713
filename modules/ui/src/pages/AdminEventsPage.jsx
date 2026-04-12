@@ -49,16 +49,17 @@ const formatDate = (isoString, lang) => {
 
 // ─── Sub-component: StatusBadge ──────────────────────────────────────────────
 const StatusBadge = ({ event }) => {
+  const { t } = useLanguage();
   const sold = event.soldTickets ?? 0;
   const total = event.totalTickets ?? 1;
   const pct = Math.round((sold / total) * 100);
   const isOver = new Date(event.date) < new Date();
 
   let color = THEME_COLORS.SECONDARY;
-  let label = 'AVAILABLE';
-  if (isOver) { color = THEME_COLORS.TEXT_MUTED; label = 'ENDED'; }
-  else if (pct >= 100) { color = '#FF4444'; label = 'SOLD OUT'; }
-  else if (pct >= 80) { color = THEME_COLORS.ACCENT; label = 'ALMOST'; }
+  let label = t('status_available');
+  if (isOver) { color = THEME_COLORS.TEXT_MUTED; label = t('status_ended'); }
+  else if (pct >= 100) { color = THEME_COLORS.DANGER; label = t('status_sold_out'); }
+  else if (pct >= 80) { color = THEME_COLORS.ACCENT; label = t('status_almost'); }
 
   return (
     <span
@@ -114,7 +115,7 @@ const EventModal = ({ isOpen, onClose, editEvent, onSubmit, isSubmitting, submit
               <div
                 className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-xl pointer-events-auto"
                 style={{
-                  backgroundColor: 'rgba(9, 0, 20, 0.97)',
+                  backgroundColor: THEME_COLORS.MOBILE_NAV_BG,
                   border: `1px solid ${THEME_COLORS.PRIMARY_GLOW}`,
                   boxShadow: `${SHADOWS.NEON_PRIMARY}, ${SHADOWS.CARD}`,
                 }}
@@ -187,6 +188,8 @@ const AdminEventsPage = () => {
   const [submitError, setSubmitError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isDirty, setIsDirty] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (!authLoading && user?.role !== 'admin') {
@@ -230,7 +233,31 @@ const AdminEventsPage = () => {
       setTimeout(() => setSuccessMessage(''), 4000);
     } catch (err) {
       console.error('[AdminEventsPage] Submit Error:', err);
-      setSubmitError(err.response?.data?.message || 'Submit error. Try again.');
+      setSubmitError(err.response?.data?.message || t('admin_error_submit'));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const openDeleteConfirm = (event) => {
+    setEventToDelete(event);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDelete = async () => {
+    if (!eventToDelete) return;
+    setIsSubmitting(true);
+    try {
+      await api.delete(`/events/${eventToDelete._id}`);
+      setSuccessMessage(t('admin_success_delete'));
+      setShowDeleteConfirm(false);
+      setEventToDelete(null);
+      await refetch();
+      setTimeout(() => setSuccessMessage(''), 4000);
+    } catch (err) {
+      console.error('[AdminEventsPage] Delete Error:', err);
+      const msg = err.response?.data?.message || t('admin_delete_error');
+      alert(msg); // fallback to alert for quick error feedback
     } finally {
       setIsSubmitting(false);
     }
@@ -249,7 +276,7 @@ const AdminEventsPage = () => {
   return (
     <div className="py-8 px-4 max-w-7xl mx-auto">
       <div className="mb-6">
-        <Breadcrumb items={[{ label: 'ADMIN' }, { label: 'EVENTS' }]} />
+        <Breadcrumb items={[{ label: t('admin_breadcrumb_admin') }, { label: t('admin_breadcrumb_events') }]} />
       </div>
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
@@ -262,7 +289,7 @@ const AdminEventsPage = () => {
             <span style={{ color: THEME_COLORS.PRIMARY, textShadow: `0 0 12px ${THEME_COLORS.PRIMARY}` }}>_</span>
           </h1>
           <p style={{ fontFamily: TYPOGRAPHY.BODY, color: THEME_COLORS.TEXT_MUTED }} className="text-sm mt-1">
-            {events.length} EVENTS_IN_SYSTEM
+            {events.length} {t('admin_events_in_system')}
           </p>
         </div>
 
@@ -333,11 +360,11 @@ const AdminEventsPage = () => {
                 
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
                   <div>
-                    <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest mb-1">Date_Time</p>
+                    <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest mb-1">{t('admin_label_date_time')}</p>
                     <p className="text-[10px] text-white/80 font-mono">{formatDate(event.date, lang)}</p>
                   </div>
                   <div>
-                    <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest mb-1">Tickets_Sold</p>
+                    <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest mb-1">{t('admin_label_tickets_sold')}</p>
                     <p className="text-[10px] text-white/80 font-mono">{event.soldTickets ?? 0} / {event.totalTickets}</p>
                   </div>
                 </div>
@@ -351,12 +378,11 @@ const AdminEventsPage = () => {
                     {t('admin_edit_btn')}
                   </button>
                   <button 
-                    disabled
-                    title="Backend DELETE endpoint: COMING SOON"
-                    className="flex-1 py-2 rounded border border-red-500/10 text-red-500/20 text-[8px] font-black uppercase tracking-widest cursor-not-allowed"
+                    onClick={() => openDeleteConfirm(event)}
+                    className="flex-1 py-2 rounded border border-red-500/50 text-red-500 text-[10px] font-black uppercase tracking-widest hover:bg-red-500/10 transition-colors"
                     style={{ fontFamily: TYPOGRAPHY.TECH }}
                   >
-                    // DELETE_COMING_SOON
+                    {t('admin_btn_delete')}
                   </button>
                 </div>
               </div>
@@ -420,14 +446,12 @@ const AdminEventsPage = () => {
                       <div className="flex items-center gap-2">
                         <button onClick={() => openEditModal(event)} style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.SECONDARY, border: `1px solid ${THEME_COLORS.SECONDARY}`, fontSize: '0.65rem' }} className="px-3 py-1 rounded uppercase tracking-widest hover:bg-cyan-400/10 transition-all">{t('admin_edit_btn')}</button>
                         <button 
-                          disabled 
-                          title="Backend DELETE endpoint: COMING SOON"
-                          style={{ fontFamily: TYPOGRAPHY.TECH, color: 'rgba(255, 68, 68, 0.2)', border: '1px solid rgba(255, 68, 68, 0.1)', fontSize: '0.6rem' }} 
-                          className="px-3 py-1 rounded uppercase tracking-widest cursor-not-allowed"
+                          onClick={() => openDeleteConfirm(event)} 
+                          style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.DANGER, border: `1px solid ${THEME_COLORS.DANGER}66`, fontSize: '0.65rem' }} 
+                          className="px-3 py-1 rounded uppercase tracking-widest hover:bg-red-400/10 transition-all"
                         >
-                          // DELETE_SOON
+                          {t('admin_btn_delete')}
                         </button>
-                        {/* TODO: Implement DELETE /api/events/:id when backend is ready */}
                       </div>
                     </td>
                   </motion.tr>
@@ -441,6 +465,20 @@ const AdminEventsPage = () => {
       {/* Modal Form */}
       <EventModal
         isOpen={isModalOpen} onClose={closeModal} editEvent={editEvent} onSubmit={handleSubmit} isSubmitting={isSubmitting} submitError={submitError} isDirty={isDirty} setIsDirty={setIsDirty}
+      />
+
+      {/* Delete Confirmation */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title={t('admin_confirm_delete_title')}
+        body={t('admin_confirm_delete_body')}
+        confirmText={t('confirm_confirm_delete')}
+        cancelText={t('confirm_cancel')}
+        onConfirm={handleDelete}
+        onCancel={() => {
+          setShowDeleteConfirm(false);
+          setEventToDelete(null);
+        }}
       />
     </div>
   );
