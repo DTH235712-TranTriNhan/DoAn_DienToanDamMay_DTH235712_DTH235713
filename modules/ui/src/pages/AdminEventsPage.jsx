@@ -58,7 +58,7 @@ const StatusBadge = ({ event }) => {
   let color = THEME_COLORS.SECONDARY;
   let label = t('status_available');
   if (isOver) { color = THEME_COLORS.TEXT_MUTED; label = t('status_ended'); }
-  else if (pct >= 100) { color = '#FF4444'; label = t('status_sold_out'); }
+  else if (pct >= 100) { color = THEME_COLORS.DANGER; label = t('status_sold_out'); }
   else if (pct >= 80) { color = THEME_COLORS.ACCENT; label = t('status_almost'); }
 
   return (
@@ -115,7 +115,7 @@ const EventModal = ({ isOpen, onClose, editEvent, onSubmit, isSubmitting, submit
               <div
                 className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-xl pointer-events-auto"
                 style={{
-                  backgroundColor: 'rgba(9, 0, 20, 0.97)',
+                  backgroundColor: THEME_COLORS.MOBILE_NAV_BG,
                   border: `1px solid ${THEME_COLORS.PRIMARY_GLOW}`,
                   boxShadow: `${SHADOWS.NEON_PRIMARY}, ${SHADOWS.CARD}`,
                 }}
@@ -233,7 +233,7 @@ const AdminEventsPage = () => {
       setTimeout(() => setSuccessMessage(''), 4000);
     } catch (err) {
       console.error('[AdminEventsPage] Submit Error:', err);
-      setSubmitError(err.response?.data?.message || 'Submit error. Try again.');
+      setSubmitError(err.response?.data?.message || t('admin_error_submit'));
     } finally {
       setIsSubmitting(false);
     }
@@ -447,7 +447,7 @@ const AdminEventsPage = () => {
                         <button onClick={() => openEditModal(event)} style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.SECONDARY, border: `1px solid ${THEME_COLORS.SECONDARY}`, fontSize: '0.65rem' }} className="px-3 py-1 rounded uppercase tracking-widest hover:bg-cyan-400/10 transition-all">{t('admin_edit_btn')}</button>
                         <button 
                           onClick={() => openDeleteConfirm(event)} 
-                          style={{ fontFamily: TYPOGRAPHY.TECH, color: '#FF4444', border: '1px solid rgba(255, 68, 68, 0.4)', fontSize: '0.65rem' }} 
+                          style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.DANGER, border: `1px solid ${THEME_COLORS.DANGER}66`, fontSize: '0.65rem' }} 
                           className="px-3 py-1 rounded uppercase tracking-widest hover:bg-red-400/10 transition-all"
                         >
                           {t('admin_btn_delete')}

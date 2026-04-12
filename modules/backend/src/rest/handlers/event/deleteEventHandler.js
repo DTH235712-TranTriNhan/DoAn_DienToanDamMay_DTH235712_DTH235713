@@ -1,3 +1,4 @@
+import asyncHandler from "../../middlewares/asyncHandler.js";
 import deleteEvent from "../../../services/event/deleteEvent.js";
 
 /**
@@ -6,7 +7,7 @@ import deleteEvent from "../../../services/event/deleteEvent.js";
  * @param {import('express').Request} req - Express request
  * @param {import('express').Response} res - Express response
  */
-const deleteEventHandler = async (req, res) => {
+const deleteEventHandler = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   // Gọi Service để xóa MongoDB và sync Redis
@@ -14,8 +15,9 @@ const deleteEventHandler = async (req, res) => {
 
   res.status(200).json({
     success: true,
+    data: { id },
     message: "Xóa sự kiện thành công"
   });
-};
+});
 
 export default deleteEventHandler;

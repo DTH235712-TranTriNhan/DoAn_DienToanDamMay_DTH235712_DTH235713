@@ -64,6 +64,7 @@ export const translations = {
     admin_confirm_delete_title: "XÁC NHẬN XÓA SỰ KIỆN",
     admin_confirm_delete_body: "Bạn có chắc chắn muốn xóa sự kiện này không? Hành động này không thể hoàn tác.",
     admin_delete_error: "Không thể xóa sự kiện. Vui lòng thử lại.",
+    admin_error_submit: "Lỗi khi gửi dữ liệu. Vui lòng thử lại.",
 
     // Event Form
     form_create_title: "// TẠO SỰ KIỆN MỚI",
@@ -227,6 +228,7 @@ export const translations = {
     admin_confirm_delete_title: "CONFIRM DELETE EVENT",
     admin_confirm_delete_body: "Are you sure you want to delete this event? This action cannot be undone.",
     admin_delete_error: "Cannot delete event. Please try again.",
+    admin_error_submit: "Error submitting data. Please try again.",
 
     // Event Form
     form_create_title: "// CREATE NEW EVENT",
