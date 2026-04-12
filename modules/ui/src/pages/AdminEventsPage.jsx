@@ -49,16 +49,17 @@ const formatDate = (isoString, lang) => {
 
 // ─── Sub-component: StatusBadge ──────────────────────────────────────────────
 const StatusBadge = ({ event }) => {
+  const { t } = useLanguage();
   const sold = event.soldTickets ?? 0;
   const total = event.totalTickets ?? 1;
   const pct = Math.round((sold / total) * 100);
   const isOver = new Date(event.date) < new Date();
 
   let color = THEME_COLORS.SECONDARY;
-  let label = 'AVAILABLE';
-  if (isOver) { color = THEME_COLORS.TEXT_MUTED; label = 'ENDED'; }
-  else if (pct >= 100) { color = '#FF4444'; label = 'SOLD OUT'; }
-  else if (pct >= 80) { color = THEME_COLORS.ACCENT; label = 'ALMOST'; }
+  let label = t('status_available');
+  if (isOver) { color = THEME_COLORS.TEXT_MUTED; label = t('status_ended'); }
+  else if (pct >= 100) { color = '#FF4444'; label = t('status_sold_out'); }
+  else if (pct >= 80) { color = THEME_COLORS.ACCENT; label = t('status_almost'); }
 
   return (
     <span
@@ -275,7 +276,7 @@ const AdminEventsPage = () => {
   return (
     <div className="py-8 px-4 max-w-7xl mx-auto">
       <div className="mb-6">
-        <Breadcrumb items={[{ label: 'ADMIN' }, { label: 'EVENTS' }]} />
+        <Breadcrumb items={[{ label: t('admin_breadcrumb_admin') }, { label: t('admin_breadcrumb_events') }]} />
       </div>
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
@@ -288,7 +289,7 @@ const AdminEventsPage = () => {
             <span style={{ color: THEME_COLORS.PRIMARY, textShadow: `0 0 12px ${THEME_COLORS.PRIMARY}` }}>_</span>
           </h1>
           <p style={{ fontFamily: TYPOGRAPHY.BODY, color: THEME_COLORS.TEXT_MUTED }} className="text-sm mt-1">
-            {events.length} EVENTS_IN_SYSTEM
+            {events.length} {t('admin_events_in_system')}
           </p>
         </div>
 
@@ -359,11 +360,11 @@ const AdminEventsPage = () => {
                 
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
                   <div>
-                    <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest mb-1">Date_Time</p>
+                    <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest mb-1">{t('admin_label_date_time')}</p>
                     <p className="text-[10px] text-white/80 font-mono">{formatDate(event.date, lang)}</p>
                   </div>
                   <div>
-                    <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest mb-1">Tickets_Sold</p>
+                    <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest mb-1">{t('admin_label_tickets_sold')}</p>
                     <p className="text-[10px] text-white/80 font-mono">{event.soldTickets ?? 0} / {event.totalTickets}</p>
                   </div>
                 </div>

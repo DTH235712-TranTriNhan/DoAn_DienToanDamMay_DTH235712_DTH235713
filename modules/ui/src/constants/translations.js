@@ -154,7 +154,20 @@ export const translations = {
     details_btn_confirm: "XÁC NHẬN HỦY",
     details_btn_stay: "QUAY LẠI",
     
-    events_create_first: "Tạo sự kiện đầu tiên"
+    events_create_first: "Tạo sự kiện đầu tiên",
+    
+    // Event Status
+    status_available: "CÒN VÉ",
+    status_ended: "ĐÃ KẾT THÚC",
+    status_sold_out: "HẾT VÉ",
+    status_almost: "SẮP HẾT",
+    
+    // Admin specific labels
+    admin_events_in_system: "SỰ KIỆN TRONG HỆ THỐNG",
+    admin_label_date_time: "NGÀY & GIỜ",
+    admin_label_tickets_sold: "VÉ ĐÃ BÁN",
+    admin_breadcrumb_admin: "QUẢN TRỊ",
+    admin_breadcrumb_events: "SỰ KIỆN",
   },
   en: {
     // Navigation
@@ -303,6 +316,19 @@ export const translations = {
     details_btn_confirm: "CONFIRM CANCEL",
     details_btn_stay: "GO BACK",
 
-    events_create_first: "Create First Event"
+    events_create_first: "Create First Event",
+
+    // Event Status
+    status_available: "AVAILABLE",
+    status_ended: "ENDED",
+    status_sold_out: "SOLD OUT",
+    status_almost: "ALMOST FULL",
+
+    // Admin specific labels
+    admin_events_in_system: "EVENTS IN SYSTEM",
+    admin_label_date_time: "DATE & TIME",
+    admin_label_tickets_sold: "TICKETS SOLD",
+    admin_breadcrumb_admin: "ADMIN",
+    admin_breadcrumb_events: "EVENTS",
   }
 };
