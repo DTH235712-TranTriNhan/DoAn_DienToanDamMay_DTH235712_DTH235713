@@ -137,7 +137,7 @@ const EventCard = ({ event }) => {
     // 1. Trạng thái sở hữu vé có độ ưu tiên cao nhất
     if (isOwned) {
       return {
-        label: "✅ ĐÃ SỞ HỮU VÉ",
+        label: t("card_owned"),
         className: "bg-green-600 text-white cursor-not-allowed border-green-600 shadow-[0_0_15px_rgba(22,163,74,0.5)] opacity-90",
         disabled: true
       };

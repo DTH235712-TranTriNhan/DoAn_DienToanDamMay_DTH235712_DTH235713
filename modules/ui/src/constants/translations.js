@@ -90,10 +90,19 @@ export const translations = {
     filter_all: "Tất cả",
     filter_search: "TÌM KIẾM SỰ KIỆN...",
     category_music: "Âm nhạc",
-    category_sports: "Thể thao",
+    category_technology: "Công nghệ",
+    category_esports: "Esports",
     category_workshop: "Workshop",
+    category_sports: "Thể thao",
     category_theatre: "Sân khấu",
     category_other: "Khác",
+
+    // Placeholders
+    form_placeholder_title: "Tên sự kiện Flash Sale...",
+    form_placeholder_desc: "Nhập mô tả sự kiện...",
+    form_placeholder_loc: "Nhập địa điểm...",
+    form_placeholder_img: "Nhập link ảnh...",
+    form_label_select_category: "-- Chọn danh mục --",
 
     // Confirm Dialog
     confirm_title: "CẢNH BÁO: THAY ĐỔI CHƯA LƯU",
@@ -228,6 +237,7 @@ export const translations = {
     card_tba: "TBA",
     card_price: "PRICE",
     card_details: "DETAILS",
+    card_owned: "✅ ALREADY OWNED",
 
     // Admin Page
     admin_title: "Event Management",
@@ -275,10 +285,19 @@ export const translations = {
     filter_all: "All",
     filter_search: "SEARCH EVENTS...",
     category_music: "Music",
-    category_sports: "Sports",
+    category_technology: "Technology",
+    category_esports: "Esports",
     category_workshop: "Workshop",
+    category_sports: "Sports",
     category_theatre: "Theatre",
     category_other: "Other",
+
+    // Placeholders
+    form_placeholder_title: "Flash Sale Event Name...",
+    form_placeholder_desc: "Enter event description...",
+    form_placeholder_loc: "Enter location...",
+    form_placeholder_img: "Enter image URL...",
+    form_label_select_category: "-- Select category --",
 
     // Confirm Dialog
     confirm_title: "WARNING: UNSAVED CHANGES",

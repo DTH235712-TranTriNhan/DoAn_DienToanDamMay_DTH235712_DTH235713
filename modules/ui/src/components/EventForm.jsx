@@ -209,7 +209,7 @@ const EventForm = ({
           {...sharedInputProps} 
           name="title" 
           type="text" 
-          placeholder="Flash Sale Event..." 
+          placeholder={t('form_placeholder_title')} 
           value={formData.title} 
           style={{ 
             ...sharedInputProps.style, 
@@ -221,7 +221,7 @@ const EventForm = ({
       </FormField>
 
       <FormField label={t('form_label_desc')}>
-        <textarea {...sharedInputProps} name="description" placeholder="Event description..." value={formData.description} rows={3} className="w-full rounded px-3 py-2.5 text-sm resize-none" />
+        <textarea {...sharedInputProps} name="description" placeholder={t('form_placeholder_desc')} value={formData.description} rows={3} className="w-full rounded px-3 py-2.5 text-sm resize-none" />
       </FormField>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -230,7 +230,7 @@ const EventForm = ({
             min={new Date().toISOString().slice(0, 16)} />
         </FormField>
         <FormField label={t('form_label_loc')}>
-          <input {...sharedInputProps} name="location" type="text" placeholder="Location..." value={formData.location} required />
+          <input {...sharedInputProps} name="location" type="text" placeholder={t('form_placeholder_loc')} value={formData.location} required />
         </FormField>
       </div>
 
@@ -240,13 +240,16 @@ const EventForm = ({
             {...sharedInputProps} 
             name="category" 
             value={formData.category}
-            style={{ ...inputStyle, appearance: 'none' }}
+            style={{ ...inputStyle, appearance: 'none', backgroundColor: THEME_COLORS.BACKGROUND }}
           >
-            <option value="Music" className="bg-[#090014]">{t('category_music')}</option>
-            <option value="Sports" className="bg-[#090014]">{t('category_sports')}</option>
-            <option value="Workshop" className="bg-[#090014]">{t('category_workshop')}</option>
-            <option value="Theatre" className="bg-[#090014]">{t('category_theatre')}</option>
-            <option value="Other" className="bg-[#090014]">{t('category_other')}</option>
+            <option value="" disabled>{t('form_label_select_category')}</option>
+            <option value="Music" style={{ backgroundColor: THEME_COLORS.BACKGROUND }}>{t('category_music')}</option>
+            <option value="Technology" style={{ backgroundColor: THEME_COLORS.BACKGROUND }}>{t('category_technology')}</option>
+            <option value="Esports" style={{ backgroundColor: THEME_COLORS.BACKGROUND }}>{t('category_esports')}</option>
+            <option value="Workshop" style={{ backgroundColor: THEME_COLORS.BACKGROUND }}>{t('category_workshop')}</option>
+            <option value="Sports" style={{ backgroundColor: THEME_COLORS.BACKGROUND }}>{t('category_sports')}</option>
+            <option value="Theatre" style={{ backgroundColor: THEME_COLORS.BACKGROUND }}>{t('category_theatre')}</option>
+            <option value="Other" style={{ backgroundColor: THEME_COLORS.BACKGROUND }}>{t('category_other')}</option>
           </select>
         </FormField>
         <div 
@@ -261,7 +264,7 @@ const EventForm = ({
       <div className="flex flex-col gap-3 p-3 border border-white/5 bg-white/5 rounded-lg border-dashed">
         <FormField label={t('form_label_img')}>
           <div className="flex gap-2">
-            <input {...sharedInputProps} name="imageUrl" type="text" placeholder="https://..." value={formData.imageUrl} />
+            <input {...sharedInputProps} name="imageUrl" type="text" placeholder={t('form_placeholder_img')} value={formData.imageUrl} />
             <button type="button" onClick={handleSimulateUpload} style={{ fontFamily: TYPOGRAPHY.TECH, border: `1px solid ${THEME_COLORS.SECONDARY}`, color: THEME_COLORS.SECONDARY }} className="px-3 text-[10px] uppercase font-bold rounded hover:bg-secondary hover:text-black transition-all">
               {t('form_btn_upload')}
             </button>

@@ -22,13 +22,12 @@ const EventsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const categories = ["All", "Music", "Sports", "Workshop", "Theatre", "Other"];
+  const categories = ["All", "Music", "Technology", "Esports", "Workshop", "Sports", "Theatre", "Other"];
 
   const filteredEvents = useMemo(() => {
     return events.filter((event) => {
       const matchesSearch = 
-        event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (event.description && event.description.toLowerCase().includes(searchTerm.toLowerCase()));
+        event.title.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesCategory = 
         selectedCategory === "All" || 
