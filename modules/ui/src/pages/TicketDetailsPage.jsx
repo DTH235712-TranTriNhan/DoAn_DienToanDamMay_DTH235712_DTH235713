@@ -69,7 +69,11 @@ const TicketDetailsPage = () => {
     }
 
     if (bookingStatus === 'failed' && bookingError) {
-      setAlertMessage(bookingError);
+      if (bookingError.includes('đã đặt vé') || bookingError.includes('already')) {
+        window.dispatchEvent(new Event('APP_EVENTS.TICKET_DATA_UPDATED'));
+      } else {
+        setAlertMessage(bookingError);
+      }
       resetBooking();
     }
   }, [bookingStatus, bookingError, resetBooking]);
@@ -240,7 +244,7 @@ const TicketDetailsPage = () => {
                 <div className="w-6 h-6 border-4 border-white absolute bottom-1 left-1"></div>
              </div>
              <p className="text-[8px] text-center mt-2 text-background font-bold uppercase tracking-widest">
-              {isTicketMode || isOwned ? 'E-Ticket Verified' : 'Scan for preview'}
+              {isTicketMode || isOwned ? t("details_ticket_verified") : t("details_scan_preview")}
              </p>
           </div>
         </div>
@@ -364,8 +368,8 @@ const TicketDetailsPage = () => {
                       </div>
                       <div className="flex-grow text-center md:text-left">
                          <h4 className="text-2xl font-black text-white uppercase mb-2">{t("details_organizer")}</h4>
-                         <p className="text-foreground/40 mb-4 font-mono text-sm tracking-widest uppercase">Cyber_Agency_V1.0</p>
-                         <p className="text-foreground/80 max-w-xl">Hệ thống phân phối vé ứng dụng công nghệ điện toán đám mây và Microservices.</p>
+                         <p className="text-foreground/40 mb-4 font-mono text-sm tracking-widest uppercase">{t("details_organizer_sub")}</p>
+                         <p className="text-foreground/80 max-w-xl">{lang === 'vi' ? 'Hệ thống phân phối vé ứng dụng công nghệ điện toán đám mây và Microservices.' : 'Ticketing system powered by Cloud Compute and Microservices.'}</p>
                       </div>
                       <button type="button" onClick={(e) => e.preventDefault()} className="px-6 py-2 border border-border text-foreground/40 text-xs font-bold uppercase rounded hover:bg-white/5 transition-colors whitespace-nowrap">{t("admin_table_status")}</button>
                    </div>
@@ -395,7 +399,7 @@ const TicketDetailsPage = () => {
                             disabled
                             className="w-full py-3 px-4 text-[10px] font-black uppercase tracking-widest transition-all rounded border-2 border-green-600 bg-green-600 text-white shadow-[0_0_15px_rgba(22,163,74,0.5)] cursor-not-allowed"
                           >
-                            ✅ {t("details_owned") || "ĐÃ SỞ HỮU VÉ"}
+                            {t("card_owned")}
                           </button>
                       ) : (
                           <button 
@@ -447,7 +451,7 @@ const TicketDetailsPage = () => {
                 <div className="space-y-2 text-xs text-foreground/50">
                    <p>Hotline: <span className="text-white">1900-XXXX</span></p>
                    <p>Email: <span className="text-white">support@cloud_ticket.vn</span></p>
-                   <p className="pt-4 text-[10px] text-foreground/30 font-mono">ID_SESSION: CT_{String(Math.random().toString(36).substr(2, 9)).toUpperCase()}</p>
+                   <p className="pt-4 text-[10px] text-foreground/30 font-mono">{t("details_session_id")}: CT_{String(Math.random().toString(36).substr(2, 9)).toUpperCase()}</p>
                 </div>
              </div>
           </div>
@@ -462,16 +466,16 @@ const TicketDetailsPage = () => {
             <div className="w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-500 flex items-center justify-center mb-6 shadow-[0_0_15px_rgba(34,211,238,0.3)]">
               <span className="text-cyan-400 text-3xl font-black">?</span>
             </div>
-            <h3 className="text-xl font-black text-cyan-400 uppercase tracking-widest mb-4">XÁC NHẬN ĐẶT VÉ</h3>
+            <h3 className="text-xl font-black text-cyan-400 uppercase tracking-widest mb-4">{t("details_confirm_booking")}</h3>
             <p className="text-foreground/80 font-mono text-sm tracking-wide mb-8">
-              Bạn có chắc chắn muốn tiến hành đặt vé cho sự kiện này? Bấm xác nhận để đưa yêu cầu vào hệ thống.
+              {t("details_confirm_booking_msg")}
             </p>
             <div className="flex w-full gap-4">
               <button type="button" onClick={() => setConfirmBookOpen(false)} className="flex-1 py-2 border border-border text-foreground/40 font-bold uppercase text-xs rounded transition-colors hover:bg-white/10">
-                HỦY BỎ
+                {t("details_btn_cancel")}
               </button>
               <button type="button" onClick={executeBooking} className="flex-1 py-2 bg-cyan-500/20 border border-cyan-500 text-cyan-400 font-black uppercase text-xs rounded transition-all hover:bg-cyan-500 hover:text-black shadow-[0_0_15px_rgba(34,211,238,0.4)]">
-                {t("details_btn_confirm") || "XÁC NHẬN"}
+                {t("details_btn_confirm")}
               </button>
             </div>
           </div>
@@ -517,10 +521,10 @@ const TicketDetailsPage = () => {
               <span className="text-green-400 font-mono text-2xl animate-pulse mt-0.5">⚡</span>
               <div className="flex-1 overflow-hidden">
                  <p className="font-mono font-black uppercase text-xs sm:text-sm text-green-400 tracking-widest leading-tight whitespace-normal break-words mb-1">
-                    [ SYSTEM OK ] YÊU CẦU ĐÃ ĐƯỢC LƯU
+                    {t("details_system_ok")}
                  </p>
                  <p className="text-[10px] sm:text-xs uppercase font-mono text-foreground/60 tracking-wider whitespace-normal break-words">
-                    ✓ HÃY KIỂM TRA MỤC VÉ CỦA TÔI
+                    {t("details_check_my_tickets")}
                  </p>
               </div>
            </div>

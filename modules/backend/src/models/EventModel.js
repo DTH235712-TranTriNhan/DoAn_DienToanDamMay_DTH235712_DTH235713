@@ -14,7 +14,12 @@ const eventSchema = new mongoose.Schema(
       type: String,
       default: "https://placehold.co/600x400/090014/FF00FF?text=Event+Image"
     },
-    isHot: { type: Boolean, default: false }
+    isHot: { type: Boolean, default: false },
+    category: {
+      type: String,
+      enum: ["Music", "Technology", "Esports", "Workshop", "Sports", "Theatre", "Other"],
+      default: "Other"
+    }
   },
   { timestamps: true }
 );

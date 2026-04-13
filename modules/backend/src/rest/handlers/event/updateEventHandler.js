@@ -8,7 +8,7 @@ import updateEvent from "../../../services/event/updateEvent.js";
  */
 const updateEventHandler = async (req, res) => {
   const { id } = req.params;
-  const { title, description, date, location, totalTickets, imageUrl, isHot, price } = req.body;
+  const { title, description, date, location, totalTickets, imageUrl, isHot, category, price } = req.body;
 
   // Gọi Service để xử lý cập nhật MongoDB và sync Redis (nếu có)
   const updatedEvent = await updateEvent(id, {
@@ -19,6 +19,7 @@ const updateEventHandler = async (req, res) => {
     totalTickets,
     imageUrl,
     isHot,
+    category,
     price
   });
 

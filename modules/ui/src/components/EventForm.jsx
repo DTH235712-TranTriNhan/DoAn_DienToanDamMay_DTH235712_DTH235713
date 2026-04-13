@@ -34,6 +34,7 @@ const INITIAL_STATE = {
   price: 0,
   imageUrl: '',
   isHot: false,
+  category: 'Other',
 };
 
 const inputStyle = {
@@ -93,6 +94,7 @@ const EventForm = ({
         price: initialData.price ?? 0,
         imageUrl: initialData.imageUrl || '',
         isHot: initialData.isHot || false,
+        category: initialData.category || 'Other',
       };
       setFormData(mappedData);
       onDirtyChange(false);
@@ -111,6 +113,7 @@ const EventForm = ({
     price: initialData.price ?? 0,
     imageUrl: initialData.imageUrl || '',
     isHot: initialData.isHot || false,
+    category: initialData.category || 'Other',
   } : INITIAL_STATE), [initialData]);
 
   useEffect(() => {
@@ -206,7 +209,7 @@ const EventForm = ({
           {...sharedInputProps} 
           name="title" 
           type="text" 
-          placeholder="Flash Sale Event..." 
+          placeholder={t('form_placeholder_title')} 
           value={formData.title} 
           style={{ 
             ...sharedInputProps.style, 
@@ -218,7 +221,7 @@ const EventForm = ({
       </FormField>
 
       <FormField label={t('form_label_desc')}>
-        <textarea {...sharedInputProps} name="description" placeholder="Event description..." value={formData.description} rows={3} className="w-full rounded px-3 py-2.5 text-sm resize-none" />
+        <textarea {...sharedInputProps} name="description" placeholder={t('form_placeholder_desc')} value={formData.description} rows={3} className="w-full rounded px-3 py-2.5 text-sm resize-none" />
       </FormField>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -227,14 +230,41 @@ const EventForm = ({
             min={new Date().toISOString().slice(0, 16)} />
         </FormField>
         <FormField label={t('form_label_loc')}>
-          <input {...sharedInputProps} name="location" type="text" placeholder="Location..." value={formData.location} required />
+          <input {...sharedInputProps} name="location" type="text" placeholder={t('form_placeholder_loc')} value={formData.location} required />
         </FormField>
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <FormField label={t('form_label_category')}>
+          <select 
+            {...sharedInputProps} 
+            name="category" 
+            value={formData.category}
+            style={{ ...inputStyle, appearance: 'none', backgroundColor: THEME_COLORS.BACKGROUND }}
+          >
+            <option value="" disabled>{t('form_label_select_category')}</option>
+            <option value="Music" style={{ backgroundColor: THEME_COLORS.BACKGROUND }}>{t('category_music')}</option>
+            <option value="Technology" style={{ backgroundColor: THEME_COLORS.BACKGROUND }}>{t('category_technology')}</option>
+            <option value="Esports" style={{ backgroundColor: THEME_COLORS.BACKGROUND }}>{t('category_esports')}</option>
+            <option value="Workshop" style={{ backgroundColor: THEME_COLORS.BACKGROUND }}>{t('category_workshop')}</option>
+            <option value="Sports" style={{ backgroundColor: THEME_COLORS.BACKGROUND }}>{t('category_sports')}</option>
+            <option value="Theatre" style={{ backgroundColor: THEME_COLORS.BACKGROUND }}>{t('category_theatre')}</option>
+            <option value="Other" style={{ backgroundColor: THEME_COLORS.BACKGROUND }}>{t('category_other')}</option>
+          </select>
+        </FormField>
+        <div 
+          className="flex items-center gap-3 p-3 rounded border border-primary/20 bg-primary/5 cursor-pointer self-end h-[44.5px]"
+          onClick={() => setFormData(prev => ({ ...prev, isHot: !prev.isHot }))}
+        >
+          <input type="checkbox" name="isHot" checked={formData.isHot} onChange={handleChange} className="w-4 h-4 accent-primary" />
+          <span className="text-primary font-bold text-[10px] tracking-widest uppercase" style={{ fontFamily: TYPOGRAPHY.TECH }}>{t('form_label_hot')}</span>
+        </div>
+      </div>
+      
       <div className="flex flex-col gap-3 p-3 border border-white/5 bg-white/5 rounded-lg border-dashed">
         <FormField label={t('form_label_img')}>
           <div className="flex gap-2">
-            <input {...sharedInputProps} name="imageUrl" type="text" placeholder="https://..." value={formData.imageUrl} />
+            <input {...sharedInputProps} name="imageUrl" type="text" placeholder={t('form_placeholder_img')} value={formData.imageUrl} />
             <button type="button" onClick={handleSimulateUpload} style={{ fontFamily: TYPOGRAPHY.TECH, border: `1px solid ${THEME_COLORS.SECONDARY}`, color: THEME_COLORS.SECONDARY }} className="px-3 text-[10px] uppercase font-bold rounded hover:bg-secondary hover:text-black transition-all">
               {t('form_btn_upload')}
             </button>
@@ -245,14 +275,6 @@ const EventForm = ({
             <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" />
           </div>
         )}
-      </div>
-
-      <div 
-        className="flex items-center gap-3 p-3 rounded border border-primary/20 bg-primary/5 cursor-pointer"
-        onClick={() => setFormData(prev => ({ ...prev, isHot: !prev.isHot }))}
-      >
-        <input type="checkbox" name="isHot" checked={formData.isHot} onChange={handleChange} className="w-4 h-4 accent-primary" />
-        <span className="text-primary font-bold text-[10px] tracking-widest uppercase" style={{ fontFamily: TYPOGRAPHY.TECH }}>{t('form_label_hot')}</span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
