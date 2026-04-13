@@ -266,7 +266,7 @@ const AdminEventsPage = () => {
   if (authLoading) return (
     <div className="flex justify-center items-center py-24">
       <p style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.PRIMARY }} className="animate-pulse uppercase tracking-widest text-sm">
-        VERIFY_CREDENTIALS...
+        {lang === 'vi' ? 'ĐANG XÁC MINH DANH TÍNH...' : 'VERIFYING CREDENTIALS...'}
       </p>
     </div>
   );
@@ -351,6 +351,9 @@ const AdminEventsPage = () => {
                     <p className="text-[10px] text-white/40 truncate uppercase font-mono mt-1">{event.location || 'NO_LOCATION'}</p>
                     <div className="mt-2 flex items-center gap-3">
                       <StatusBadge event={event} />
+                      <span className="text-[9px] px-1.5 py-0.5 border border-primary/30 rounded bg-primary/5 text-primary uppercase font-mono">
+                        {t(`category_${String(event.category || 'Other').toLowerCase()}`)}
+                      </span>
                       <span className="text-[10px] text-cyan-400 font-mono">
                         {event.price ? new Intl.NumberFormat(lang === 'vi' ? 'vi-VN' : 'en-US', { style: 'currency', currency: 'VND' }).format(event.price) : t('card_price_free')}
                       </span>
@@ -397,7 +400,7 @@ const AdminEventsPage = () => {
           <table className="w-full min-w-[700px] border-collapse text-sm">
             <thead>
               <tr style={{ backgroundColor: 'rgba(255,0,255,0.08)', borderBottom: `1px solid ${THEME_COLORS.PRIMARY_GLOW}` }}>
-                {[t('admin_table_img'), t('admin_table_name'), t('admin_table_loc'), t('admin_table_price'), t('admin_table_date'), t('admin_table_tickets'), t('admin_table_status'), t('admin_table_actions')].map((h) => (
+                {[t('admin_table_img'), t('admin_table_name'), t('admin_table_category'), t('admin_table_loc'), t('admin_table_price'), t('admin_table_date'), t('admin_table_tickets'), t('admin_table_status'), t('admin_table_actions')].map((h) => (
                   <th key={h} style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.PRIMARY, fontSize: '0.65rem', textAlign: 'left' }} className="px-4 py-3 uppercase tracking-widest font-normal">
                     {h}
                   </th>
@@ -427,6 +430,11 @@ const AdminEventsPage = () => {
                         <span className="truncate">{event.title}</span>
                         {event.isHot && <span style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.PRIMARY, border: `1px solid ${THEME_COLORS.PRIMARY}`, fontSize: '0.55rem', backgroundColor: `${THEME_COLORS.PRIMARY}10` }} className="px-1.5 py-0.5 rounded animate-pulse">🔥 {t('card_hot_badge')}</span>}
                       </div>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap" style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.TEXT, fontSize: '0.75rem' }}>
+                      <span className="px-2 py-1 rounded bg-white/5 border border-white/10 uppercase">
+                        {t(`category_${String(event.category || 'Other').toLowerCase()}`)}
+                      </span>
                     </td>
                     <td className="px-4 py-3 max-w-[150px] truncate" style={{ fontFamily: TYPOGRAPHY.BODY, color: THEME_COLORS.TEXT_MUTED }}>{event.location || '—'}</td>
                     <td className="px-4 py-3 whitespace-nowrap" style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.ACCENT, fontSize: '0.78rem' }}>

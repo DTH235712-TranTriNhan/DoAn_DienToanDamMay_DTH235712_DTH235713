@@ -32,6 +32,8 @@ const EventCard = ({ event }) => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [localDecrement, setLocalDecrement] = useState(0);
+  const [confirmBookOpen, setConfirmBookOpen] = useState(false);
+  const [forceOwned, setForceOwned] = useState(false);
   
   const baseAvailable = event.availableTickets || 0;
   const localAvailable = Math.max(0, baseAvailable - localDecrement);
@@ -65,8 +67,17 @@ const EventCard = ({ event }) => {
   useEffect(() => {
     if (isCompleted) {
       setLocalDecrement(prev => prev + 1);
+      window.dispatchEvent(new Event('APP_EVENTS.TICKET_DATA_UPDATED'));
     }
   }, [isCompleted]);
+
+  // Bắt lỗi 409 (đã đặt vé rồi) để hiển thị "Đã sở hữu vé" ngay lập tức
+  useEffect(() => {
+    if (isFailed && errorLocal && (errorLocal.includes("Bạn đã đặt vé rồi") || errorLocal.includes("already"))) {
+      setForceOwned(true);
+      window.dispatchEvent(new Event('APP_EVENTS.TICKET_DATA_UPDATED'));
+    }
+  }, [isFailed, errorLocal]);
 
   // Tự động ẩn thông báo lỗi sau 4 giây bằng cách reset
   useEffect(() => {
@@ -88,15 +99,16 @@ const EventCard = ({ event }) => {
 
   const isOwned = useMemo(() => {
     if (!isAuthenticated) return false;
-    if (isCompleted) return true;
+    if (isCompleted || forceOwned) return true;
     if (!tickets || tickets.length === 0) return false;
     return tickets.some(t => {
       const eId = t.event?._id || t.event;
-      return String(eId) === String(event._id) && (t.status === 'confirmed' || t.status === 'pending');
+      return String(eId) === String(event._id || event.id) && (t.status === 'confirmed' || t.status === 'pending');
     });
-  }, [tickets, event._id, isAuthenticated, isCompleted]);
+  }, [tickets, event._id, event.id, isAuthenticated, isCompleted, forceOwned]);
 
-  const handleBooking = async () => {
+  const handleBooking = async (e) => {
+    if (e) e.preventDefault();
     if (isFailed) {
       reset();
       return;
@@ -110,6 +122,12 @@ const EventCard = ({ event }) => {
       return;
     }
 
+    setConfirmBookOpen(true);
+  };
+
+  const executeBooking = (e) => {
+    if (e) e.preventDefault();
+    setConfirmBookOpen(false);
     console.log(`[UI] Bắt đầu đặt vé cho sự kiện: ${event._id}`);
     bookTicket(event._id);
   };
@@ -265,7 +283,7 @@ const EventCard = ({ event }) => {
         </div>
 
         {/* Custom Notification Error System (Full Card Overlay) */}
-        {isFailed && errorLocal && (
+        {isFailed && errorLocal && !forceOwned && (
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -296,6 +314,43 @@ const EventCard = ({ event }) => {
                 >
                   {t("card_retry")}
                </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Confirmation Overlay */}
+        {confirmBookOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 backdrop-blur-md border-t-2 border-cyan-500 p-6 overflow-hidden"
+          >
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-cyan-500/50 shadow-[0_0_15px_#06b6d4] z-0" />
+            
+            <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-4 h-full w-full">
+               <h4 className="text-cyan-400 font-black text-sm font-mono uppercase tracking-widest drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
+                 [{t("details_confirm_booking")}]
+               </h4>
+               <p className="text-foreground/80 text-[10px] font-mono leading-relaxed uppercase tracking-wider line-clamp-3">
+                 {t("details_confirm_booking_msg")}
+               </p>
+
+               <div className="flex w-full gap-3 mt-2">
+                 <button
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirmBookOpen(false); }}
+                    className="flex-1 py-2 border-2 border-border text-foreground/60 bg-transparent hover:bg-white/10 hover:text-white text-[10px] font-black uppercase tracking-widest transition-all duration-300"
+                    style={{ fontFamily: TYPOGRAPHY.HEADING }}
+                  >
+                    {t("details_btn_cancel")}
+                 </button>
+                 <button
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); executeBooking(e); }}
+                    className="flex-1 py-2 border-2 border-cyan-500 text-cyan-400 bg-cyan-500/10 hover:bg-cyan-500 hover:text-black text-[10px] font-black uppercase tracking-widest transition-all duration-300 shadow-[0_0_10px_rgba(34,211,238,0.3)] hover:shadow-[0_0_20px_rgba(34,211,238,0.8)]"
+                    style={{ fontFamily: TYPOGRAPHY.HEADING }}
+                  >
+                    {lang === 'vi' ? 'XÁC NHẬN' : 'CONFIRM'}
+                 </button>
+               </div>
             </div>
           </motion.div>
         )}

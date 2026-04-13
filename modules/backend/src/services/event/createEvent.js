@@ -12,7 +12,7 @@ import { REDIS_KEYS } from "../../types/constants/redisKeys.js";
  */
 const createEvent = async eventData => {
   // 1. Khởi tạo và trích xuất trường tường minh (Input Sanitization)
-  const { title, description, date, location, totalTickets, imageUrl, isHot, price } = eventData;
+  const { title, description, date, location, totalTickets, imageUrl, isHot, category, price } = eventData;
 
   const dataToSave = {
     title,
@@ -23,7 +23,8 @@ const createEvent = async eventData => {
     price,
     imageUrl,
     isHot,
-    availableTickets: totalTickets // availableTickets luôn bằng totalTickets khi tạo mới
+    category,
+    availableTickets: totalTickets
   };
 
   // 2. Lưu vào MongoDB

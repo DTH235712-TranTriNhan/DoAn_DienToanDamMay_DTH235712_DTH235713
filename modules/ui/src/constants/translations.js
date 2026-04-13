@@ -16,9 +16,9 @@ export const translations = {
     events_title: "Sự Kiện Flash Sale",
     events_hot_title: "SỰ KIỆN HOT",
     events_all_title: "DANH SÁCH SỰ KIỆN",
-    events_no_hot: "[ KHÔNG_CÓ_SỰ_KIỆN_NỔI_BẬT ]",
-    events_no_all: "[ KHÔNG_CÓ_SỰ_KIỆN_NÀO ]",
-    events_loading: "ĐANG_TẢI_DỮ_LIỆU...",
+    events_no_hot: "[ KHÔNG CÓ SỰ KIỆN NỔI BẬT ]",
+    events_no_all: "[ KHÔNG CÓ SỰ KIỆN NÀO ]",
+    events_loading: "ĐANG TẢI DỮ LIỆU...",
     events_error_sync: "LỖI ĐỒNG BỘ HỆ THỐNG",
     events_reboot: "THỬ LẠI",
     events_stable: "TRẠNG THÁI: ỔN ĐỊNH",
@@ -42,10 +42,11 @@ export const translations = {
     card_details: "CHI TIẾT",
     card_login_required: "Vui lòng đăng nhập để tiếp tục",
     card_retry: "THỬ LẠI",
+    card_owned: "✅ ĐÃ SỞ HỮU VÉ",
 
     // Admin Page
     admin_title: "Quản lý Sự kiện",
-    admin_subtitle: "ADMIN_CONTROL_PANEL",
+    admin_subtitle: "BẢNG ĐIỀU KHIỂN QUẢN TRỊ",
     admin_create_btn: "+ Tạo Sự Kiện Mới",
     admin_table_img: "Ảnh",
     admin_table_name: "Tên Sự Kiện",
@@ -56,7 +57,7 @@ export const translations = {
     admin_table_status: "Trạng Thái",
     admin_table_actions: "Thao Tác",
     admin_edit_btn: "✏️ Sửa",
-    admin_no_events: "// KHÔNG_CÓ_SỰ_KIỆN_NÀO — Hãy tạo sự kiện đầu tiên!",
+    admin_no_events: "// KHÔNG CÓ SỰ KIỆN NÀO — Hãy tạo sự kiện đầu tiên!",
     admin_success_create: "✅ Đã tạo sự kiện thành công!",
     admin_success_update: "✅ Đã cập nhật sự kiện thành công!",
     admin_success_delete: "✅ Đã xóa sự kiện thành công!",
@@ -76,13 +77,23 @@ export const translations = {
     form_label_price: "GIÁ VÉ (VND) *",
     form_label_tickets: "TỔNG SỐ VÉ *",
     form_label_img: "URL ẢNH SỰ KIỆN",
-    form_label_hot: "CHẾ ĐỘ HOT_MODE (ƯU TIÊN BANNER)",
+    form_label_hot: "CHẾ ĐỘ NỔI BẬT (ƯU TIÊN BANNER)",
     form_btn_save: "LƯU THAY ĐỔI",
     form_btn_create: "KHỞI TẠO SỰ KIỆN",
-    form_btn_upload: "GIẢ LẬP UPLOAD",
-    form_status_hot: "TRẠNG THÁI: HOT_MODE_ACTIVE",
-    form_dirty_warn: "[ PHÁT_HIỆN_THAY_ĐỔI_CHƯA_LƯU ]",
+    form_btn_upload: "GIẢ LẬP TẢI LÊN",
+    form_status_hot: "TRẠNG THÁI: CHẾ ĐỘ NỔI BẬT ĐANG HOẠT ĐỘNG",
+    form_label_category: "THỂ LOẠI",
+    form_dirty_warn: "[ PHÁT HIỆN THAY ĐỔI CHƯA LƯU ]",
     form_error_price: "Giá vé không được âm",
+
+    // Filter & Search
+    filter_all: "Tất cả",
+    filter_search: "TÌM KIẾM SỰ KIỆN...",
+    category_music: "Âm nhạc",
+    category_sports: "Thể thao",
+    category_workshop: "Workshop",
+    category_theatre: "Sân khấu",
+    category_other: "Khác",
 
     // Confirm Dialog
     confirm_title: "CẢNH BÁO: THAY ĐỔI CHƯA LƯU",
@@ -95,8 +106,8 @@ export const translations = {
 
     // My Tickets Page
     tickets_title: "VÉ CỦA TÔI",
-    tickets_querying: "ĐANG_TRUY_VẤN_DỮ_LIỆU_CHUỖI...",
-    tickets_empty: "BẠN_CHƯA_SỞ_HỮU_TÀI_SẢN_VÉ_NÀO",
+    tickets_querying: "ĐANG TRUY VẤN DỮ LIỆU CHUỖI...",
+    tickets_empty: "BẠN CHƯA SỞ HỮU TÀI SẢN VÉ NÀO",
 
     // Login Page
     login_subtitle: "Nền tảng săn vé sự kiện chịu tải cao",
@@ -126,13 +137,13 @@ export const translations = {
     tickets_refresh: "LÀM MỚI",
     tickets_empty_msg: "BẠN CHƯA CÓ VÉ NÀO. HÃY SĂN VÉ NGAY!",
     tickets_back_home: "VỀ TRANG CHỦ",
-    tickets_id: "JOB_ID",
+    tickets_id: "MÃ YÊU CẦU",
     tickets_view_map: "XEM ĐỊA ĐIỂM",
 
     // Ticket Details Page
     details_nav_back: "QUAY LẠI",
     details_schedule: "LỊCH TRÌNH SỰ KIỆN",
-    details_location_matrix: "VỊ TRÍ SỰ KIỆN / LOCATION MATRIX",
+    details_location_matrix: "VỊ TRÍ SỰ KIỆN / SƠ ĐỒ VỊ TRÍ",
     details_about: "GIỚI THIỆU SỰ KIỆN",
     details_rules: "QUY TẮC THAM DỰ",
     details_security: "LƯU Ý BẢO MẬT VÉ",
@@ -144,16 +155,26 @@ export const translations = {
     details_error_cancel: "ĐÃ XẢY RA LỖI KHI HỦY VÉ. VUI LÒNG THỬ LẠI SAU.",
     details_success_book: "YÊU CẦU ĐẶT VÉ ĐÃ ĐƯỢC GỬI! VUI LÒNG KIỂM TRA TRẠNG THÁI TRONG MỤC VÉ CỦA TÔI.",
     details_error_book: "KHÔNG THỂ THỰC HIỆN ĐẶT VÉ LÚC NÀY.",
-    details_event_id: "EVENT_ID",
-    details_status_live: "LIVE",
+    details_event_id: "MÃ SỰ KIỆN",
+    details_status_live: "ĐANG DIỄN RA",
+    status_live: "ĐANG DIỄN RA",
     details_booking_failed: "ĐẶT VÉ THẤT BẠI",
     details_msg_failed_hint: "Vui lòng chọn mã sự kiện khác hoặc tái khởi động yêu cầu.",
     details_alert_title: "THÔNG BÁO",
     details_alert_ok: "ĐÃ HIỂU",
-    details_confirm_cancel_title: "CÁCH LY VÉ",
+    details_confirm_cancel_title: "HỦY TRUY CẬP VÉ",
     details_confirm_cancel_msg: "Bạn đang yêu cầu hủy quyền truy cập vào sự kiện này. Quá trình này không thể thu hồi.",
-    details_btn_confirm: "XÁC NHẬN HỦY",
+    details_btn_confirm: "XÁC NHẬN",
     details_btn_stay: "QUAY LẠI",
+    details_confirm_booking: "XÁC NHẬN ĐẶT VÉ",
+    details_confirm_booking_msg: "Bạn có chắc chắn muốn tiến hành đặt vé cho sự kiện này? Bấm xác nhận để đưa yêu cầu vào hệ thống.",
+    details_btn_cancel: "HỦY BỎ",
+    details_system_ok: "[ HỆ THỐNG OK ] YÊU CẦU ĐÃ ĐƯỢC LƯU",
+    details_check_my_tickets: "✓ HÃY KIỂM TRA MỤC VÉ CỦA TÔI",
+    details_ticket_verified: "VÉ ĐIỆN TỬ ĐÃ XÁC NHẬN",
+    details_scan_preview: "QUÉT ĐỂ XEM TRƯỚC",
+    details_session_id: "MÃ PHIÊN",
+    details_organizer_sub: "ĐẠI LÝ PHÂN PHỐI CẤP CAO",
     
     events_create_first: "Tạo sự kiện đầu tiên",
     
@@ -169,6 +190,7 @@ export const translations = {
     admin_label_tickets_sold: "VÉ ĐÃ BÁN",
     admin_breadcrumb_admin: "QUẢN TRỊ",
     admin_breadcrumb_events: "SỰ KIỆN",
+    admin_table_category: "Thể loại",
   },
   en: {
     // Navigation
@@ -245,8 +267,18 @@ export const translations = {
     form_btn_create: "INITIALIZE EVENT",
     form_btn_upload: "SIMULATE UPLOAD",
     form_status_hot: "STATUS: HOT_MODE_ACTIVE",
+    form_label_category: "CATEGORY",
     form_dirty_warn: "[ UN_SAVED_CHANGES_DETECTED ]",
     form_error_price: "Price cannot be negative",
+
+    // Filter & Search
+    filter_all: "All",
+    filter_search: "SEARCH EVENTS...",
+    category_music: "Music",
+    category_sports: "Sports",
+    category_workshop: "Workshop",
+    category_theatre: "Theatre",
+    category_other: "Other",
 
     // Confirm Dialog
     confirm_title: "WARNING: UNSAVED CHANGES",
@@ -317,6 +349,15 @@ export const translations = {
     details_confirm_cancel_msg: "You are requesting to cancel access to this event. This process cannot be reversed.",
     details_btn_confirm: "CONFIRM CANCEL",
     details_btn_stay: "GO BACK",
+    details_confirm_booking: "CONFIRM BOOKING",
+    details_confirm_booking_msg: "Are you sure you want to proceed with booking this event? Click confirm to submit your request.",
+    details_btn_cancel: "CANCEL",
+    details_system_ok: "[ SYSTEM OK ] REQUEST SAVED",
+    details_check_my_tickets: "✓ PLEASE CHECK MY TICKETS",
+    details_ticket_verified: "E-TICKET VERIFIED",
+    details_scan_preview: "SCAN FOR PREVIEW",
+    details_session_id: "SESSION ID",
+    details_organizer_sub: "CYBER AGENCY V1.0",
 
     events_create_first: "Create First Event",
 
@@ -332,5 +373,6 @@ export const translations = {
     admin_label_tickets_sold: "TICKETS SOLD",
     admin_breadcrumb_admin: "ADMIN",
     admin_breadcrumb_events: "EVENTS",
+    admin_table_category: "Category",
   }
 };

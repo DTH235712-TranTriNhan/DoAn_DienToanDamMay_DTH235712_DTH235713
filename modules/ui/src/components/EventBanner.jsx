@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { THEME_COLORS, TYPOGRAPHY, SHADOWS } from "../constants/uiConstants.js";
 import { useLanguage } from "../context/LanguageContext.jsx";
@@ -10,6 +11,7 @@ import { useLanguage } from "../context/LanguageContext.jsx";
  */
 const EventBanner = ({ events = [], loading = false }) => {
   const { t, lang } = useLanguage();
+  const navigate = useNavigate();
 
   const hotEvents = useMemo(
     () => (Array.isArray(events) ? events.filter(event => event?.isHot) : []),
@@ -134,13 +136,7 @@ const EventBanner = ({ events = [], loading = false }) => {
                   whileHover={{ scale: 1.05, boxShadow: SHADOWS.NEON_SECONDARY }}
                   whileTap={{ scale: 0.95 }}
                   aria-label={`${t("card_book_now")}: ${currentEvent.title}`}
-                  onClick={() => {
-                    const target = document.getElementById("event-grid-header");
-                    if (target) {
-                      const y = target.getBoundingClientRect().top + window.scrollY - 80;
-                      window.scrollTo({ top: y, behavior: "smooth" });
-                    }
-                  }}
+                  onClick={() => navigate(`/events/${currentEvent._id}`)}
                   className="px-10 py-4 bg-secondary text-black font-black uppercase text-xs tracking-[0.3em] shadow-neon-secondary transition-all"
                   style={{ fontFamily: TYPOGRAPHY.TECH, boxShadow: SHADOWS.NEON_SECONDARY }}
                 >
