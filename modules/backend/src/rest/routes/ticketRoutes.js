@@ -21,7 +21,7 @@ router.use(validateJwt);
  * 1. ĐẶT VÉ (POST /api/tickets)
  * Có ticketLimiter để chặn Bot spam nút mua vé
  */
-router.post("/", ticketLimiter, asyncHandler(registerTicketHandler));
+router.post("/", asyncHandler(registerTicketHandler));
 
 /**
  * 2. KIỂM TRA TRẠNG THÁI (GET /api/tickets/status/:jobId)
