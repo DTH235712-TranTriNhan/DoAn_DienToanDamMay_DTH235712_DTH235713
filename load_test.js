@@ -2,8 +2,8 @@ import axios from "axios";
 
 // Cấu hình bài test
 const URL = "https://doan-dientoandammay-dth235712-dth235713.onrender.com/api/tickets";
-const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWQ5NTIwZmUzMzAzYzAzMWI3N2NhZWUiLCJlbWFpbCI6Im5oYW5fZHRoMjM1NzEyQHN0dWRlbnQuYWd1LmVkdS52biIsImlhdCI6MTc3NTg0OTk5OSwiZXhwIjoxNzc2NDU0Nzk5fQ.CcftlRi2dF_2TdY6F7iCCQ63kUV5Iph0tdNrRUOkmjg"; // Lấy từ localStorage sau khi đăng nhập trên Web
-const EVENT_ID = "69dc9b0d73383c2e49628582";
+const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWRjYTg5NzUwMDBmOWU3YTY4Yzk3YTQiLCJlbWFpbCI6Im5oYW5fZHRoMjM1NzEyQHN0dWRlbnQuYWd1LmVkdS52biIsImlhdCI6MTc3NjA2ODc1OSwiZXhwIjoxNzc2NjczNTU5fQ.lT6Ksafo6F22XTz3zQ_r3ucNyknUlyW1yXk79spZOwQ"; // Lấy từ localStorage sau khi đăng nhập trên Web
+const EVENT_ID = "69dca13ba29407f07aeef380";
 const TOTAL_REQUESTS = 5000;
 
 async function runLoadTest() {

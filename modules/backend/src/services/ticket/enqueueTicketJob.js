@@ -9,7 +9,7 @@ import { checkIdempotency } from "./checkIdempotency.js";
 export const enqueueTicketJob = async (userId, eventId) => {
   // Bước 1: Kiểm tra tính Idempotency (Chống nhấn nút mua nhiều lần)
   // Nếu đã nhấn mua rồi, hàm này sẽ ném ra lỗi AppError để Handler bắt
-  // await checkIdempotency(userId, eventId);
+  await checkIdempotency(userId, eventId);
 
   // Bước 2: Đẩy job vào queue — Worker bên dưới sẽ xử lý thực tế
   const job = await ticketQueue.add(
