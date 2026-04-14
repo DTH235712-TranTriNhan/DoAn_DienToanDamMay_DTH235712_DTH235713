@@ -10,10 +10,12 @@ import { THEME_COLORS, TYPOGRAPHY, SHADOWS, BOOKING_UI_CONFIG } from "../constan
 import { useLanguage } from "../context/LanguageContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useBookTicket } from "../hooks/useBookTicket.js";
+import { useNotifications } from "../context/NotificationContext.jsx";
 import useMyTickets from "../hooks/useMyTickets.js";
 import api from "../services/api.js";
 
 const EventCard = ({ event }) => {
+  const { addNotification } = useNotifications();
   const { 
     bookTicket, 
     status: bookingStatus, 
@@ -24,7 +26,7 @@ const EventCard = ({ event }) => {
     isCompleted,
     isFailed,
     reset
-  } = useBookTicket();
+  } = useBookTicket({ addNotification, eventName: event?.title });
 
   const { tickets, refresh: refreshTickets } = useMyTickets();
 

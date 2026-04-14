@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useLanguage } from "../context/LanguageContext.jsx";
 import { THEME_COLORS, SHADOWS, TYPOGRAPHY } from "../constants/uiConstants.js";
+import NotificationBell from "./NotificationBell.jsx";
 
 // ─── Animation Variants ───────────────────────────────────────────────────────
 
@@ -211,14 +212,18 @@ const NavBar = () => {
       <div className="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
         <NavLogo />
 
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-4">
           {user ? (
-            <div className="relative" ref={dropdownRef}>
-              <UserAvatar user={user} onClick={() => setIsOpen(!isOpen)} />
-              <AnimatePresence>
-                {isOpen && <UserDropdown user={user} onLogout={handleLogout} t={t} />}
-              </AnimatePresence>
-            </div>
+            <>
+              {/* Notification Bell — chỉ hiện khi đăng nhập */}
+              <NotificationBell />
+              <div className="relative" ref={dropdownRef}>
+                <UserAvatar user={user} onClick={() => setIsOpen(!isOpen)} />
+                <AnimatePresence>
+                  {isOpen && <UserDropdown user={user} onLogout={handleLogout} t={t} />}
+                </AnimatePresence>
+              </div>
+            </>
           ) : (
             <Link
               to="/login"
