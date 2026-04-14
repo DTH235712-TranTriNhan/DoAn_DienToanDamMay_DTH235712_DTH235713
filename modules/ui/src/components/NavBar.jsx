@@ -11,6 +11,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { useLanguage } from "../context/LanguageContext.jsx";
 import { THEME_COLORS, SHADOWS, TYPOGRAPHY } from "../constants/uiConstants.js";
 import NotificationBell from "./NotificationBell.jsx";
+import TopUpModal from "./TopUpModal.jsx";
 
 // ─── Animation Variants ───────────────────────────────────────────────────────
 
@@ -98,7 +99,7 @@ const UserAvatar = ({ user, onClick }) => (
   </button>
 );
 
-const UserDropdown = ({ user, onLogout, t }) => {
+const UserDropdown = ({ user, onLogout, onTopUp, t }) => {
   const menuItems = [
     { id: "nav-tickets", icon: "🎟️", label: t("nav_myTickets"), path: "/my-tickets" },
     ...(user?.role === "admin"
@@ -128,8 +129,24 @@ const UserDropdown = ({ user, onLogout, t }) => {
       </div>
 
       <div className="flex flex-col">
+        {/* Nút Nạp Tiền — nổi bật với màu secondary (cyan) */}
+        <motion.div custom={0} variants={itemVariants}>
+          <button
+            id="nav-topup-btn"
+            onClick={onTopUp}
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest hover:bg-secondary/10 transition-all rounded-md group"
+            style={{
+              fontFamily: TYPOGRAPHY.TECH,
+              color: THEME_COLORS.SECONDARY
+            }}
+          >
+            <span className="group-hover:scale-125 transition-transform">💰</span>
+            {t("topup_btn_label")}
+          </button>
+        </motion.div>
+
         {menuItems.map((item, i) => (
-          <motion.div key={item.id} custom={i} variants={itemVariants}>
+          <motion.div key={item.id} custom={i + 1} variants={itemVariants}>
             <Link
               to={item.path}
               id={item.id}
@@ -144,7 +161,7 @@ const UserDropdown = ({ user, onLogout, t }) => {
 
         <div className="h-px bg-white/5 my-1 mx-2"></div>
 
-        <motion.div custom={menuItems.length} variants={itemVariants}>
+        <motion.div custom={menuItems.length + 1} variants={itemVariants}>
           <button
             id="nav-logout-btn"
             onClick={onLogout}
@@ -186,6 +203,7 @@ const NavBar = () => {
   const { t, lang, toggleLanguage } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [isMobileMenu, setIsMobileMenu] = useState(false);
+  const [isTopUpOpen, setIsTopUpOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -200,6 +218,12 @@ const NavBar = () => {
     setIsOpen(false);
     setIsMobileMenu(false);
     logout();
+  };
+
+  const handleOpenTopUp = () => {
+    setIsOpen(false);
+    setIsMobileMenu(false);
+    setIsTopUpOpen(true);
   };
 
   const handleMobileToggle = () => {
@@ -226,7 +250,7 @@ const NavBar = () => {
               <div className="relative" ref={dropdownRef}>
                 <UserAvatar user={user} onClick={() => setIsOpen(!isOpen)} />
                 <AnimatePresence>
-                  {isOpen && <UserDropdown user={user} onLogout={handleLogout} t={t} />}
+                  {isOpen && <UserDropdown user={user} onLogout={handleLogout} onTopUp={handleOpenTopUp} t={t} />}
                 </AnimatePresence>
               </div>
             </>
@@ -354,6 +378,16 @@ const NavBar = () => {
                         {t("nav_admin") || "ADMIN_PANEL"}
                       </Link>
                     )}
+                    {/* Nút Nạp Tiền — Mobile */}
+                    <button
+                      id="mobile-topup-btn"
+                      onClick={handleOpenTopUp}
+                      className="text-lg font-bold uppercase tracking-widest transition-colors flex items-center gap-4 py-3 text-left border-b border-white/5 group"
+                      style={{ fontFamily: TYPOGRAPHY.TECH, color: THEME_COLORS.SECONDARY }}
+                    >
+                      <span className="text-xl group-hover:scale-125 transition-transform">💰</span>{" "}
+                      {t("topup_btn_label") || "TOP UP"}
+                    </button>
                     <button
                       onClick={handleLogout}
                       className="text-lg font-bold text-red-500 uppercase tracking-widest hover:text-red-400 transition-colors flex items-center gap-4 py-3 text-left border-b border-white/5 group"
@@ -385,6 +419,9 @@ const NavBar = () => {
           </>
         )}
       </AnimatePresence>
+
+      {/* Top-up Modal — render ở cấp NavBar để không bị z-index chặn */}
+      <TopUpModal isOpen={isTopUpOpen} onClose={() => setIsTopUpOpen(false)} />
     </>
   );
 };

@@ -1,6 +1,6 @@
 import User from "../../models/UserModel.js";
 import Transaction from "../../models/TransactionModel.js";
-import { TRANSACTION_STATUS } from "../../types/constants/statuses.js";
+import { TRANSACTION_STATUS, TRANSACTION_TYPE } from "../../types/constants/statuses.js";
 import { InsufficientBalanceError } from "../../types/errors/AppError.js";
 
 /**
@@ -35,6 +35,7 @@ export const deductBalance = async (userId, amount, ticketId, session) => {
         user: userId,
         ticket: ticketId,
         amount: amount,
+        type: TRANSACTION_TYPE.PAYMENT,
         status: TRANSACTION_STATUS.SUCCESS
       }
     ],
@@ -73,6 +74,7 @@ export const refundBalance = async (userId, amount, ticketId, session) => {
         user: userId,
         ticket: ticketId,
         amount: amount,
+        type: TRANSACTION_TYPE.REFUND,
         status: TRANSACTION_STATUS.SUCCESS
       }
     ],
