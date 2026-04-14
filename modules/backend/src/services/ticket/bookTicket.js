@@ -1,9 +1,12 @@
+import mongoose from "mongoose";
 import redisClient from "../../libs/redis.js";
 import Event from "../../models/EventModel.js";
 import Ticket from "../../models/TicketModel.js";
+import User from "../../models/UserModel.js";
 import { REDIS_KEYS } from "../../types/constants/redisKeys.js";
 import { TICKET_STATUS } from "../../types/constants/statuses.js";
-import { OutOfTicketsError } from "../../types/errors/AppError.js";
+import { OutOfTicketsError, InsufficientBalanceError } from "../../types/errors/AppError.js";
+import { deductBalance } from "../payment/paymentService.js";
 
 /**
  * Script Lua 1: Kiểm tra tồn tại và Decrement. Trả về -999 nếu key không tồn tại.
@@ -50,49 +53,78 @@ const withRetry = async (fn, maxRetries = 3) => {
 export const bookTicket = async (userId, eventId) => {
   const key = REDIS_KEYS.EVENT_TICKETS(eventId);
 
-  // 🚀 Bước 1: Thử DECR bằng Lua Script (Gatekeeper)
+  // 🚀 Bước 1: Thử DECR bằng Lua Script (Gatekeeper - Chống Overselling)
   let remaining = await redisClient.eval(LUA_ATOMIC_DECR, 1, key);
 
-  // 🛡️ Bước 2: Xử lý Fallback nếu Key biến mất hoặc Hết vé
   if (remaining === -999 || remaining < 0) {
     if (remaining === -999) {
       console.warn(`[Redis] Key ${key} is missing. Fetching from DB...`);
     }
 
-    // Luôn query DB để lấy con số chính xác nhất (Single Source of Truth)
     const event = await Event.findById(eventId).select("availableTickets title");
     if (!event) throw new OutOfTicketsError("Sự kiện không tồn tại");
 
     if (event.availableTickets > 0) {
       if (remaining === -999) {
-        console.log(
-          `[Fallback] Re-syncing Redis for "${event.title}" with ${event.availableTickets} tickets`
-        );
-        // Đồng bộ ATOMIC: SETNX + DECR trong cùng 1 request Lua
         remaining = await redisClient.eval(LUA_SYNC_AND_DECR, 1, key, event.availableTickets);
       }
     }
 
-    // Nếu sau tất cả vẫn < 0, chắc chắn là hết vé
     if (remaining < 0) {
       throw new OutOfTicketsError("Hết vé rồi bạn ơi, vui lòng đợi đợt sau!");
     }
   }
 
-  // 📝 Bước 3: Ghi ticket vào MongoDB (Persistent Storage)
-  const ticket = await Ticket.create({
-    event: eventId,
-    user: userId,
-    status: TICKET_STATUS.CONFIRMED
-  });
+  // 🚀 Bước 2: Bắt đầu Transaction MongoDB để đảm bảo Atomic (Trừ tiền + Tạo vé)
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  // 🔄 Bước 4: Đồng bộ ngược lại MongoDB (Eventual Consistency) với Retry
-  await withRetry(async () => {
-    await Event.findByIdAndUpdate(eventId, { $inc: { availableTickets: -1 } });
-  }).catch(err => {
-    console.error(`[CRITICAL] Sync DB failed for Event ${eventId} after 3 retries:`, err.message);
-    // Lưu ý: Không ném lỗi ở đây để không làm fail job đã tạo ticket thành công
-  });
+  try {
+    // 1. Kiểm tra User và Số dư một lần nữa trong Session (Tránh race condition balance)
+    const user = await User.findById(userId).session(session);
+    const event = await Event.findById(eventId).session(session);
 
-  return ticket;
+    if (!event) throw new Error("Sự kiện đã bị xóa");
+    if (user.balance < event.price) {
+      throw new InsufficientBalanceError();
+    }
+
+    // 2. Tạo ticket
+    const ticket = await Ticket.create(
+      [
+        {
+          event: eventId,
+          user: userId,
+          status: TICKET_STATUS.CONFIRMED
+        }
+      ],
+      { session }
+    );
+
+    const createdTicket = ticket[0];
+
+    // 3. Trừ tiền qua Payment Service
+    await deductBalance(userId, event.price, createdTicket._id, session);
+
+    // 4. Đồng bộ giảm số lượng vé trong DB
+    await Event.findByIdAndUpdate(eventId, { $inc: { availableTickets: -1 } }, { session });
+
+    // ✅ Commit Transaction
+    await session.commitTransaction();
+    console.log(`[Worker] ✅ Đã thanh toán và tạo vé thành công cho User ${userId}`);
+
+    return createdTicket;
+  } catch (error) {
+    // ❌ Abort Transaction nếu có bất kỳ lỗi nào
+    await session.abortTransaction();
+    console.error(`[Worker] ❌ Lỗi trong Transaction:`, error.message);
+    
+    // Nếu lỗi do Redis đã DECR nhưng DB fail, ta cần cộng lại Redis (Eventual Consistency)
+    // Tuy nhiên trong Flash Sale, việc cộng lại thường phức tạp, ở đây ta ưu tiên tính đúng đắn của DB.
+    await redisClient.incr(key).catch(err => console.error("[Redis] Rollback failed:", err.message));
+    
+    throw error;
+  } finally {
+    session.endSession();
+  }
 };

@@ -32,3 +32,17 @@ export class DuplicateRegistrationError extends AppError {
     super(message, 409);
   }
 }
+
+// ── 402 — Không đủ tiền (Payment Error) ──────────────────────────
+export class InsufficientBalanceError extends AppError {
+  constructor(message = "Số dư không đủ để thực hiện giao dịch") {
+    super(message, 402);
+  }
+}
+
+// ── 403 — Không được phép hủy (Policy Error) ─────────────────────
+export class CancellationNotAllowedError extends AppError {
+  constructor(message = "Không được phép hủy vé tại thời điểm này") {
+    super(message, 403);
+  }
+}

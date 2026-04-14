@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     displayName: { type: String },
     avatar: { type: String },
+    balance: { type: Number, default: 5000000 },
     role: {
       type: String,
       enum: USER_ROLE_VALUES,

@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api.js";
+import { useAuth } from "../context/AuthContext.jsx";
 
 /**
  * Custom Hook useBookTicket
@@ -13,6 +14,7 @@ import api from "../services/api.js";
  */
 export const useBookTicket = (options = {}) => {
   const { addNotification, eventName } = options;
+  const { refreshUser } = useAuth();
   const [status, setStatus] = useState("idle"); // idle, submitting, queued, completed, failed
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -63,6 +65,9 @@ export const useBookTicket = (options = {}) => {
         setStatus("completed");
         setError(null);
         console.log("[Polling] Đặt vé thành công!");
+        
+        // Cập nhật lại số dư mới sau khi đặt vé thành công
+        refreshUser();
         // Kích hoạt thông báo nếu callback được cung cấp
         if (typeof addNotificationRef.current === "function") {
           const name = eventNameRef.current || "sự kiện";
@@ -74,11 +79,18 @@ export const useBookTicket = (options = {}) => {
       } else if (state === "failed") {
         clearTimers();
         setStatus("failed");
-        setError(reason || "Đặt vé thất bại. Vui lòng thử lại sau.");
+        
+        // Nếu lỗi do không đủ tiền, yêu cầu nạp thêm
+        if (reason && reason.includes("Số dư không đủ")) {
+          setError("Số dư của bạn không đủ. Vui lòng nạp thêm tiền để tiếp tục.");
+        } else {
+          setError(reason || "Đặt vé thất bại. Vui lòng thử lại sau.");
+        }
+        
         console.log(`[Polling] Đặt vé thất bại: ${reason}`);
       } else {
         // Nếu still active/waiting thì tiếp tục polling sau 2 giây
-        pollingRef.current = setTimeout(() => checkJobStatus(jobId), 5000);
+        pollingRef.current = setTimeout(() => checkJobStatus(jobId), 1000);
       }
     } catch (err) {
       console.error("Polling error:", err);
@@ -96,7 +108,7 @@ export const useBookTicket = (options = {}) => {
         setError("Không tìm thấy thông tin đặt vé.");
       } else {
         // Đối với các lỗi mạng khác, vẫn thử lại polling ở chu kỳ sau
-        pollingRef.current = setTimeout(() => checkJobStatus(jobId), 5000);
+        pollingRef.current = setTimeout(() => checkJobStatus(jobId), 1000);
       }
     }
   }, [clearTimers]);
@@ -138,7 +150,7 @@ export const useBookTicket = (options = {}) => {
         }, 30000);
 
         // Bắt đầu Polling sau 5 giây
-        pollingRef.current = setTimeout(() => checkJobStatus(jobId), 5000);
+        pollingRef.current = setTimeout(() => checkJobStatus(jobId), 1000);
       }
     } catch (err) {
       setStatus("failed");

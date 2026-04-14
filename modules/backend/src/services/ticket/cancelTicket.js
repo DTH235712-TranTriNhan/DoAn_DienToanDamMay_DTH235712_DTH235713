@@ -1,82 +1,126 @@
 import mongoose from "mongoose";
 import Ticket from "../../models/TicketModel.js";
 import Event from "../../models/EventModel.js";
+import Transaction from "../../models/TransactionModel.js";
 import redisClient from "../../libs/redis.js";
 import { REDIS_KEYS } from "../../types/constants/redisKeys.js";
-import { TICKET_STATUS } from "../../types/constants/statuses.js";
+import { TICKET_STATUS, TRANSACTION_STATUS } from "../../types/constants/statuses.js";
+import { refundBalance } from "../payment/paymentService.js";
+import { CancellationNotAllowedError } from "../../types/errors/AppError.js";
 
 /**
- * Service xử lý hủy vé.
- * Đảm bảo tính nhất quán dữ liệu bằng Mongoose Transaction và Redis.
+ * Service xử lý hủy vé kèm theo chính sách hoàn tiền.
+ * Quy tắc:
+ * 1. Trước 1h kể từ khi đặt: Hoàn 100%
+ * 2. Sau 1 ngày kể từ khi đặt: Hoàn 50%
+ * 3. Còn ít hơn 3 ngày tới buổi chiếu: KHÔNG cho hủy/hoàn tiền.
  */
 export const cancelTicketService = async (ticketId, userId) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    console.log(`[Cancel-Ticket-Fix] ⚙️ Bắt đầu hủy vé ${ticketId} cho user ${userId}`);
+    console.log(`[Cancel-Ticket] ⚙️ Đang xử lý hủy vé ${ticketId}`);
 
-    // Bước 1: Tìm vé xem có thuộc về user và không ở trạng thái cancelled không
-    const ticket = await Ticket.findOne({
-      _id: ticketId,
+    // 1. Tìm vé và nạp thông tin Event để check ngày
+    const ticket = await Ticket.findOne({ _id: ticketId, user: userId })
+      .populate("event")
+      .session(session);
+
+    if (!ticket) throw new Error("Không tìm thấy vé");
+    if (ticket.status === TICKET_STATUS.CANCELLED) {
+      throw new Error("Vé này đã được hủy trước đó");
+    }
+
+    const event = ticket.event;
+    const now = new Date();
+
+    // 🚀 BƯỚC 1: Kiểm tra quy tắc 3 ngày (Điều kiện tiên quyết)
+    const threeDaysInMs = 3 * 24 * 60 * 60 * 1000;
+    if (event.date - now < threeDaysInMs) {
+      console.warn(`[Cancel-Ticket] ❌ Không cho hủy: Sự kiện diễn ra vào ${event.date}. Chỉ còn ${Math.round((event.date - now) / (1000 * 60 * 60 * 24))} ngày.`);
+      throw new CancellationNotAllowedError("Sự kiện sắp diễn ra (còn ít hơn 3 ngày), không thể hủy vé.");
+    }
+
+    // 🚀 BƯỚC 2: Tính toán tỷ lệ hoàn tiền
+    const timeSinceBooking = now - ticket.createdAt;
+    const oneHourInMs = 1 * 60 * 60 * 1000;
+    const oneDayInMs = 24 * 60 * 60 * 1000;
+
+    let refundPercentage = 1.0; // Mặc định 100%
+    let policyNote = "Hoàn tiền 100% (trong vòng 24h)";
+
+    if (timeSinceBooking < oneHourInMs) {
+      refundPercentage = 1.0;
+      policyNote = "Hoàn tiền 100% (trong vòng 1h đầu)";
+    } else if (timeSinceBooking > oneDayInMs) {
+      refundPercentage = 0.5;
+      policyNote = "Hoàn tiền 50% (sau 1 ngày kể từ khi đặt)";
+    }
+
+    // 🚀 BƯỚC 3: Cập nhật trạng thái vé ATOMIC (Chống double-refund)
+    //findOneAndUpdate đảm bảo tính nguyên tử giúp tránh race condition khi nhiều request cancel cùng lúc
+    const updatedTicket = await Ticket.findOneAndUpdate(
+      { _id: ticketId, user: userId, status: { $ne: TICKET_STATUS.CANCELLED } },
+      { $set: { status: TICKET_STATUS.CANCELLED, cancelledAt: now } },
+      { session, new: true }
+    );
+
+    if (!updatedTicket) {
+      throw new Error("Phát hiện yêu cầu hủy trùng lặp hoặc vé không hợp lệ");
+    }
+
+    // 🚀 BƯỚC 4: Tìm giao dịch gốc để lấy số tiền đã thanh toán
+    const originalPayment = await Transaction.findOne({
+      ticket: ticketId,
       user: userId,
-      status: { $ne: TICKET_STATUS.CANCELLED }
+      status: TRANSACTION_STATUS.SUCCESS
     }).session(session);
 
-    if (!ticket) {
-      throw new Error("Không tìm thấy vé hoặc vé đã bị hủy.");
+    if (!originalPayment) {
+      throw new Error("Không tìm thấy giao dịch thanh toán gốc để hoàn tiền");
     }
 
-    const eventId = ticket.event.toString();
+    const refundAmount = originalPayment.amount * refundPercentage;
 
-    // Bước 2: Đổi trạng thái vé
-    ticket.status = TICKET_STATUS.CANCELLED;
-    await ticket.save({ session });
+    // 🚀 BƯỚC 5: Thực hiện hoàn tiền qua Payment Service
+    if (refundAmount > 0) {
+      await refundBalance(userId, refundAmount, ticketId, session);
+    }
 
-    // Bước 3: Hoàn trả lại vé cho sự kiện ($inc: 1)
-    const event = await Event.findByIdAndUpdate(
-      eventId,
+    // 🚀 BƯỚC 6: Cập nhật lại số lượng vé trong DB
+    await Event.findByIdAndUpdate(
+      event._id,
       { $inc: { availableTickets: 1 } },
-      { returnDocument: "after", session }
+      { session }
     );
 
-    if (!event) {
-      throw new Error("Không tìm thấy sự kiện liên kết với vé.");
-    }
-
-    // Cam kết Transaction
+    // ✅ COMMIT TRANSACTION
     await session.commitTransaction();
-    console.log(
-      `[Cancel-Ticket-Fix] ✅ MongoDB Transaction thành công. Đã hoàn vé cho sự kiện ${eventId}`
-    );
+    console.log(`[Cancel-Ticket] ✅ Hủy vé thành công. Chính sách: ${policyNote}. Hoàn trả: ${refundAmount} VNĐ`);
 
-    // Bước 4 (Post-commit): Cập nhật Redis
+    // 🔄 BƯỚC 7: Đồng bộ Redis (Gatekeeper) - Trả vé lại pool Flash Sale
     try {
-      // Hoàn lại vé trên Redis
-      const redisEventKey = REDIS_KEYS.EVENT_TICKETS(eventId);
+      const redisEventKey = REDIS_KEYS.EVENT_TICKETS(event._id.toString());
       await redisClient.incr(redisEventKey);
 
-      // Xóa Idempotency Key để người dùng có thể đặt lại chính sự kiện này
-      const idempotencyKey = REDIS_KEYS.IDEMPOTENCY(userId, eventId);
+      // Xóa Idempotency Key để user có thể săn lại vé nếu muốn
+      const idempotencyKey = REDIS_KEYS.IDEMPOTENCY(userId, event._id.toString());
       await redisClient.del(idempotencyKey);
-
-      console.log(
-        `[Cancel-Ticket-Fix] ✅ Cập nhật Redis thành công: INCR ${redisEventKey}, DEL ${idempotencyKey}`
-      );
-    } catch (redisError) {
-      // Lỗi Redis sau khi DB đã commit không làm rớt DB, nhưng cần log lại để theo dõi
-      console.error(`[Cancel-Ticket-Fix] ⚠️ Lỗi đồng bộ Redis sau khi commit DB:`, redisError);
+      
+      console.log(`[Redis] 🔄 Đã tăng counter cho Event ${event._id} và xóa Idempotency key`);
+    } catch (redisErr) {
+      console.error("[Redis] ❌ Lỗi đồng bộ sau khi hủy vé:", redisErr.message);
     }
 
     return {
       success: true,
-      message: "Hủy vé thành công.",
-      ticket
+      message: `Hủy vé thành công. Bạn được hoàn lại ${new Intl.NumberFormat("vi-VN").format(refundAmount)} VNĐ (${policyNote}).`,
+      refundAmount,
+      policyNote
     };
   } catch (error) {
-    // Nếu có bất kì lỗi gì, Rollback lại dữ liệu cũ
     await session.abortTransaction();
-    console.error(`[Cancel-Ticket-Fix] ❌ Lỗi xử lý giao dịch hủy vé:`, error);
     throw error;
   } finally {
     session.endSession();

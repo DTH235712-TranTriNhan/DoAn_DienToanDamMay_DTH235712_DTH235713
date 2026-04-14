@@ -5,6 +5,7 @@ import { generalLimiter } from "./middlewares/rateLimiter.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import ticketRoutes from "./routes/ticketRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 const router = Router();
 
@@ -40,5 +41,8 @@ router.use("/auth", authRoutes);
 
 // Đặt vé Flash Sale & Polling (Bật theo Task 4.1) [2]
 router.use("/tickets", ticketRoutes);
+
+// Quản lý người dùng & Số dư (Simulator)
+router.use("/users", userRoutes);
 
 export default router;

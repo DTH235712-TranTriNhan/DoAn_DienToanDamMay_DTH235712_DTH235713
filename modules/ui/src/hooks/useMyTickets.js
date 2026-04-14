@@ -1,10 +1,12 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import api from '../services/api.js';
+import { useAuth } from '../context/AuthContext.jsx';
 
 const useMyTickets = () => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { refreshUser } = useAuth();
   const isFetchingRef = useRef(false);
 
   const fetchTickets = useCallback(async () => {
@@ -44,13 +46,16 @@ const useMyTickets = () => {
       // Gọi đúng API endpoint PATCH mà hệ thống yêu cầu thay vì DELETE
       await api.patch(`/tickets/${ticketId}/cancel`);
       console.log(`[UI] Successfully cancelled ticket ${ticketId}`);
+      
+      // ✅ Cập nhật lại số dư tài khoản ngay lập tức sau khi xác nhận hủy/hoàn tiền thành công
+      await refreshUser();
     } catch (err) {
       console.error(`[UI] Error cancelling ticket ${ticketId}:`, err);
       // Nếu lỗi, chạy lại dữ liệu gốc từ máy chủ để đồng bộ lại
       fetchTickets();
       throw err; 
     }
-  }, [fetchTickets]);
+  }, [fetchTickets, refreshUser]);
 
   useEffect(() => {
     fetchTickets();

@@ -78,10 +78,11 @@ export const AuthProvider = ({ children }) => {
       loading,
       login,
       logout,
+      refreshUser: fetchUser,
       isAuthenticated: !!user,
       isAdmin: user?.role === ROLES.ADMIN // Utility for administrative tasks
     }),
-    [user, token, loading, login, logout]
+    [user, token, loading, login, logout, fetchUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
