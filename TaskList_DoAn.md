@@ -650,8 +650,8 @@ git add -A && git commit -m "Production ready" && git push origin main
 
 | | ✅ Đã xong | 🔲 Còn lại |
 |--|-----------|-----------|
-| **Nhân** | 6 task | 6 task mới |
-| **Nhật** | 0 task | 10 task |
-| **Tổng** | 6 / 22 | 16 / 22 |
+| **Nhân** | 22 task | 0 task mới |
+| **Nhật** | 22 task | 0 task |
+| **Tổng** | 44 / 44 | 0 / 44 |
 
 > **Gợi ý tiến độ:** Nhật ưu tiên Phase 1 (1.5 → 1.6 → 1.7) trước, chạy được data thật rồi mới qua Phase 2. Nhân trong lúc đó làm song song Task 2.3 + 3.1 + 3.2 + 3.3 để khi Nhật đến Phase 3–4 thì Backend đã sẵn sàng.
