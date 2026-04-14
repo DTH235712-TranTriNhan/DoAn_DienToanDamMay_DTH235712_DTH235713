@@ -49,7 +49,7 @@ const LoginPage = () => {
         className="max-w-md w-full bg-background/80 backdrop-blur-2xl p-8 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden"
         style={{ boxShadow: SHADOWS.CARD }}
       >
-        {/* Neon Glow Accents */}
+        {/* Neon Glow Accents hightligh*/}
         <div className="absolute -top-24 -left-24 w-64 h-64 bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
         <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-secondary/10 blur-[100px] rounded-full pointer-events-none" />
         

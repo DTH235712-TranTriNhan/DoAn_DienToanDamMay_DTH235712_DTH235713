@@ -74,7 +74,7 @@ const EventsPage = () => {
 
   return (
     <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-      {/* Dynamic Banner for Hot Events */}
+      {/* Dynamic Banner for Hot Events (BANNERDON*/}
       <EventBanner events={events} />
 
       <div id="event-grid-header" className="mb-12 border-l-4 border-secondary pl-6 relative flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -105,7 +105,7 @@ const EventsPage = () => {
         </div>
       </div>
 
-      {/* Category Filter */}
+      {/* Category Filter (DAN)*/}
       <div className="flex flex-wrap gap-2 mb-12">
         {categories.map((cat) => (
           <button
