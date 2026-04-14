@@ -211,6 +211,20 @@ export const translations = {
     notif_clear_all: "Xóa hết",
     notif_empty: "[ KHÔNG CÓ THÔNG BÁO ]",
     notif_view_tickets: "XEM VÉ CỦA TÔI →",
+
+    // Top-up Modal
+    topup_btn_label: "NẠP TIỀN",
+    topup_modal_title: "NẠP TIỀN VÀO TÀI KHOẢN",
+    topup_modal_subtitle: "Nhập số tiền muốn nạp (VNĐ)",
+    topup_label_amount: "SỐ TIỀN NẠP",
+    topup_placeholder: "Nhập số tiền...",
+    topup_btn_confirm: "XÁC NHẬN NẠP TIỀN",
+    topup_btn_cancel: "HỦY",
+    topup_success: "✅ NẠp tiền thành công!",
+    topup_error_invalid: "Số tiền nạp không hợp lệ. Vui lòng nhập số dương.",
+    topup_error_server: "Nạp tiền thất bại. Vui lòng thử lại.",
+    topup_current_balance: "SỐ DƯ HIỆN TẠI",
+    topup_quick_amount: "Nạp nhanh:",
   },
   en: {
     // Navigation
@@ -415,5 +429,19 @@ export const translations = {
     notif_clear_all: "Clear all",
     notif_empty: "[ NO_NOTIFICATIONS_FOUND ]",
     notif_view_tickets: "VIEW MY TICKETS →",
+
+    // Top-up Modal
+    topup_btn_label: "TOP UP",
+    topup_modal_title: "TOP UP BALANCE",
+    topup_modal_subtitle: "Enter the amount you want to deposit (VND)",
+    topup_label_amount: "DEPOSIT AMOUNT",
+    topup_placeholder: "Enter amount...",
+    topup_btn_confirm: "CONFIRM TOP UP",
+    topup_btn_cancel: "CANCEL",
+    topup_success: "✅ Top-up successful!",
+    topup_error_invalid: "Invalid amount. Please enter a positive number.",
+    topup_error_server: "Top-up failed. Please try again.",
+    topup_current_balance: "CURRENT BALANCE",
+    topup_quick_amount: "Quick add:",
   }
 };

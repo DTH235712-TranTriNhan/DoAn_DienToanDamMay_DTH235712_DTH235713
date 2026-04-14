@@ -55,7 +55,7 @@ const MyTicketsPage = () => {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-background text-foreground py-16 px-4 sm:px-6 relative" style={{ fontFamily: TYPOGRAPHY.BODY }}>
+    <div className="py-16 px-4 sm:px-6 relative" style={{ fontFamily: TYPOGRAPHY.BODY }}>
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <Breadcrumb items={[{ label: t("nav_myTickets").toUpperCase() }]} />

@@ -61,6 +61,8 @@ const TicketDetailsPage = () => {
     if (bookingStatus === 'completed' && !hasDispatchedRef.current) {
       hasDispatchedRef.current = true;
       window.dispatchEvent(new Event('APP_EVENTS.TICKET_DATA_UPDATED'));
+      // Cuộn về đầu trang để người dùng thấy thông báo thành công
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       setSuccessToast(true);
       const timer = setTimeout(() => {
         setSuccessToast(false);
@@ -218,7 +220,7 @@ const TicketDetailsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-20 font-sans" style={{ fontFamily: TYPOGRAPHY.BODY }}>
+    <div className="pb-20 font-sans" style={{ fontFamily: TYPOGRAPHY.BODY }}>
       {/* Hero Section */}
       <div className="relative w-full h-[300px] md:h-[450px] overflow-hidden">
         {/* Background Blur Image */}

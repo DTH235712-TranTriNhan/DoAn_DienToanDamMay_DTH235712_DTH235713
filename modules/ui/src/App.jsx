@@ -26,8 +26,11 @@ const Layout = () => {
   }
 
   return (
-    <div className="min-h-screen relative bg-background text-foreground overflow-x-hidden">
-      {/* Floating Sun */}
+    // QUAN TRỌNG: KHÔNG dùng overflow-x-hidden trên div vì theo CSS spec,
+    // một div có overflow-x:hidden sẽ tự trở thành scroll container,
+    // tạo ra scrollbar thứ 2. overflow-x-hidden đã được áp dụng ở body (index.css).
+    <div className="min-h-screen relative bg-background text-foreground">
+      {/* Floating Sun — Decorative blur glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[600px] w-[600px] blur-[100px] bg-sun-glow opacity-30 z-0 pointer-events-none"></div>
 
       {/* Scanline Overlay */}
@@ -45,17 +48,18 @@ const Layout = () => {
         }}
       ></div>
 
-      <div className="relative z-10 flex flex-col min-h-screen">
+      {/* Layout container: min-h-screen + flex col để NavBar/main/Footer xếp đúng thứ tự */}
+      <div className="relative z-10 min-h-screen flex flex-col">
         {/* NavBar tự lấy user từ useAuth() — không cần prop */}
         <NavBar />
-        <main className="max-w-7xl mx-auto w-full grow px-4 transition-all duration-500">
+        <main className="max-w-7xl mx-auto w-full flex-1 px-4 transition-all duration-500">
           <Routes>
             <Route path="/" element={<EventsPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/auth/callback" element={<AuthCallbackPage />} />
             <Route path="/my-tickets" element={<MyTicketsPage />} />
             <Route path="/events/:eventId" element={<TicketDetailsPage />} />
-          <Route path="/my-tickets/:ticketId" element={<TicketDetailsPage />} />
+            <Route path="/my-tickets/:ticketId" element={<TicketDetailsPage />} />
             {/* Route quản trị — AdminEventsPage tự redirect nếu không phải admin */}
             <Route path="/admin/events" element={<AdminEventsPage />} />
           </Routes>

@@ -1,41 +1,48 @@
-import User from "../../../models/UserModel.js";
+import asyncHandler from "../../middlewares/asyncHandler.js";
+import topupBalance from "../../../services/payment/topupBalance.js";
 import { AppError } from "../../../types/errors/AppError.js";
 
 /**
- * Handler mô phỏng nạp tiền (Top-up)
- * URL: POST /api/users/topup
+ * Handler: Nạp tiền vào tài khoản (Top-up Simulator)
+ * URL:  POST /api/users/topup
+ * Auth: Bắt buộc (validateJwt)
+ * Body: { amount: number }
+ * Res:  { success: true, message: string, data: { balance: number } }
  */
-const topupHandler = async (req, res, next) => {
-  try {
-    const { amount } = req.body;
-    const userId = req.user._id; // Lấy từ authMiddleware
+const topupHandler = asyncHandler(async (req, res) => {
+  const { amount } = req.body;
+  // JWT payload dùng { userId, email } — xem googleCallbackHandler.js
+  const userId = req.user.userId;
 
-    if (!amount || amount <= 0) {
-      throw new AppError("Số tiền nạp không hợp lệ", 400);
-    }
+  console.log(`[Top-up] 📥 Nhận yêu cầu nạp tiền: User=${userId}, Amount=${amount}`);
 
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { $inc: { balance: amount } },
-      { new: true }
-    );
-
-    if (!user) {
-      throw new AppError("Người dùng không tồn tại", 404);
-    }
-
-    console.log(`[Payment] 💰 User ${userId} đã nạp thành công ${amount} VNĐ`);
-
-    res.status(200).json({
-      success: true,
-      message: "Nạp tiền thành công",
-      data: {
-        balance: user.balance
-      }
-    });
-  } catch (error) {
-    next(error);
+  // ── Validation ────────────────────────────────────────────────────
+  if (amount === undefined || amount === null) {
+    throw new AppError("Thiếu trường 'amount' trong request body", 400);
   }
-};
+
+  const parsedAmount = Number(amount);
+
+  if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+    throw new AppError("Số tiền nạp phải là số dương hợp lệ", 400);
+  }
+
+  // ── Gọi Service (ACID Transaction) ───────────────────────────────
+  const { newBalance, transactionId } = await topupBalance(userId, parsedAmount);
+
+  console.log(
+    `[Top-up] ✅ Hoàn thành: User=${userId}, NewBalance=${newBalance}, TxID=${transactionId}`
+  );
+
+  // ── Trả về số dư mới cho Frontend ────────────────────────────────
+  res.status(200).json({
+    success: true,
+    message: "Nạp tiền thành công",
+    data: {
+      balance: newBalance,
+      transactionId: transactionId
+    }
+  });
+});
 
 export default topupHandler;

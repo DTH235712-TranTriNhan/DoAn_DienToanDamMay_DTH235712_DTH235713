@@ -69,7 +69,13 @@ const EventCard = ({ event }) => {
   useEffect(() => {
     if (isCompleted) {
       setLocalDecrement(prev => prev + 1);
+      // Lưu vị trí scroll hiện tại trước khi dispatch gây re-render
+      const savedScrollY = window.scrollY;
       window.dispatchEvent(new Event('APP_EVENTS.TICKET_DATA_UPDATED'));
+      // Restore scroll sau khi layout ổn định (chống bị văng xuống cuối)
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: savedScrollY, behavior: 'instant' });
+      });
     }
   }, [isCompleted]);
 
