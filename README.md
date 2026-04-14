@@ -21,11 +21,11 @@ Hệ thống **"Nền tảng đăng ký vé sự kiện"** giải quyết bài t
 
 ## ☁️ Cloud Services đã sử dụng
 
-| Dịch vụ | Vai trò | Tài liệu |
-|---------|---------|-----------|
-| **MongoDB Atlas** | Cloud Database chính — lưu trữ Users, Events, Tickets, Transactions | [mongodb.com/atlas](https://www.mongodb.com/atlas) |
-| **Upstash Redis** | In-memory Cache + Message Queue (BullMQ). Xử lý atomic counter chống Overselling | [upstash.com](https://upstash.com) |
-| **Google OAuth 2.0** | Xác thực người dùng thông qua tài khoản Google | [developers.google.com](https://developers.google.com/identity/protocols/oauth2) |
+| Dịch vụ              | Vai trò                                                                          | Tài liệu                                                                         |
+| -------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| **MongoDB Atlas**    | Cloud Database chính — lưu trữ Users, Events, Tickets, Transactions              | [mongodb.com/atlas](https://www.mongodb.com/atlas)                               |
+| **Upstash Redis**    | In-memory Cache + Message Queue (BullMQ). Xử lý atomic counter chống Overselling | [upstash.com](https://upstash.com)                                               |
+| **Google OAuth 2.0** | Xác thực người dùng thông qua tài khoản Google                                   | [developers.google.com](https://developers.google.com/identity/protocols/oauth2) |
 
 ---
 
@@ -102,8 +102,8 @@ event-ticket-monorepo/
 ### 2. Clone repository
 
 ```bash
-git clone https://github.com/<your-username>/event-ticket-monorepo.git
-cd event-ticket-monorepo
+git clone https://github.com/DTH235712-TranTriNhan/DoAn_DienToanDamMay_DTH235712_DTH235713.git
+cd DoAn_DienToanDamMay_DTH235712_DTH235713
 ```
 
 ### 3. Cài đặt dependencies
@@ -125,7 +125,7 @@ cp modules/backend/.env.example modules/backend/.env
 ```env
 # ─── Server Config ───────────────────────────────────────
 PORT=5000
-NODE_ENV=development
+NODE_ENV=production
 
 # ─── MongoDB Atlas ───────────────────────────────────────
 MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/<dbname>
@@ -142,8 +142,7 @@ GOOGLE_CLIENT_SECRET=GOCSPX-<your-secret>
 GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
 
 # ─── CORS — Frontend URL ────────────────────────────────
-CORS_ORIGIN=http://localhost:5173
-FRONTEND_URL=http://localhost:5173
+FRONTEND_URL=http://localhost:5000
 ```
 
 ### 5. Seed dữ liệu mẫu
@@ -191,17 +190,17 @@ npm start
 
 ### Link truy cập ứng dụng
 
-| Thành phần | URL |
-|-----------|-----|
-| **Ứng dụng chính** | `https://<your-app>.onrender.com` |
-| **API Health Check** | `https://<your-app>.onrender.com/api/health` |
-| **API Events** | `https://<your-app>.onrender.com/api/events` |
+| Thành phần           | URL                                                                       |
+| -------------------- | ------------------------------------------------------------------------- |
+| **Ứng dụng chính**   | `https://doan-dientoandammay-dth235712-dth235713.onrender.com/`           |
+| **API Health Check** | `https://doan-dientoandammay-dth235712-dth235713.onrender.com/api/health` |
+| **API Events**       | `https://doan-dientoandammay-dth235712-dth235713.onrender.com/api/events` |
 
 ### Tài khoản Admin test
 
 ```
 Đăng nhập bằng Google OAuth:
-Email: <email-test>@gmail.com
+Email: [EMAIL_ADDRESS]
 ```
 
 > **Lưu ý:** Ứng dụng sử dụng Google OAuth 2.0, không có hệ thống đăng ký tài khoản riêng. Mọi người dùng đều đăng nhập thông qua tài khoản Google.
@@ -210,15 +209,15 @@ Email: <email-test>@gmail.com
 
 ## 📊 API Endpoints
 
-| Method | Endpoint | Auth | Mô tả |
-|--------|----------|------|-------|
-| `GET` | `/api/health` | ❌ | Kiểm tra trạng thái server, DB, Redis |
-| `GET` | `/api/events` | ❌ | Danh sách sự kiện |
-| `GET` | `/api/auth/google` | ❌ | Redirect đến Google login |
-| `GET` | `/api/auth/google/callback` | ❌ | Callback sau khi Google xác thực |
-| `POST` | `/api/tickets` | ✅ JWT | Đặt vé (trả jobId, xử lý async) |
-| `GET` | `/api/tickets/status/:jobId` | ✅ JWT | Kiểm tra trạng thái job đặt vé |
-| `GET` | `/api/tickets/my` | ✅ JWT | Xem danh sách vé của tôi |
+| Method | Endpoint                     | Auth   | Mô tả                                 |
+| ------ | ---------------------------- | ------ | ------------------------------------- |
+| `GET`  | `/api/health`                | ❌     | Kiểm tra trạng thái server, DB, Redis |
+| `GET`  | `/api/events`                | ❌     | Danh sách sự kiện                     |
+| `GET`  | `/api/auth/google`           | ❌     | Redirect đến Google login             |
+| `GET`  | `/api/auth/google/callback`  | ❌     | Callback sau khi Google xác thực      |
+| `POST` | `/api/tickets`               | ✅ JWT | Đặt vé (trả jobId, xử lý async)       |
+| `GET`  | `/api/tickets/status/:jobId` | ✅ JWT | Kiểm tra trạng thái job đặt vé        |
+| `GET`  | `/api/tickets/my`            | ✅ JWT | Xem danh sách vé của tôi              |
 
 ---
 
@@ -234,16 +233,16 @@ Email: <email-test>@gmail.com
 
 ## 🛠️ Tech Stack
 
-| Layer | Công nghệ |
-|-------|-----------|
-| **Frontend** | React 19, Vite 8, Tailwind CSS 4 |
-| **Backend** | Node.js, Express 5 |
-| **Database** | MongoDB Atlas (Mongoose 9) |
-| **Cache / Queue** | Upstash Redis (ioredis) + BullMQ |
-| **Authentication** | Google OAuth 2.0 (Passport.js) |
-| **Security** | Helmet, express-rate-limit, JWT |
-| **DevOps** | ESLint, Prettier, npm workspaces |
-| **Deploy** | Render.com / Railway |
+| Layer              | Công nghệ                        |
+| ------------------ | -------------------------------- |
+| **Frontend**       | React 19, Vite 8, Tailwind CSS 4 |
+| **Backend**        | Node.js, Express 5               |
+| **Database**       | MongoDB Atlas (Mongoose 9)       |
+| **Cache / Queue**  | Upstash Redis (ioredis) + BullMQ |
+| **Authentication** | Google OAuth 2.0 (Passport.js)   |
+| **Security**       | Helmet, express-rate-limit, JWT  |
+| **DevOps**         | ESLint, Prettier, npm workspaces |
+| **Deploy**         | Render.com / Railway             |
 
 ---
 
