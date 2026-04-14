@@ -30,23 +30,26 @@ const Layout = () => {
     // một div có overflow-x:hidden sẽ tự trở thành scroll container,
     // tạo ra scrollbar thứ 2. overflow-x-hidden đã được áp dụng ở body (index.css).
     <div className="min-h-screen relative bg-background text-foreground">
-      {/* Floating Sun — Decorative blur glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[600px] w-[600px] blur-[100px] bg-sun-glow opacity-30 z-0 pointer-events-none"></div>
+      {/* Decorative Background Wrapper — Cắt bỏ phần dư thừa từ transform để tránh scroll thừa ở đáy trang */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        {/* Floating Sun — Decorative blur glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[600px] w-[600px] blur-[100px] bg-sun-glow opacity-30"></div>
 
-      {/* Scanline Overlay */}
+        {/* Perspective Grid Floor */}
+        <div
+          className="absolute bottom-0 w-full h-[50vh] opacity-40"
+          style={{
+            backgroundImage:
+              "linear-gradient(transparent 95%, #FF00FF 95%), linear-gradient(90deg, transparent 95%, #FF00FF 95%)",
+            backgroundSize: "40px 40px",
+            transform: "perspective(500px) rotateX(60deg) translateY(100px) scale(2.5)",
+            maskImage: "linear-gradient(to top, black, transparent)"
+          }}
+        ></div>
+      </div>
+
+      {/* Scanline Overlay — Giữ fixed để luôn phủ toàn màn hình */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-20 bg-scanline bg-size-[100%_4px]"></div>
-
-      {/* Perspective Grid Floor */}
-      <div
-        className="absolute bottom-0 w-full h-[50vh] z-0 opacity-40 pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(transparent 95%, #FF00FF 95%), linear-gradient(90deg, transparent 95%, #FF00FF 95%)",
-          backgroundSize: "40px 40px",
-          transform: "perspective(500px) rotateX(60deg) translateY(100px) scale(2.5)",
-          maskImage: "linear-gradient(to top, black, transparent)"
-        }}
-      ></div>
 
       {/* Layout container: min-h-screen + flex col để NavBar/main/Footer xếp đúng thứ tự */}
       <div className="relative z-10 min-h-screen flex flex-col">

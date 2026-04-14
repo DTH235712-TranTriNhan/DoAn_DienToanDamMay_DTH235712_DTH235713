@@ -165,7 +165,7 @@ const TicketDetailsPage = () => {
   // Tối ưu Loading UI: Chỉ cản màn hình khi ko có event và đang query lần đầu
   if (authLoading || (ticketLoading && !event)) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center font-sans tracking-widest" style={{ fontFamily: TYPOGRAPHY.BODY }}>
+      <div className="py-32 flex items-center justify-center font-sans tracking-widest" style={{ fontFamily: TYPOGRAPHY.BODY }}>
         <div className="text-secondary animate-pulse text-lg border border-secondary/50 px-8 py-4 rounded backdrop-blur-md shadow-neon-secondary">
           {t("tickets_querying")}
         </div>
@@ -175,7 +175,7 @@ const TicketDetailsPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4" style={{ fontFamily: TYPOGRAPHY.BODY }}>
+      <div className="py-24 flex flex-col items-center justify-center p-4" style={{ fontFamily: TYPOGRAPHY.BODY }}>
         <div className="max-w-md w-full border border-red-500 bg-red-500/10 p-8 rounded-lg text-center backdrop-blur-md">
           <h2 className="text-2xl font-black text-red-500 mb-4 uppercase">{t("auth_error_title")}</h2>
           <p className="text-foreground/80 mb-8">{error}</p>

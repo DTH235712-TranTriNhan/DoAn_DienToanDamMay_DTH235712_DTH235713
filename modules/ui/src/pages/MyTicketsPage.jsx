@@ -44,7 +44,7 @@ const MyTicketsPage = () => {
 
   if (authLoading || (ticketsLoading && tickets.length === 0)) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center font-sans tracking-widest" style={{ fontFamily: TYPOGRAPHY.BODY }}>
+      <div className="py-32 flex items-center justify-center font-sans tracking-widest" style={{ fontFamily: TYPOGRAPHY.BODY }}>
         <div className="text-secondary animate-pulse text-lg border border-secondary/50 px-8 py-4 rounded backdrop-blur-md shadow-neon-secondary">
           {t("events_loading")}
         </div>
