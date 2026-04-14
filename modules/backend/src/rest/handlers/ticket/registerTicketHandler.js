@@ -1,4 +1,3 @@
-// CHÚ Ý: Bắt buộc phải có đuôi .js cho file nội bộ
 import { enqueueTicketJob } from "../../../services/ticket/enqueueTicketJob.js";
 
 /**

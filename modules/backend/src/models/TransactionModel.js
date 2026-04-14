@@ -9,7 +9,7 @@ const transactionSchema = new mongoose.Schema(
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Đảm bảo bạn đã có Model User
+      ref: "User",
       required: true
     },
     amount: {

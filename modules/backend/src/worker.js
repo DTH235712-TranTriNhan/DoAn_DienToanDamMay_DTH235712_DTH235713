@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import { Worker } from "bullmq";
 import { Redis } from "ioredis";
 import mongoose from "mongoose";
-import ticketWorkerProcessor from "./queues/ticketWorkerProcessor.js"; // Nhớ đuôi .js
+import ticketWorkerProcessor from "./queues/ticketWorkerProcessor.js";
 import { QUEUES } from "./types/constants/queues.js";
 
 const __filename = fileURLToPath(import.meta.url);

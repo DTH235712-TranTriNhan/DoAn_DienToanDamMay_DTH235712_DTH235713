@@ -57,7 +57,7 @@ app.use(passport.initialize());
 // ── Tối ưu Morgan Logging ─────────────────────────────────────────
 
 // 1. Gắn Context prefix cho các route
-morgan.token("context", (req) => {
+morgan.token("context", req => {
   const url = req.originalUrl || req.url || "";
   return url.startsWith("/api") ? "API" : "System";
 });
@@ -79,7 +79,7 @@ const skipLog = (req, res) => {
 
   // Bỏ qua (skip) tất cả các request đến các file tĩnh
   if (url.includes("/assets/") || url.match(/\.(css|js|png|jpg|jpeg|ico|svg|woff2?|ico|map)$/i)) {
-    return true; 
+    return true;
   }
 
   // Bỏ qua log cho các route polling và điều hướng thành công (GET 200/302)
@@ -98,7 +98,7 @@ const skipLog = (req, res) => {
     }
   }
 
-  return false; 
+  return false;
 };
 
 // 3. Cấu hình định dạng môi trường (Tinh gọn)
@@ -114,7 +114,7 @@ const prodFormat = (tokens, req, res) => {
     url: tokens.url(req, res),
     status: Number(tokens.status(req, res)),
     responseTimeMs: Number(tokens["response-time"](req, res)),
-    clientIp: req.headers['x-forwarded-for'] || req.socket.remoteAddress
+    clientIp: req.headers["x-forwarded-for"] || req.socket.remoteAddress
   });
 };
 

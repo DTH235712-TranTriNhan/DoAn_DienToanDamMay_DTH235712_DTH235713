@@ -65,7 +65,9 @@ export const bookTicket = async (userId, eventId) => {
 
     if (event.availableTickets > 0) {
       if (remaining === -999) {
-        console.log(`[Fallback] Re-syncing Redis for "${event.title}" with ${event.availableTickets} tickets`);
+        console.log(
+          `[Fallback] Re-syncing Redis for "${event.title}" with ${event.availableTickets} tickets`
+        );
         // Đồng bộ ATOMIC: SETNX + DECR trong cùng 1 request Lua
         remaining = await redisClient.eval(LUA_SYNC_AND_DECR, 1, key, event.availableTickets);
       }

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import mongoose from "mongoose";
-import redisClient from "../libs/redis.js"; // Bắt buộc có đuôi .js [Conversation History]
+import redisClient from "../libs/redis.js";
 import { generalLimiter } from "./middlewares/rateLimiter.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import authRoutes from "./routes/authRoutes.js";

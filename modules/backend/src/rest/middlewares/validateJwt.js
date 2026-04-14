@@ -1,5 +1,4 @@
 import jwt from "jsonwebtoken";
-// QUAN TRỌNG: Đảm bảo file AppError.js đã dùng export default và có đuôi .js
 import { AppError } from "../../types/errors/AppError.js";
 
 /**

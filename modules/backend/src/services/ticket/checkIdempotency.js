@@ -1,6 +1,5 @@
 import redisClient from "../../libs/redis.js";
 import { REDIS_KEYS } from "../../types/constants/redisKeys.js";
-// CHÚ Ý: Đảm bảo DuplicateRegistrationError được export đúng từ AppError.js
 import { DuplicateRegistrationError } from "../../types/errors/AppError.js";
 
 /**

@@ -1,9 +1,7 @@
 import { Router } from "express";
-// QUAN TRỌNG: Tất cả import nội bộ phải có đuôi .js
 import asyncHandler from "../middlewares/asyncHandler.js";
 import validateJwt from "../middlewares/validateJwt.js";
 import { ticketLimiter } from "../middlewares/rateLimiter.js";
-// Import các handler xử lý logic vé
 import { registerTicketHandler } from "../handlers/ticket/registerTicketHandler.js";
 import { getJobStatusHandler } from "../handlers/ticket/getJobStatusHandler.js";
 import { getMyTicketsHandler } from "../handlers/ticket/getMyTicketsHandler.js";
