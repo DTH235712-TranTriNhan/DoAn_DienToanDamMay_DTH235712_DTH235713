@@ -35,10 +35,13 @@ app.use(
           "https://placehold.co",
           "*"
         ],
-        // 2. QUAN TRỌNG: Cho phép nhúng iframe từ Google Maps
-        "frame-src": ["'self'", "https://www.google.com", "https://maps.google.com"],
-        // 3. Cho phép tải các script từ Google (nếu dùng API thay vì iframe)
-        "script-src": ["'self'", "https://maps.googleapis.com"]
+        // 2. QUAN TRỌNG: Cho phép nhúng iframe từ Google Maps & blob cho PDF
+        "frame-src": ["'self'", "https://www.google.com", "https://maps.google.com", "blob:"],
+        // 3. Cho phép WASM và Worker cho PDF Generation
+        "script-src": ["'self'", "https://maps.googleapis.com", "'unsafe-eval'", "'wasm-unsafe-eval'"],
+        "worker-src": ["'self'", "blob:"],
+        "connect-src": ["'self'", "https://cdnjs.cloudflare.com", "https://maps.googleapis.com"],
+        "font-src": ["'self'", "https://cdnjs.cloudflare.com", "data:"],
       }
     },
     crossOriginResourcePolicy: { policy: "cross-origin" }
