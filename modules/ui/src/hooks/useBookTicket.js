@@ -6,12 +6,26 @@ import api from "../services/api.js";
  * Custom Hook useBookTicket
  * Xử lý UC-03: Đặt vé Flash Sale (Asynchronous Booking)
  * Xử lý UC-04: Kiểm tra trạng thái đặt vé (Polling Job Status)
+ *
+ * @param {object} [options]
+ * @param {(message: string, type: string) => void} [options.addNotification] - Callback để thêm thông báo
+ * @param {string} [options.eventName] - Tên sự kiện để hiển thị trong thông báo
  */
-export const useBookTicket = () => {
+export const useBookTicket = (options = {}) => {
+  const { addNotification, eventName } = options;
   const [status, setStatus] = useState("idle"); // idle, submitting, queued, completed, failed
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   
+  // Lưu addNotification và eventName vào ref để checkJobStatus luôn dùng giá trị mới nhất
+  // mà không cần thêm vào dependency array của useCallback (stable ref pattern)
+  const addNotificationRef = useRef(addNotification);
+  const eventNameRef = useRef(eventName);
+  useEffect(() => {
+    addNotificationRef.current = addNotification;
+    eventNameRef.current = eventName;
+  });
+
   // Sử dụng useRef để quản lý Timer tránh rò rỉ bộ nhớ (Memory Leak)
   const pollingRef = useRef(null);
   const timeoutRef = useRef(null);
@@ -49,6 +63,14 @@ export const useBookTicket = () => {
         setStatus("completed");
         setError(null);
         console.log("[Polling] Đặt vé thành công!");
+        // Kích hoạt thông báo nếu callback được cung cấp
+        if (typeof addNotificationRef.current === "function") {
+          const name = eventNameRef.current || "sự kiện";
+          addNotificationRef.current(
+            `Chúc mừng! Bạn đã đặt thành công vé cho sự kiện ${name}.`,
+            "success"
+          );
+        }
       } else if (state === "failed") {
         clearTimers();
         setStatus("failed");

@@ -13,8 +13,19 @@ import { REDIS_KEYS } from "../../types/constants/redisKeys.js";
  */
 const updateEvent = async (eventId, eventData) => {
   // 1. Khởi tạo và trích xuất trường tường minh (Input Sanitization)
-  const { title, description, date, location, totalTickets, imageUrl, isHot, category, price } = eventData;
-  const updateData = { title, description, date, location, totalTickets, imageUrl, isHot, category, price };
+  const { title, description, date, location, totalTickets, imageUrl, isHot, category, price } =
+    eventData;
+  const updateData = {
+    title,
+    description,
+    date,
+    location,
+    totalTickets,
+    imageUrl,
+    isHot,
+    category,
+    price
+  };
 
   // 2. Tìm sự kiện hiện tại trong MongoDB
   const event = await Event.findById(eventId);
@@ -46,7 +57,9 @@ const updateEvent = async (eventId, eventData) => {
   if (updateData.totalTickets !== undefined) {
     const redisKey = REDIS_KEYS.EVENT_TICKETS(eventId);
     await redisClient.set(redisKey, updatedEvent.availableTickets);
-    console.log(`[Redis] Synced availableTickets for event ${eventId} to ${updatedEvent.availableTickets}`);
+    console.log(
+      `[Redis] Synced availableTickets for event ${eventId} to ${updatedEvent.availableTickets}`
+    );
   }
 
   return updatedEvent;

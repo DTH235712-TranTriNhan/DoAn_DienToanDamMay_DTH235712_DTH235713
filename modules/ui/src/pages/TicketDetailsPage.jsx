@@ -4,9 +4,13 @@ import { useAuth } from '../context/AuthContext.jsx';
 import useTicketDetails from '../hooks/useTicketDetails.js';
 import useMyTickets from '../hooks/useMyTickets.js';
 import { useBookTicket } from '../hooks/useBookTicket.js';
+import { useNotifications } from '../context/NotificationContext.jsx';
 import Breadcrumb from '../components/Breadcrumb.jsx';
 import { THEME_COLORS, TYPOGRAPHY, SHADOWS, BOOKING_UI_CONFIG } from '../constants/uiConstants.js';
 import { useLanguage } from '../context/LanguageContext.jsx';
+import { pdf, PDFViewer } from '@react-pdf/renderer';
+import QRCode from 'qrcode';
+import TicketTemplate from '../components/TicketTemplate.jsx';
 
 const TicketDetailsPage = () => {
   const { t, lang } = useLanguage();
@@ -15,14 +19,20 @@ const TicketDetailsPage = () => {
   const { isAuthenticated, loading: authLoading } = useAuth();
 
   const { ticket, event, loading: ticketLoading, error, refresh } = useTicketDetails(ticketId, eventId);
-  const { tickets, cancelTicket, refresh: refreshTickets } = useMyTickets();
-  const { bookTicket, status: bookingStatus, error: bookingError, reset: resetBooking } = useBookTicket();
-
+  const { tickets, cancelTicket, refresh: refreshTickets } = useMyTickets(); 
+  const { addNotification } = useNotifications();
+  const { bookTicket, status: bookingStatus, error: bookingError, reset: resetBooking } = useBookTicket({
+    addNotification,
+    eventName: event?.title
+  });
+  
   const [activeTab, setActiveTab] = useState('info');
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
   const [confirmBookOpen, setConfirmBookOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [successToast, setSuccessToast] = useState(false);
+  const [qrCodeData, setQrCodeData] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
   const debounceRef = React.useRef(null);
   const hasDispatchedRef = React.useRef(false);
 
@@ -77,6 +87,48 @@ const TicketDetailsPage = () => {
       resetBooking();
     }
   }, [bookingStatus, bookingError, resetBooking]);
+
+  // Generate QR Code for PDF
+  useEffect(() => {
+    if (ticket?._id) {
+      QRCode.toDataURL(String(ticket._id), {
+        margin: 1,
+        width: 200,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        }
+      })
+      .then(url => setQrCodeData(url))
+      .catch(err => console.error("QR Error:", err));
+    }
+  }, [ticket?._id]);
+
+  const handleDownloadPDF = async (e) => {
+    if (e) e.preventDefault();
+    if (!ticket || !qrCodeData) {
+      setAlertMessage("Dữ liệu vé hoặc mã QR đang chuẩn bị. Vui lòng đợi giây lát.");
+      return;
+    }
+
+    try {
+      const blob = await pdf(<TicketTemplate ticket={ticket} qrCode={qrCodeData} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `ticket-${String(ticket._id).slice(-8).toUpperCase()}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("CRITICAL PDF ERROR:", err);
+      // Log more details to help debugging
+      const errorMsg = err instanceof Error ? err.stack : JSON.stringify(err);
+      console.log("Error Stack:", errorMsg);
+      setAlertMessage(`Hệ thống không thể tạo vé: ${err.message || "Lỗi không xác định"}`);
+    }
+  };
 
   const handleCancel = async (e) => {
     if (e) e.preventDefault();
@@ -388,69 +440,70 @@ const TicketDetailsPage = () => {
                 </p>
               </div>
 
-              <div className="space-y-4">
-                {!isTicketMode ? (
-                  isOwned || bookingStatus === 'completed' ? (
-                    <button
-                      type="button"
-                      onClick={(e) => e.preventDefault()}
-                      disabled
-                      className="w-full py-3 px-4 text-[10px] font-black uppercase tracking-widest transition-all rounded border-2 border-green-600 bg-green-600 text-white shadow-[0_0_15px_rgba(22,163,74,0.5)] cursor-not-allowed"
-                    >
-                      {t("card_owned")}
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={handleBooking}
-                      disabled={bookingStatus !== 'idle'}
-                      className={`w-full py-3 px-4 text-[10px] font-black uppercase tracking-widest transition-all rounded border-2 ${bookingStatus === 'submitting' || bookingStatus === 'queued'
-                          ? BOOKING_UI_CONFIG.submitting.className
-                          : BOOKING_UI_CONFIG.idle.className
-                        }`}
-                    >
-                      {bookingStatus === 'submitting' || bookingStatus === 'queued' ? t("card_requesting") : t(BOOKING_UI_CONFIG.idle.labelKey)}
-                    </button>
-                  )
-                ) : (
-                  <button
-                    type="button"
-                    onClick={(e) => { e.preventDefault(); window.print(); }}
-                    className="w-full py-3 px-4 border border-secondary/30 text-secondary text-xs font-bold uppercase tracking-widest hover:bg-secondary/10 hover:shadow-neon-secondary transition-all rounded"
-                  >
-                    {t("details_download_pdf")}
-                  </button>
-                )}
-                {event.location && (
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full block text-center py-3 px-4 border border-border text-foreground/80 text-xs font-bold uppercase tracking-widest hover:bg-white/5 transition-all rounded"
-                  >
-                    {t("details_google_maps")}
-                  </a>
-                )}
-                {isTicketMode && (ticket?.status === 'confirmed' || ticket?.status === 'pending') && (
-                  <button
-                    type="button"
-                    onClick={(e) => { e.preventDefault(); setConfirmCancelOpen(true); }}
-                    className="w-full py-3 px-4 border border-red-500/30 text-red-500 text-xs font-bold uppercase tracking-widest hover:bg-red-500/10 transition-all rounded"
-                  >
-                    {t("tickets_cancel")}
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div className="p-6 border border-border bg-gradient-to-br from-card/60 to-primary/10 rounded-lg backdrop-blur-md">
-              <h4 className="text-xs font-black text-foreground/40 uppercase tracking-widest mb-6">{t("details_support")}</h4>
-              <div className="space-y-2 text-xs text-foreground/50">
-                <p>Hotline: <span className="text-white">0972896491</span></p>
-                <p>Email: <span className="text-white">huynhminhnhat2005vl@gmail</span></p>
-                <p className="pt-4 text-[10px] text-foreground/30 font-mono">{t("details_session_id")}: CT_{String(Math.random().toString(36).substr(2, 9)).toUpperCase()}</p>
-              </div>
-            </div>
+                <div className="space-y-4">
+                   {!isTicketMode ? (
+                      isOwned || bookingStatus === 'completed' ? (
+                          <button 
+                            type="button"
+                            onClick={(e) => e.preventDefault()}
+                            disabled
+                            className="w-full py-3 px-4 text-[10px] font-black uppercase tracking-widest transition-all rounded border-2 border-green-600 bg-green-600 text-white shadow-[0_0_15px_rgba(22,163,74,0.5)] cursor-not-allowed"
+                          >
+                            {t("card_owned")}
+                          </button>
+                      ) : (
+                          <button 
+                            type="button"
+                            onClick={handleBooking}
+                            disabled={bookingStatus !== 'idle'}
+                            className={`w-full py-3 px-4 text-[10px] font-black uppercase tracking-widest transition-all rounded border-2 ${
+                               bookingStatus === 'submitting' || bookingStatus === 'queued'
+                                  ? BOOKING_UI_CONFIG.submitting.className
+                                  : BOOKING_UI_CONFIG.idle.className
+                            }`}
+                          >
+                            {bookingStatus === 'submitting' || bookingStatus === 'queued' ? t("card_requesting") : t(BOOKING_UI_CONFIG.idle.labelKey)}
+                          </button>
+                      )
+                   ) : (
+                      <button 
+                        type="button"
+                        onClick={(e) => { e.preventDefault(); window.print(); }}
+                        className="w-full py-3 px-4 border border-secondary/30 text-secondary text-xs font-bold uppercase tracking-widest hover:bg-secondary/10 hover:shadow-neon-secondary transition-all rounded"
+                      >
+                        {t("details_download_pdf")}
+                      </button>
+                   )}
+                   {event.location && (
+                      <a 
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="w-full block text-center py-3 px-4 border border-border text-foreground/80 text-xs font-bold uppercase tracking-widest hover:bg-white/5 transition-all rounded"
+                      >
+                        {t("details_google_maps")}
+                      </a>
+                   )}
+                   {isTicketMode && (ticket?.status === 'confirmed' || ticket?.status === 'pending') && (
+                      <button 
+                        type="button"
+                        onClick={(e) => { e.preventDefault(); setConfirmCancelOpen(true); }}
+                        className="w-full py-3 px-4 border border-red-500/30 text-red-500 text-xs font-bold uppercase tracking-widest hover:bg-red-500/10 transition-all rounded"
+                      >
+                        {t("tickets_cancel")}
+                      </button>
+                   )}
+                </div>
+             </div>
+             
+             <div className="p-6 border border-border bg-gradient-to-br from-card/60 to-primary/10 rounded-lg backdrop-blur-md">
+                <h4 className="text-xs font-black text-foreground/40 uppercase tracking-widest mb-6">{t("details_support")}</h4>
+                <div className="space-y-2 text-xs text-foreground/50">
+                   <p>Hotline: <span className="text-white">1900-XXXX</span></p>
+                   <p>Email: <span className="text-white">support@cloud_ticket.vn</span></p>
+                   <p className="pt-4 text-[10px] text-foreground/30 font-mono">{t("details_session_id")}: CT_{String(Math.random().toString(36).substr(2, 9)).toUpperCase()}</p>
+                </div>
+             </div>
           </div>
         </div>
       </div>
@@ -509,6 +562,51 @@ const TicketDetailsPage = () => {
             <p className="text-foreground/80 text-sm mb-6">{alertMessage}</p>
             <button type="button" onClick={(e) => { e.preventDefault(); setAlertMessage(null); }} className="w-full py-2 bg-yellow-500 text-black font-black uppercase text-xs rounded">{t("details_alert_ok")}</button>
           </div>
+        </div>
+      )}
+
+      {showPreview && (
+        <div className="fixed inset-0 z-[120] flex flex-col items-center justify-center p-4 bg-background/95 backdrop-blur-2xl animate-fadeIn">
+           <div className="w-full max-w-5xl h-[85vh] bg-card border border-secondary/50 rounded-xl overflow-hidden shadow-[0_0_50px_rgba(0,255,255,0.2)] flex flex-col">
+              <div className="p-4 border-b border-border flex justify-between items-center bg-background/50">
+                 <h3 className="text-secondary font-black uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-2 h-5 bg-secondary shadow-neon-secondary"></span>
+                    {lang === 'vi' ? 'BẢN XEM TRƯỚC VÉ' : 'TICKET PREVIEW'}
+                 </h3>
+                 <div className="flex gap-4">
+                    <button 
+                      type="button" 
+                      onClick={(e) => { e.preventDefault(); handleDownloadPDF(); }}
+                      className="px-6 py-2 bg-secondary text-black font-extrabold text-[12px] uppercase rounded hover:bg-secondary/80 transition-all shadow-neon-secondary"
+                    >
+                      {lang === 'vi' ? 'XÁC NHẬN IN' : 'CONFIRM PRINT'}
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={(e) => { e.preventDefault(); setShowPreview(false); }}
+                      className="p-2 text-foreground/50 hover:text-white transition-colors"
+                      title="Close"
+                    >
+                      <span className="text-xl">✕</span>
+                    </button>
+                 </div>
+              </div>
+              <div className="flex-grow bg-zinc-900 overflow-hidden relative">
+                {/* Loading Indicator Background */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                   <div className="text-secondary/20 font-black text-4xl uppercase tracking-[1em] animate-pulse">
+                      RENDERING...
+                   </div>
+                </div>
+                {/* Real PDF Viewer */}
+                <PDFViewer width="100%" height="100%" showToolbar={false} className="border-none relative z-10">
+                  <TicketTemplate ticket={ticket} qrCode={qrCodeData} />
+                </PDFViewer>
+              </div>
+           </div>
+           <p className="mt-4 text-foreground/40 text-[10px] font-mono tracking-widest uppercase">
+              {lang === 'vi' ? 'Nhấn ESC hoặc ✕ để quay lại' : 'Press ESC or ✕ to go back'}
+           </p>
         </div>
       )}
 

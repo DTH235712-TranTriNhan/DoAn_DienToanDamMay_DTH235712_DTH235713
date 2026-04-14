@@ -32,12 +32,16 @@ app.use(
           "https://lh3.googleusercontent.com", // Google Avatar
           "https://images.unsplash.com", // Ảnh sự kiện
           "https://maps.google.com", // Google Maps tiles
-          "https://placehold.co"
+          "https://placehold.co",
+          "*"
         ],
-        // 2. QUAN TRỌNG: Cho phép nhúng iframe từ Google Maps
-        "frame-src": ["'self'", "https://www.google.com", "https://maps.google.com"],
-        // 3. Cho phép tải các script từ Google (nếu dùng API thay vì iframe)
-        "script-src": ["'self'", "https://maps.googleapis.com"]
+        // 2. QUAN TRỌNG: Cho phép nhúng iframe từ Google Maps & blob cho PDF
+        "frame-src": ["'self'", "https://www.google.com", "https://maps.google.com", "blob:"],
+        // 3. Cho phép WASM và Worker cho PDF Generation
+        "script-src": ["'self'", "https://maps.googleapis.com", "'unsafe-eval'", "'wasm-unsafe-eval'"],
+        "worker-src": ["'self'", "blob:"],
+        "connect-src": ["'self'", "https://cdnjs.cloudflare.com", "https://maps.googleapis.com"],
+        "font-src": ["'self'", "https://cdnjs.cloudflare.com", "data:"],
       }
     },
     crossOriginResourcePolicy: { policy: "cross-origin" }
@@ -57,7 +61,7 @@ app.use(passport.initialize());
 // ── Tối ưu Morgan Logging ─────────────────────────────────────────
 
 // 1. Gắn Context prefix cho các route
-morgan.token("context", (req) => {
+morgan.token("context", req => {
   const url = req.originalUrl || req.url || "";
   return url.startsWith("/api") ? "API" : "System";
 });
@@ -79,7 +83,7 @@ const skipLog = (req, res) => {
 
   // Bỏ qua (skip) tất cả các request đến các file tĩnh
   if (url.includes("/assets/") || url.match(/\.(css|js|png|jpg|jpeg|ico|svg|woff2?|ico|map)$/i)) {
-    return true; 
+    return true;
   }
 
   // Bỏ qua log cho các route polling và điều hướng thành công (GET 200/302)
@@ -98,7 +102,7 @@ const skipLog = (req, res) => {
     }
   }
 
-  return false; 
+  return false;
 };
 
 // 3. Cấu hình định dạng môi trường (Tinh gọn)
@@ -114,7 +118,7 @@ const prodFormat = (tokens, req, res) => {
     url: tokens.url(req, res),
     status: Number(tokens.status(req, res)),
     responseTimeMs: Number(tokens["response-time"](req, res)),
-    clientIp: req.headers['x-forwarded-for'] || req.socket.remoteAddress
+    clientIp: req.headers["x-forwarded-for"] || req.socket.remoteAddress
   });
 };
 

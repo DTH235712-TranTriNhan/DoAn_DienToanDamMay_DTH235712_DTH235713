@@ -1,5 +1,5 @@
 import { Queue } from "bullmq";
-import redisClient from "../libs/redis.js"; // Bắt buộc có đuôi .js
+import redisClient from "../libs/redis.js";
 import { QUEUES } from "../types/constants/queues.js";
 
 /**

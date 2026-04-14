@@ -1,4 +1,4 @@
-import User from "../../models/UserModel.js"; // Nhớ thêm đuôi .js
+import User from "../../models/UserModel.js";
 
 /**
  * Tìm user theo googleId, nếu chưa có thì tạo mới (Task 2.2)
