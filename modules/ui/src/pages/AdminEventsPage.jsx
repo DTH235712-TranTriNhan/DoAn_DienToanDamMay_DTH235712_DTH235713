@@ -47,7 +47,7 @@ const formatDate = (isoString, lang) => {
   }
 };
 
-// ─── Sub-component: StatusBadge ──────────────────────────────────────────────
+// ─── Sub-component: StatusBadge ───────trnagthai 
 const StatusBadge = ({ event }) => {
   const { t } = useLanguage();
   const sold = event.soldTickets ?? 0;
@@ -77,7 +77,7 @@ const StatusBadge = ({ event }) => {
   );
 };
 
-// ─── Sub-component: Modal Wrapper for EventForm ─────────────────────────────
+// ─── Sub-component: Modal Wrapper for EventForm ──────────lOPBAOBOC 
 const EventModal = ({ isOpen, onClose, editEvent, onSubmit, isSubmitting, submitError, isDirty, setIsDirty }) => {
   const { t } = useLanguage();
   const [showConfirm, setShowConfirm] = useState(false);

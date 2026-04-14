@@ -17,7 +17,7 @@ const TicketDetailsPage = () => {
   const { ticketId, eventId } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated, loading: authLoading } = useAuth();
-  
+
   const { ticket, event, loading: ticketLoading, error, refresh } = useTicketDetails(ticketId, eventId);
   const { tickets, cancelTicket, refresh: refreshTickets } = useMyTickets(); 
   const { addNotification } = useNotifications();
@@ -73,7 +73,7 @@ const TicketDetailsPage = () => {
       }, 5000);
       return () => clearTimeout(timer);
     }
-    
+
     if (bookingStatus === 'idle') {
       hasDispatchedRef.current = false;
     }
@@ -162,8 +162,8 @@ const TicketDetailsPage = () => {
 
   // Tính toán trạng thái xem user đã sở hữu vé này chưa, dựa trên ds vé của họ
   const isOwned = event && tickets && tickets.some(t => {
-      const eId = t.event?._id || t.event;
-      return String(eId) === String(event._id) && (t.status === 'confirmed' || t.status === 'pending');
+    const eId = t.event?._id || t.event;
+    return String(eId) === String(event._id) && (t.status === 'confirmed' || t.status === 'pending');
   });
 
   // Tối ưu Loading UI: Chỉ cản màn hình khi ko có event và đang query lần đầu
@@ -183,7 +183,7 @@ const TicketDetailsPage = () => {
         <div className="max-w-md w-full border border-red-500 bg-red-500/10 p-8 rounded-lg text-center backdrop-blur-md">
           <h2 className="text-2xl font-black text-red-500 mb-4 uppercase">{t("auth_error_title")}</h2>
           <p className="text-foreground/80 mb-8">{error}</p>
-          <button 
+          <button
             type="button"
             onClick={(e) => { e.preventDefault(); navigate(ticketId ? '/my-tickets' : '/'); }}
             className="px-6 py-2 border border-secondary text-secondary font-bold uppercase tracking-widest hover:bg-secondary hover:text-black transition-all rounded"
@@ -198,15 +198,15 @@ const TicketDetailsPage = () => {
   if (!event) return null;
 
   const isTicketMode = !!ticketId;
-  
-  const breadcrumbItems = isTicketMode 
+
+  const breadcrumbItems = isTicketMode
     ? [
-        { label: t("nav_myTickets").toUpperCase(), path: '/my-tickets' },
-        { label: (event.title || t("card_id")).toUpperCase() }
-      ]
+      { label: t("nav_myTickets").toUpperCase(), path: '/my-tickets' },
+      { label: (event.title || t("card_id")).toUpperCase() }
+    ]
     : [
-        { label: (event.title || t("events_title")).toUpperCase() }
-      ];
+      { label: (event.title || t("events_title")).toUpperCase() }
+    ];
   const eventDate = event.date ? new Date(event.date).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US', {
     weekday: 'long',
     year: 'numeric',
@@ -228,29 +228,29 @@ const TicketDetailsPage = () => {
       {/* Hero Section */}
       <div className="relative w-full h-[300px] md:h-[450px] overflow-hidden">
         {/* Background Blur Image */}
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center opacity-30 blur-sm scale-105"
           style={{ backgroundImage: `url(${event.imageUrl || 'https://via.placeholder.com/1200x600'})` }}
         ></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background"></div>
-        
+
         <div className="relative max-w-7xl mx-auto h-full px-4 flex flex-col md:flex-row items-end pb-8 gap-8">
           <div className="absolute top-6 left-4 z-30 md:top-8">
             <Breadcrumb items={breadcrumbItems} />
           </div>
-          
+
           {/* Main Event Image */}
           <div className="hidden md:block w-72 h-96 flex-shrink-0 border-4 border-slate-800 rounded-lg shadow-2xl overflow-hidden translate-y-20 bg-slate-900">
-             <img 
-               src={event.imageUrl || 'https://via.placeholder.com/400x600'} 
-               alt={event.title} 
-               onError={handleImageError}
-               className="w-full h-full object-cover" 
-             />
+            <img
+              src={event.imageUrl || 'https://via.placeholder.com/400x600'}
+              alt={event.title}
+              onError={handleImageError}
+              className="w-full h-full object-cover"
+            />
           </div>
-          
+
           <div className="flex-grow pb-4 md:pb-0">
-            <button 
+            <button
               type="button"
               onClick={(e) => { e.preventDefault(); navigate(isTicketMode ? '/my-tickets' : '/'); }}
               className="mb-4 flex items-center gap-2 text-secondary text-sm font-bold uppercase tracking-widest hover:text-secondary/80 transition-colors"
@@ -258,47 +258,46 @@ const TicketDetailsPage = () => {
               ← {isTicketMode ? t("tickets_back").toUpperCase() : t("details_nav_back").toUpperCase()}
             </button>
             <div className="flex flex-wrap items-center gap-3 mb-4">
-               <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest border rounded backdrop-blur-sm bg-background/50 ${
-                  (!isTicketMode || ticket?.status === 'confirmed') ? "text-green-400 border-green-400 shadow-[0_0_8px_rgba(74,222,128,0.4)]" :
+              <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest border rounded backdrop-blur-sm bg-background/50 ${(!isTicketMode || ticket?.status === 'confirmed') ? "text-green-400 border-green-400 shadow-[0_0_8px_rgba(74,222,128,0.4)]" :
                   ticket?.status === 'pending' ? "text-yellow-400 border-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.4)]" :
-                  "text-red-500 border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]"
-               }`}>
-                  {isTicketMode ? t(`tickets_status_${ticket?.status || 'pending'}`).toUpperCase() : t("details_status_live")}
-               </span>
-               <span className="text-foreground/40 text-xs font-mono uppercase tracking-widest">
+                    "text-red-500 border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]"
+                }`}>
+                {isTicketMode ? t(`tickets_status_${ticket?.status || 'pending'}`).toUpperCase() : t("details_status_live")}
+              </span>
+              <span className="text-foreground/40 text-xs font-mono uppercase tracking-widest">
                 {isTicketMode ? `${t("tickets_id")}: ${String(ticket?._id).slice(-8).toUpperCase()}` : `${t("details_event_id")}: ${String(event._id).slice(-8).toUpperCase()}`}
-               </span>
+              </span>
             </div>
             <h1 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tight mb-4 drop-shadow-[0_0_10px_rgba(0,0,0,0.8)] whitespace-normal break-words line-clamp-2">
               {event.title}
             </h1>
             <div className="flex flex-wrap gap-6 text-sm md:text-md text-foreground/80 font-medium">
-               <div className="flex items-center gap-2">
-                 <span className="text-secondary">📅</span> {eventDate}
-               </div>
-               <div className="flex items-center gap-2">
-                 <span className="text-secondary">📍</span> {event.location}
-               </div>
+              <div className="flex items-center gap-2">
+                <span className="text-secondary">📅</span> {eventDate}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-secondary">📍</span> {event.location}
+              </div>
             </div>
           </div>
-          
+
           {/* QR Code Visual */}
           <div className="hidden lg:block w-48 h-48 bg-white p-3 rounded-lg border-4 border-secondary/50 shadow-neon-secondary relative group">
-             <div className="absolute inset-0 bg-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-             <div className="w-full h-full border-[6px] border-background relative overflow-hidden flex items-center justify-center bg-zinc-800">
-                {/* Ẩn hiệu ứng ping khi đã sở hữu vé / completed */}
-                <div className={`absolute top-0 left-0 w-full h-[2px] ${(isOwned || bookingStatus === 'completed') ? 'bg-green-500 shadow-[0_0_10px_green]' : 'bg-red-500 shadow-[0_0_10px_red] animate-[ping_2s_infinite]'}`}></div>
-                <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white via-zinc-400 to-black"></div>
-                <span className={`text-white font-mono font-black text-[10px] break-all z-20 text-center tracking-tighter bg-black/70 p-1 rounded transition-colors ${(isOwned || bookingStatus === 'completed') ? 'text-green-400' : ''}`}>
-                   {String(ticket?._id || event._id || 'SCANNER').toUpperCase()}
-                </span>
-                <div className="w-6 h-6 border-4 border-white absolute top-1 left-1"></div>
-                <div className="w-6 h-6 border-4 border-white absolute top-1 right-1"></div>
-                <div className="w-6 h-6 border-4 border-white absolute bottom-1 left-1"></div>
-             </div>
-             <p className="text-[8px] text-center mt-2 text-background font-bold uppercase tracking-widest">
+            <div className="absolute inset-0 bg-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="w-full h-full border-[6px] border-background relative overflow-hidden flex items-center justify-center bg-zinc-800">
+              {/* Ẩn hiệu ứng ping khi đã sở hữu vé / completed */}
+              <div className={`absolute top-0 left-0 w-full h-[2px] ${(isOwned || bookingStatus === 'completed') ? 'bg-green-500 shadow-[0_0_10px_green]' : 'bg-red-500 shadow-[0_0_10px_red] animate-[ping_2s_infinite]'}`}></div>
+              <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white via-zinc-400 to-black"></div>
+              <span className={`text-white font-mono font-black text-[10px] break-all z-20 text-center tracking-tighter bg-black/70 p-1 rounded transition-colors ${(isOwned || bookingStatus === 'completed') ? 'text-green-400' : ''}`}>
+                {String(ticket?._id || event._id || 'SCANNER').toUpperCase()}
+              </span>
+              <div className="w-6 h-6 border-4 border-white absolute top-1 left-1"></div>
+              <div className="w-6 h-6 border-4 border-white absolute top-1 right-1"></div>
+              <div className="w-6 h-6 border-4 border-white absolute bottom-1 left-1"></div>
+            </div>
+            <p className="text-[8px] text-center mt-2 text-background font-bold uppercase tracking-widest">
               {isTicketMode || isOwned ? t("details_ticket_verified") : t("details_scan_preview")}
-             </p>
+            </p>
           </div>
         </div>
       </div>
@@ -306,7 +305,7 @@ const TicketDetailsPage = () => {
       {/* Main Content Area */}
       <div className="max-w-7xl mx-auto px-4 mt-8 md:mt-24">
         <div className="flex flex-col lg:flex-row gap-8">
-          
+
           {/* Navigation Tabs */}
           <div className="w-full lg:w-3/4">
             <div className="flex border-b border-border mb-8 overflow-x-auto no-scrollbar">
@@ -320,9 +319,8 @@ const TicketDetailsPage = () => {
                   key={tab.id}
                   type="button"
                   onClick={(e) => { e.preventDefault(); setActiveTab(tab.id); }}
-                  className={`px-6 py-4 text-xs md:text-sm font-black uppercase tracking-widest whitespace-nowrap transition-all relative ${
-                    activeTab === tab.id ? 'text-secondary' : 'text-foreground/50 hover:text-foreground/80'
-                  }`}
+                  className={`px-6 py-4 text-xs md:text-sm font-black uppercase tracking-widest whitespace-nowrap transition-all relative ${activeTab === tab.id ? 'text-secondary' : 'text-foreground/50 hover:text-foreground/80'
+                    }`}
                 >
                   {tab.name}
                   {activeTab === tab.id && (
@@ -331,7 +329,7 @@ const TicketDetailsPage = () => {
                 </button>
               ))}
             </div>
-            
+
             {/* Tab Content */}
             <div className="min-h-[400px]">
               {activeTab === 'info' && (
@@ -342,58 +340,43 @@ const TicketDetailsPage = () => {
                       {t("details_schedule")}
                     </h3>
                     <div className="space-y-4">
-                       <div className="flex items-start gap-4 p-4 border-l-2 border-secondary/30 bg-white/5">
-                          <div className="bg-secondary/20 px-3 py-1 text-secondary font-mono text-xs font-bold rounded">07:00</div>
-                          <div>
-                            <p className="text-foreground font-bold">{lang === 'vi' ? 'Mở cửa đón khách & Check-in' : 'Doors Open & Check-in'}</p>
-                            <p className="text-foreground/40 text-xs">{lang === 'vi' ? 'Vui lòng xuất trình mã QR này tại cổng soát vé.' : 'Please present this QR code at the gate.'}</p>
-                          </div>
-                       </div>
-
-                       {/* Chi tiết đặt vé / Giờ Mua & Giờ Hủy */}
-                       {isTicketMode && ticket && (
-                        <div className="flex items-start gap-4 p-4 border-l-2 border-primary/50 bg-primary/5">
-                            <div className="bg-primary/20 px-3 py-1 text-primary font-mono text-xs font-bold rounded">LOG</div>
-                            <div className="space-y-2">
-                                <p className="text-foreground font-bold text-sm tracking-widest uppercase">{t("tickets_purchase_time")}: <span className="text-white font-mono ml-2 font-normal">{formatDateTime(ticket.createdAt)}</span></p>
-                                
-                                {ticket.status === 'cancelled' && (
-                                   <p className="text-red-500 font-bold text-sm tracking-widest uppercase">{t("tickets_cancel_time")}: <span className="text-red-400 font-mono ml-2 font-normal">{formatDateTime(ticket.cancelledAt)}</span></p>
-                                )}
-                            </div>
+                      <div className="flex items-start gap-4 p-4 border-l-2 border-secondary/30 bg-white/5">
+                        <div className="bg-secondary/20 px-3 py-1 text-secondary font-mono text-xs font-bold rounded">07:00</div>
+                        <div>
+                          <p className="text-foreground font-bold">{lang === 'vi' ? 'Mở cửa đón khách & Check-in' : 'Doors Open & Check-in'}</p>
+                          <p className="text-foreground/40 text-xs">{lang === 'vi' ? 'Vui lòng xuất trình mã QR này tại cổng soát vé.' : 'Please present this QR code at the gate.'}</p>
                         </div>
-                       )}
-
-                       <div className="flex items-start gap-4 p-4 border-l-2 border-border bg-transparent">
-                          <div className="bg-card px-3 py-1 text-foreground/40 font-mono text-xs font-bold rounded">08:00</div>
-                          <div>
-                            <p className="text-foreground font-bold">{lang === 'vi' ? 'Khai mạc chương trình' : 'Opening Ceremony'}</p>
-                            <p className="text-foreground/40 text-xs">{lang === 'vi' ? 'Phát biểu từ ban tổ chức và giới thiệu đối tác khách mời.' : 'Opening speech and guest introductions.'}</p>
-                          </div>
-                       </div>
+                      </div>
+                      <div className="flex items-start gap-4 p-4 border-l-2 border-border bg-transparent">
+                        <div className="bg-card px-3 py-1 text-foreground/40 font-mono text-xs font-bold rounded">08:00</div>
+                        <div>
+                          <p className="text-foreground font-bold">{lang === 'vi' ? 'Khai mạc chương trình' : 'Opening Ceremony'}</p>
+                          <p className="text-foreground/40 text-xs">{lang === 'vi' ? 'Phát biểu từ ban tổ chức và giới thiệu đối tác khách mời.' : 'Opening speech and guest introductions.'}</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  
+
                   <div className="p-6 border border-border bg-card/40 rounded-lg backdrop-blur-md">
                     <h3 className="text-xl font-bold text-white uppercase mb-6 flex items-center gap-3">
                       <span className="w-2 h-6 bg-purple-500 block"></span>
                       {t("details_location_matrix")}
                     </h3>
                     <div className="aspect-video w-full rounded-lg overflow-hidden border border-secondary/30 shadow-neon-secondary bg-background">
-                       <iframe 
-                         title="Map Location"
-                         width="100%" 
-                         height="100%" 
-                         frameBorder="0" 
-                         style={{ border: 0 }} 
-                         src={`https://maps.google.com/maps?q=${encodeURIComponent(event.location)}&t=&z=15&ie=UTF8&iwloc=&output=embed`} 
-                         allowFullScreen
-                       ></iframe>
+                      <iframe
+                        title="Map Location"
+                        width="100%"
+                        height="100%"
+                        frameBorder="0"
+                        style={{ border: 0 }}
+                        src={`https://maps.google.com/maps?q=${encodeURIComponent(event.location)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                        allowFullScreen
+                      ></iframe>
                     </div>
                   </div>
                 </div>
               )}
-              
+
               {activeTab === 'event-about' && (
                 <div className="space-y-8 animate-fadeIn">
                   <div className="prose prose-invert max-w-none text-foreground/80 leading-relaxed">
@@ -407,56 +390,56 @@ const TicketDetailsPage = () => {
 
               {activeTab === 'rules' && (
                 <div className="space-y-6 animate-fadeIn">
-                   <div className="p-6 border border-yellow-500/30 bg-yellow-500/5 rounded-lg flex gap-4">
-                      <span className="text-2xl">⚠️</span>
-                      <div className="text-sm">
-                         <p className="text-yellow-400 font-bold uppercase mb-2">{t("details_rules")}</p>
-                         <ul className="list-disc list-inside space-y-2 text-foreground/80">
-                           <li>{lang === 'vi' ? 'Vé chỉ có giá trị cho một (01) lần vào cửa.' : 'Ticket valid for one (01) entry only.'}</li>
-                           <li>{lang === 'vi' ? 'Không mang theo vũ khí, chất cháy nổ.' : 'No weapons or explosives allowed.'}</li>
-                           <li>{lang === 'vi' ? 'Chương trình không áp dụng hoàn tiền.' : 'No refunds after confirmation.'}</li>
-                           <li>{lang === 'vi' ? 'Trẻ em dưới 12 tuổi cần người giám hộ.' : 'Children under 12 need a guardian.'}</li>
-                         </ul>
-                      </div>
-                   </div>
-                   <div className="p-6 border border-red-500/30 bg-red-500/5 rounded-lg">
-                      <p className="text-red-400 font-bold uppercase mb-2">{t("details_security")}</p>
-                      <p className="text-foreground/40 text-xs italic opacity-70">
-                         {lang === 'vi' ? 'Tuyệt đối không chia sẻ ảnh chụp QR Code này.' : 'Do not share your QR Code online.'}
-                      </p>
-                   </div>
+                  <div className="p-6 border border-yellow-500/30 bg-yellow-500/5 rounded-lg flex gap-4">
+                    <span className="text-2xl">⚠️</span>
+                    <div className="text-sm">
+                      <p className="text-yellow-400 font-bold uppercase mb-2">{t("details_rules")}</p>
+                      <ul className="list-disc list-inside space-y-2 text-foreground/80">
+                        <li>{lang === 'vi' ? 'Vé chỉ có giá trị cho một (01) lần vào cửa.' : 'Ticket valid for one (01) entry only.'}</li>
+                        <li>{lang === 'vi' ? 'Không mang theo vũ khí, chất cháy nổ.' : 'No weapons or explosives allowed.'}</li>
+                        <li>{lang === 'vi' ? 'Chương trình không áp dụng hoàn tiền.' : 'No refunds after confirmation.'}</li>
+                        <li>{lang === 'vi' ? 'Trẻ em dưới 12 tuổi cần người giám hộ.' : 'Children under 12 need a guardian.'}</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="p-6 border border-red-500/30 bg-red-500/5 rounded-lg">
+                    <p className="text-red-400 font-bold uppercase mb-2">{t("details_security")}</p>
+                    <p className="text-foreground/40 text-xs italic opacity-70">
+                      {lang === 'vi' ? 'Tuyệt đối không chia sẻ ảnh chụp QR Code này.' : 'Do not share your QR Code online.'}
+                    </p>
+                  </div>
                 </div>
               )}
 
               {activeTab === 'organizer' && (
                 <div className="space-y-8 animate-fadeIn">
-                   <div className="flex flex-col md:flex-row gap-8 items-center bg-card/40 p-10 rounded-xl border border-border">
-                      <div className="w-32 h-32 bg-background rounded-full flex items-center justify-center text-secondary text-2xl font-black border-2 border-secondary/50 shadow-neon-secondary">
-                        OPR
-                      </div>
-                      <div className="flex-grow text-center md:text-left">
-                         <h4 className="text-2xl font-black text-white uppercase mb-2">{t("details_organizer")}</h4>
-                         <p className="text-foreground/40 mb-4 font-mono text-sm tracking-widest uppercase">{t("details_organizer_sub")}</p>
-                         <p className="text-foreground/80 max-w-xl">{lang === 'vi' ? 'Hệ thống phân phối vé ứng dụng công nghệ điện toán đám mây và Microservices.' : 'Ticketing system powered by Cloud Compute and Microservices.'}</p>
-                      </div>
-                      <button type="button" onClick={(e) => e.preventDefault()} className="px-6 py-2 border border-border text-foreground/40 text-xs font-bold uppercase rounded hover:bg-white/5 transition-colors whitespace-nowrap">{t("admin_table_status")}</button>
-                   </div>
+                  <div className="flex flex-col md:flex-row gap-8 items-center bg-card/40 p-10 rounded-xl border border-border">
+                    <div className="w-32 h-32 bg-background rounded-full flex items-center justify-center text-secondary text-2xl font-black border-2 border-secondary/50 shadow-neon-secondary">
+                      OPR
+                    </div>
+                    <div className="flex-grow text-center md:text-left">
+                      <h4 className="text-2xl font-black text-white uppercase mb-2">{t("details_organizer")}</h4>
+                      <p className="text-foreground/40 mb-4 font-mono text-sm tracking-widest uppercase">{t("details_organizer_sub")}</p>
+                      <p className="text-foreground/80 max-w-xl">{lang === 'vi' ? 'Hệ thống phân phối vé ứng dụng công nghệ điện toán đám mây và Microservices.' : 'Ticketing system powered by Cloud Compute and Microservices.'}</p>
+                    </div>
+                    <button type="button" onClick={(e) => e.preventDefault()} className="px-6 py-2 border border-border text-foreground/40 text-xs font-bold uppercase rounded hover:bg-white/5 transition-colors whitespace-nowrap">{t("admin_table_status")}</button>
+                  </div>
                 </div>
               )}
             </div>
           </div>
-          
-          {/* Sidebar / Interaction */}
+
+          {/* Sidebar / Interaction thanh ben tt*/}
           <div className="w-full lg:w-1/4 space-y-6">
-             <div className="p-6 border border-border bg-card rounded-lg backdrop-blur-md">
-                <h4 className="text-xs font-black text-foreground/40 uppercase tracking-widest mb-6 pb-2 border-b border-border">{t("details_interaction")}</h4>
-                
-                <div className="mb-6">
-                   <p className="text-[10px] font-mono text-foreground/40 uppercase tracking-widest mb-1">{t("card_price")}</p>
-                   <p className="text-2xl font-black text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]">
-                      {formattedPrice}
-                   </p>
-                </div>
+            <div className="p-6 border border-border bg-card rounded-lg backdrop-blur-md">
+              <h4 className="text-xs font-black text-foreground/40 uppercase tracking-widest mb-6 pb-2 border-b border-border">{t("details_interaction")}</h4>
+
+              <div className="mb-6">
+                <p className="text-[10px] font-mono text-foreground/40 uppercase tracking-widest mb-1">{t("card_price")}</p>
+                <p className="text-2xl font-black text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]">
+                  {formattedPrice}
+                </p>
+              </div>
 
                 <div className="space-y-4">
                    {!isTicketMode ? (
@@ -484,24 +467,13 @@ const TicketDetailsPage = () => {
                           </button>
                       )
                    ) : (
-                      ticket && (
-                        <div className="space-y-3">
-                           <button 
-                             type="button"
-                             onClick={(e) => { e.preventDefault(); setShowPreview(true); }}
-                             className="w-full py-3 px-4 bg-secondary/20 border border-secondary text-secondary text-xs font-bold uppercase tracking-widest hover:bg-secondary hover:text-black transition-all rounded shadow-neon-secondary"
-                           >
-                             {lang === 'vi' ? 'XEM TRƯỚC VÉ' : 'VIEW PREVIEW'}
-                           </button>
-                           <button 
-                             type="button"
-                             onClick={handleDownloadPDF}
-                             className="w-full py-3 px-4 border border-secondary/30 text-secondary text-xs font-bold uppercase tracking-widest hover:bg-secondary/10 transition-all rounded shadow-neon-secondary"
-                           >
-                             {lang === 'vi' ? 'IN VÉ NGAY' : 'PRINT TICKET'}
-                           </button>
-                        </div>
-                       )
+                      <button 
+                        type="button"
+                        onClick={(e) => { e.preventDefault(); window.print(); }}
+                        className="w-full py-3 px-4 border border-secondary/30 text-secondary text-xs font-bold uppercase tracking-widest hover:bg-secondary/10 hover:shadow-neon-secondary transition-all rounded"
+                      >
+                        {t("details_download_pdf")}
+                      </button>
                    )}
                    {event.location && (
                       <a 
@@ -537,7 +509,7 @@ const TicketDetailsPage = () => {
         </div>
       </div>
 
-      {/* MODALS */}
+      {/* MODALS -phuont*/}
       {confirmBookOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/90 backdrop-blur-xl">
           <div className="relative bg-background border-2 border-cyan-500/50 p-8 max-w-sm w-full shadow-[0_0_50px_rgba(34,211,238,0.4)] rounded flex flex-col items-center text-center overflow-hidden animate-[zoomIn_0.2s_ease-out]">
@@ -587,9 +559,9 @@ const TicketDetailsPage = () => {
       {alertMessage && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-md">
           <div className="relative bg-background border-2 border-yellow-500/50 p-8 max-w-sm w-full shadow-2xl rounded text-center">
-             <h3 className="text-lg font-black text-yellow-500 uppercase mb-4">{t("details_alert_title")}</h3>
-             <p className="text-foreground/80 text-sm mb-6">{alertMessage}</p>
-             <button type="button" onClick={(e) => { e.preventDefault(); setAlertMessage(null); }} className="w-full py-2 bg-yellow-500 text-black font-black uppercase text-xs rounded">{t("details_alert_ok")}</button>
+            <h3 className="text-lg font-black text-yellow-500 uppercase mb-4">{t("details_alert_title")}</h3>
+            <p className="text-foreground/80 text-sm mb-6">{alertMessage}</p>
+            <button type="button" onClick={(e) => { e.preventDefault(); setAlertMessage(null); }} className="w-full py-2 bg-yellow-500 text-black font-black uppercase text-xs rounded">{t("details_alert_ok")}</button>
           </div>
         </div>
       )}
@@ -641,17 +613,17 @@ const TicketDetailsPage = () => {
 
       {successToast && (
         <div className="fixed top-20 right-4 md:right-8 z-[110] animate-[slideInRight_0.3s_ease-out]">
-           <div className="bg-black/90 backdrop-blur-xl border-l-4 border-r border-y border-green-500/50 px-4 py-3 rounded-md shadow-[0_0_20px_rgba(34,197,94,0.4)] flex items-start gap-4 max-w-[320px] sm:max-w-sm w-full">
-              <span className="text-green-400 font-mono text-2xl animate-pulse mt-0.5">⚡</span>
-              <div className="flex-1 overflow-hidden">
-                 <p className="font-mono font-black uppercase text-xs sm:text-sm text-green-400 tracking-widest leading-tight whitespace-normal break-words mb-1">
-                    {t("details_system_ok")}
-                 </p>
-                 <p className="text-[10px] sm:text-xs uppercase font-mono text-foreground/60 tracking-wider whitespace-normal break-words">
-                    {t("details_check_my_tickets")}
-                 </p>
-              </div>
-           </div>
+          <div className="bg-black/90 backdrop-blur-xl border-l-4 border-r border-y border-green-500/50 px-4 py-3 rounded-md shadow-[0_0_20px_rgba(34,197,94,0.4)] flex items-start gap-4 max-w-[320px] sm:max-w-sm w-full">
+            <span className="text-green-400 font-mono text-2xl animate-pulse mt-0.5">⚡</span>
+            <div className="flex-1 overflow-hidden">
+              <p className="font-mono font-black uppercase text-xs sm:text-sm text-green-400 tracking-widest leading-tight whitespace-normal break-words mb-1">
+                {t("details_system_ok")}
+              </p>
+              <p className="text-[10px] sm:text-xs uppercase font-mono text-foreground/60 tracking-wider whitespace-normal break-words">
+                {t("details_check_my_tickets")}
+              </p>
+            </div>
+          </div>
         </div>
       )}
     </div>
