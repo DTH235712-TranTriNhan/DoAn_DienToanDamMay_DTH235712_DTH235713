@@ -148,6 +148,8 @@ export const translations = {
     tickets_back_home: "VỀ TRANG CHỦ",
     tickets_id: "MÃ YÊU CẦU",
     tickets_view_map: "XEM ĐỊA ĐIỂM",
+    tickets_purchase_time: "GIỜ MUA",
+    tickets_cancel_time: "GIỜ HỦY",
 
     // Ticket Details Page
     details_nav_back: "QUAY LẠI",
@@ -351,6 +353,8 @@ export const translations = {
     tickets_back_home: "BACK TO HOME",
     tickets_id: "JOB_ID",
     tickets_view_map: "VIEW LOCATION",
+    tickets_purchase_time: "PURCHASE TIME",
+    tickets_cancel_time: "CANCEL TIME",
 
     // Ticket Details Page
     details_nav_back: "BACK",

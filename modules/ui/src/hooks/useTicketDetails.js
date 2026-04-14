@@ -57,6 +57,19 @@ const useTicketDetails = (ticketId, eventId = null) => {
     fetchData();
   }, [fetchData]);
 
+  // ✅ UC-UX: Tự động tải lại dữ liệu nếu vé đang ở trạng thái 'pending'
+  // Giúp người dùng thấy trạng thái 'confirmed' ngay khi Worker xử lý xong mà không cần F5
+  useEffect(() => {
+    let timer;
+    if (ticket && ticket.status === 'pending') {
+      console.log(`[UI] Ticket is pending, scheduling auto-refresh in 2s...`);
+      timer = setTimeout(() => {
+        fetchData();
+      }, 2000);
+    }
+    return () => clearTimeout(timer);
+  }, [ticket, fetchData]);
+
   return { ticket, event: eventData, loading, error, refresh: fetchData };
 };
 

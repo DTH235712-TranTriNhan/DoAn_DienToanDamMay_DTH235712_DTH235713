@@ -18,6 +18,9 @@ const ticketSchema = new mongoose.Schema(
       type: String,
       enum: Object.values(TICKET_STATUS),
       default: TICKET_STATUS.PENDING
+    },
+    cancelledAt: {
+      type: Date
     }
   },
   { timestamps: true }

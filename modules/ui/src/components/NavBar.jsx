@@ -85,6 +85,12 @@ const UserAvatar = ({ user, onClick }) => (
       <p className="text-xs font-bold text-white truncate max-w-[100px] mt-1">
         {user?.displayName || user?.name}
       </p>
+      <p className="text-[10px] font-black text-primary mt-0.5" style={{ fontFamily: TYPOGRAPHY.TECH }}>
+        {new Intl.NumberFormat("vi-VN", {
+          style: "currency",
+          currency: "VND"
+        }).format(user?.balance || 0)}
+      </p>
     </div>
     <span className="text-primary text-[10px] opacity-40 group-hover:opacity-100 transition-opacity">
       ▼

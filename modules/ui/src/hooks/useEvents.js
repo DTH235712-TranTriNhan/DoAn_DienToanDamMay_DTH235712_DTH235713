@@ -14,7 +14,10 @@ const useEvents = () => {
 
   const fetchEvents = useCallback(async () => {
     try {
-      setLoading(true);
+      // Chỉ hiện loading skeleton nếu chưa có dữ liệu (lần đầu load hoặc sau khi bị lỗi)
+      if (events.length === 0) {
+        setLoading(true);
+      }
       setError(null);
       // GET /api/events
       const response = await api.get('/events');
@@ -23,6 +26,7 @@ const useEvents = () => {
       const eventData = response.data.data || response.data || [];
       setEvents(Array.isArray(eventData) ? eventData : []);
     } catch (err) {
+      console.error('[UI] Fetch events error:', err);
       setError(
         err.response?.data?.message ||
           'CRITICAL_SYSTEM_ERROR: Unable to synchronize with the sequence grid.'
@@ -30,7 +34,7 @@ const useEvents = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [events.length]);
 
   useEffect(() => {
     fetchEvents();

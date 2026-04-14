@@ -8,6 +8,7 @@ import { useNotifications } from '../context/NotificationContext.jsx';
 import Breadcrumb from '../components/Breadcrumb.jsx';
 import { THEME_COLORS, TYPOGRAPHY, SHADOWS, BOOKING_UI_CONFIG } from '../constants/uiConstants.js';
 import { useLanguage } from '../context/LanguageContext.jsx';
+import { formatDateTime } from '../utils/dateUtils.js';
 
 const TicketDetailsPage = () => {
   const { t, lang } = useLanguage();
@@ -90,7 +91,8 @@ const TicketDetailsPage = () => {
       await cancelTicket(ticketId);
       window.dispatchEvent(new Event('APP_EVENTS.TICKET_DATA_UPDATED'));
     } catch (err) {
-      setAlertMessage(t("details_error_cancel"));
+      // ✅ LC-UX: Hiển thị đúng lý do từ Server (vd: "Sự kiện sắp diễn ra...")
+      setAlertMessage(err.response?.data?.message || t("details_error_cancel"));
     }
   };
 
@@ -301,6 +303,21 @@ const TicketDetailsPage = () => {
                             <p className="text-foreground/40 text-xs">{lang === 'vi' ? 'Vui lòng xuất trình mã QR này tại cổng soát vé.' : 'Please present this QR code at the gate.'}</p>
                           </div>
                        </div>
+
+                       {/* Chi tiết đặt vé / Giờ Mua & Giờ Hủy */}
+                       {isTicketMode && ticket && (
+                        <div className="flex items-start gap-4 p-4 border-l-2 border-primary/50 bg-primary/5">
+                            <div className="bg-primary/20 px-3 py-1 text-primary font-mono text-xs font-bold rounded">LOG</div>
+                            <div className="space-y-2">
+                                <p className="text-foreground font-bold text-sm tracking-widest uppercase">{t("tickets_purchase_time")}: <span className="text-white font-mono ml-2 font-normal">{formatDateTime(ticket.createdAt)}</span></p>
+                                
+                                {ticket.status === 'cancelled' && (
+                                   <p className="text-red-500 font-bold text-sm tracking-widest uppercase">{t("tickets_cancel_time")}: <span className="text-red-400 font-mono ml-2 font-normal">{formatDateTime(ticket.cancelledAt)}</span></p>
+                                )}
+                            </div>
+                        </div>
+                       )}
+
                        <div className="flex items-start gap-4 p-4 border-l-2 border-border bg-transparent">
                           <div className="bg-card px-3 py-1 text-foreground/40 font-mono text-xs font-bold rounded">08:00</div>
                           <div>

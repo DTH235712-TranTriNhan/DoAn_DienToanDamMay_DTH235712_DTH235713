@@ -5,6 +5,7 @@ import useMyTickets from '../hooks/useMyTickets.js';
 import Breadcrumb from '../components/Breadcrumb.jsx';
 import { THEME_COLORS, TYPOGRAPHY, SHADOWS } from '../constants/uiConstants.js';
 import { useLanguage } from '../context/LanguageContext.jsx';
+import { formatDateTime } from '../utils/dateUtils.js';
 
 const MyTicketsPage = () => {
   const { t, lang } = useLanguage();
@@ -32,7 +33,8 @@ const MyTicketsPage = () => {
     try {
       await cancelTicket(ticketId);
     } catch (err) {
-      setAlertMessage(t("details_error_cancel"));
+      // ✅ LC-UX: Hiển thị đúng lý do từ Server (vd: "Sự kiện sắp diễn ra...")
+      setAlertMessage(err.response?.data?.message || t("details_error_cancel"));
     }
   };
 
@@ -160,6 +162,14 @@ const MyTicketsPage = () => {
                       <span className="truncate" title={ticket.event?.location || t("card_tba")}>
                         {ticket.event?.location || t("card_tba")}
                       </span>
+                    </div>
+
+                    {/* Giờ Mua & Giờ Hủy */}
+                    <div className="pt-2 space-y-1 border-t border-border/30">
+                        <p className="text-[10px] text-foreground/50 uppercase tracking-widest">{t("tickets_purchase_time")}: <span className="text-white ml-1">{formatDateTime(ticket.createdAt)}</span></p>
+                        {ticket.status === 'cancelled' && (
+                           <p className="text-[10px] text-red-500 uppercase tracking-widest">{t("tickets_cancel_time")}: <span className="text-red-400 ml-1">{formatDateTime(ticket.cancelledAt)}</span></p>
+                        )}
                     </div>
                   </div>
 

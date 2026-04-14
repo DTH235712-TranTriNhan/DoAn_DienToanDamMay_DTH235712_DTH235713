@@ -9,6 +9,7 @@ import MyTicketsPage from "./pages/MyTicketsPage.jsx";
 import TicketDetailsPage from "./pages/TicketDetailsPage.jsx";
 import AdminEventsPage from "./pages/AdminEventsPage.jsx";
 import Footer from "./components/Footer.jsx";
+import ScrollToTop from "./components/ScrollToTop.jsx";
 
 // Component con để sử dụng hook useAuth bên trong AuthProvider
 const Layout = () => {
@@ -25,7 +26,7 @@ const Layout = () => {
   }
 
   return (
-    <div className="min-h-screen relative bg-background text-foreground overflow-hidden">
+    <div className="min-h-screen relative bg-background text-foreground overflow-x-hidden">
       {/* Floating Sun */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[600px] w-[600px] blur-[100px] bg-sun-glow opacity-30 z-0 pointer-events-none"></div>
 
@@ -69,6 +70,7 @@ function App() {
   return (
     <BrowserRouter>
         <AuthProvider>
+          <ScrollToTop />
           <NotificationProvider>
             <Layout />
           </NotificationProvider>
