@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import useTicketDetails from '../hooks/useTicketDetails.js';
 import useMyTickets from '../hooks/useMyTickets.js';
 import { useBookTicket } from '../hooks/useBookTicket.js';
+import { useNotifications } from '../context/NotificationContext.jsx';
 import Breadcrumb from '../components/Breadcrumb.jsx';
 import { THEME_COLORS, TYPOGRAPHY, SHADOWS, BOOKING_UI_CONFIG } from '../constants/uiConstants.js';
 import { useLanguage } from '../context/LanguageContext.jsx';
@@ -16,7 +17,11 @@ const TicketDetailsPage = () => {
   
   const { ticket, event, loading: ticketLoading, error, refresh } = useTicketDetails(ticketId, eventId);
   const { tickets, cancelTicket, refresh: refreshTickets } = useMyTickets(); 
-  const { bookTicket, status: bookingStatus, error: bookingError, reset: resetBooking } = useBookTicket(); 
+  const { addNotification } = useNotifications();
+  const { bookTicket, status: bookingStatus, error: bookingError, reset: resetBooking } = useBookTicket({
+    addNotification,
+    eventName: event?.title
+  });
   
   const [activeTab, setActiveTab] = useState('info');
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);

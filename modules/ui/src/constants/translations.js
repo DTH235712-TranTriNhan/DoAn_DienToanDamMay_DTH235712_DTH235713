@@ -200,6 +200,15 @@ export const translations = {
     admin_breadcrumb_admin: "QUẢN TRỊ",
     admin_breadcrumb_events: "SỰ KIỆN",
     admin_table_category: "Thể loại",
+
+    // Notification Bell
+    notif_bell_label: "Thông báo",
+    notif_panel_title: "THÔNG BÁO",
+    notif_unread: "chưa đọc",
+    notif_mark_all_read: "Đọc tất cả",
+    notif_clear_all: "Xóa hết",
+    notif_empty: "[ KHÔNG CÓ THÔNG BÁO ]",
+    notif_view_tickets: "XEM VÉ CỦA TÔI →",
   },
   en: {
     // Navigation
@@ -393,5 +402,14 @@ export const translations = {
     admin_breadcrumb_admin: "ADMIN",
     admin_breadcrumb_events: "EVENTS",
     admin_table_category: "Category",
+
+    // Notification Bell
+    notif_bell_label: "Notifications",
+    notif_panel_title: "NOTIFICATIONS",
+    notif_unread: "unread",
+    notif_mark_all_read: "Mark all read",
+    notif_clear_all: "Clear all",
+    notif_empty: "[ NO_NOTIFICATIONS_FOUND ]",
+    notif_view_tickets: "VIEW MY TICKETS →",
   }
 };

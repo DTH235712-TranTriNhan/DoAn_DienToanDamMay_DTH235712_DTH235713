@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
+import { NotificationProvider } from "./context/NotificationContext.jsx";
 import NavBar from "./components/NavBar.jsx";
 import EventsPage from "./pages/EventsPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
@@ -68,7 +69,9 @@ function App() {
   return (
     <BrowserRouter>
         <AuthProvider>
-          <Layout />
+          <NotificationProvider>
+            <Layout />
+          </NotificationProvider>
         </AuthProvider>
     </BrowserRouter>
   );
