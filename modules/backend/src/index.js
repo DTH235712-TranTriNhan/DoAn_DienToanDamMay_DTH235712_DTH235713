@@ -32,7 +32,8 @@ app.use(
           "https://lh3.googleusercontent.com", // Google Avatar
           "https://images.unsplash.com", // Ảnh sự kiện
           "https://maps.google.com", // Google Maps tiles
-          "https://placehold.co"
+          "https://placehold.co",
+          "*"
         ],
         // 2. QUAN TRỌNG: Cho phép nhúng iframe từ Google Maps
         "frame-src": ["'self'", "https://www.google.com", "https://maps.google.com"],
